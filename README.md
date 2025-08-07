@@ -12,6 +12,8 @@ This project provides a reusable, well-documented kata framework for practising 
 
 ## Quick Start
 
+`make all` to start watching code changes
+
 ```bash
 # One-time setup
 make setup
