@@ -1,4 +1,4 @@
-.PHONY: help setup install test watch lint lint-fix format clean all demo
+.PHONY: help setup install test watch lint lint-fix pylint format clean all demo
 
 # Default target
 help:
@@ -9,6 +9,7 @@ help:
 	@echo "  make watch    - Run tests in watch mode (continuous testing)"
 	@echo "  make lint     - Run ruff linter"
 	@echo "  make lint-fix - Fix auto-fixable linting issues"
+	@echo "  make pylint   - Run pylint for additional code quality checks"
 	@echo "  make format   - Format code with ruff"
 	@echo "  make clean    - Remove cache files and virtual environment"
 	@echo "  make demo     - Run the Clean Architecture demo application"
@@ -57,6 +58,11 @@ lint-fix:
 	@echo "🔧 Fixing auto-fixable linting issues..."
 	@uv run ruff check --fix src tests
 	@echo "✅ Auto-fixable issues resolved"
+
+# Run pylint for additional code quality checks
+pylint:
+	@echo "🔍 Running pylint for code quality analysis..."
+	@uv run pylint $$(git ls-files '*.py') || echo "⚠️  Some pylint warnings found - check output above"
 
 # Format code
 format:

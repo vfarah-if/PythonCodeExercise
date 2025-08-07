@@ -10,8 +10,6 @@ from .domain_exceptions import DomainError
 class RepositoryError(DomainError):
     """Base exception for repository-related errors."""
 
-    pass
-
 
 class RepositoryConnectionError(RepositoryError):
     """Raised when repository cannot connect to data store."""

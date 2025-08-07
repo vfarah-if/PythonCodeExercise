@@ -17,6 +17,7 @@ dev = [
     "pytest-xdist>=3.5.0",  # For parallel test execution
     "pytest-mock>=3.12.0",  # For mocking in tests
     "ipython>=8.20.0",       # For better debugging experience
+    "pylint>=3.0.0",         # For additional code quality analysis
 ]
 
 [build-system]

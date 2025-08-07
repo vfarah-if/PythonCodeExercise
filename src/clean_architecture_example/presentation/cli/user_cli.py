@@ -8,6 +8,7 @@ from ...application.dto.user_dto import CreateUserRequest, UpdateUserRequest
 from ...application.use_cases.create_user_use_case import CreateUserUseCase
 from ...application.use_cases.get_user_use_case import GetUserUseCase
 from ...application.use_cases.update_user_use_case import UpdateUserUseCase
+from ...shared.di.container import get_container
 from ...shared.exceptions.domain_exceptions import (
     DomainError,
     UserAlreadyExistsError,
@@ -55,7 +56,7 @@ class UserCLI:
                 if command == "exit":
                     print("Goodbye!")
                     break
-                elif command == "help":
+                if command == "help":
                     self._show_help()
                 elif command == "create":
                     await self._handle_create_user()
@@ -241,7 +242,6 @@ async def create_user_cli() -> UserCLI:
     Factory function to create UserCLI with all dependencies.
     This would typically use a DI container in a real application.
     """
-    from ...shared.di.container import get_container
 
     # Resolve dependencies from container
     container = get_container()

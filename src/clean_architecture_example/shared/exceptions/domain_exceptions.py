@@ -27,8 +27,6 @@ class DomainError(Exception):
 class UserDomainError(DomainError):
     """Base exception for user-related domain errors."""
 
-    pass
-
 
 class UserNotFoundError(UserDomainError):
     """Raised when a user cannot be found."""

@@ -7,6 +7,7 @@ Similar to C# Program.cs or Startup.cs in .NET applications.
 import asyncio
 from pathlib import Path
 
+from .application.dto.user_dto import CreateUserRequest
 from .application.use_cases.create_user_use_case import CreateUserUseCase
 from .application.use_cases.get_user_use_case import GetUserUseCase
 from .application.use_cases.update_user_use_case import UpdateUserUseCase
@@ -104,8 +105,6 @@ def create_demo_data(container: DIContainer) -> None:
     async def _create_demo():
         create_use_case = container.resolve(CreateUserUseCase)
 
-        from .application.dto.user_dto import CreateUserRequest
-
         # Create demo users
         demo_users = [
             CreateUserRequest("john.doe@example.com", "John", "Doe"),
@@ -128,7 +127,7 @@ def create_demo_data(container: DIContainer) -> None:
 
 
 if __name__ == "__main__":
-    """Entry point when running this module directly."""
+    # Entry point when running this module directly
 
     # Handle demo data creation
     if input("Create demo data? (y/N): ").strip().lower() in ["y", "yes"]:

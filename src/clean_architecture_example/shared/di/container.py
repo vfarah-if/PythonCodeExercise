@@ -197,7 +197,7 @@ class DIContainer:
             if isinstance(param_type, str):
                 # For forward references, we need to resolve them in the global context
                 # This is a simplified approach - in production, you'd want proper resolution
-                param_type = param_type
+                pass  # param_type remains as string for now
 
             # Resolve dependency
             kwargs[param_name] = self.resolve(param_type)
