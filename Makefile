@@ -62,7 +62,7 @@ lint-fix:
 # Run pylint for additional code quality checks
 pylint:
 	@echo "🔍 Running pylint for code quality analysis..."
-	@uv run pylint $$(git ls-files '*.py') || echo "⚠️  Some pylint warnings found - check output above"
+	@PYTHONPATH=src uv run pylint $$(git ls-files '*.py') || echo "⚠️  Some pylint warnings found - check output above"
 
 # Format code
 format:
