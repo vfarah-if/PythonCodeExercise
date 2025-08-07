@@ -130,11 +130,13 @@ if __name__ == "__main__":
     # Entry point when running this module directly
 
     # Handle demo data creation
-    if input("Create demo data? (y/N): ").strip().lower() in ["y", "yes"]:
-        print()
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "--create-demo":
+        print("Creating demo data...")
         demo_container = DIContainer()
         configure_dependencies(demo_container, use_file_storage=False)
         create_demo_data(demo_container)
+        sys.exit(0)
 
     # Start main application
     asyncio.run(main())

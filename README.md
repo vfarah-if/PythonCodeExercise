@@ -226,10 +226,18 @@ PythonCodeExercise/
 │   └── sum/             # Example kata module (reference only - create your own!)
 │       ├── __init__.py  # Package initialiser (see below)
 │       └── sum.py       # Example implementation
+├── src/clean_architecture_example/  # Clean Architecture demo (complete example)
+│   ├── domain/          # Business logic and entities
+│   ├── application/     # Use cases and DTOs  
+│   ├── infrastructure/  # Data persistence and external services
+│   ├── presentation/    # CLI interface and API
+│   └── shared/         # Cross-cutting concerns (DI, exceptions)
 ├── tests/               # Test suite
 │   └── test_sum.py      # Example tests for reference
+├── .pylintrc           # Pylint configuration for code quality
 ├── README.md            # This file
-└── CLAUDE.md            # Claude Code AI assistant guidance
+├── CLAUDE.md            # Claude Code AI assistant guidance
+└── CLEAN-ARCHITECTURE.md  # Clean Architecture implementation guide
 ```
 
 **Workflow:** The `sum` module serves as a reference. For actual kata practice:
@@ -240,33 +248,80 @@ PythonCodeExercise/
 
 ### Understanding Python Package Structure
 
-The `__init__.py` files in this project serve critical purposes:
+#### The `__init__.py` Reality Check
 
-1. **Package Recognition**: Tells Python that a directory should be treated as a package
-2. **Import Simplification**: Enables cleaner import statements
-3. **API Control**: Defines what's publicly available from the package
-4. **Documentation**: Provides package-level documentation
+If you're coming from .NET or other modern languages, you might find Python's `__init__.py` files frustrating. **You're not wrong** - they feel like unnecessary boilerplate from the 1990s!
 
-#### Example: How `__init__.py` Improves Imports
+**Why These Files Exist:**
+- Python's module system predates modern package management
+- Explicit package declaration was considered "safer" than implicit
+- Prevents accidental directory-to-package conversion
 
-**Without `__init__.py`:**
-```python
-# Ugly, reveals internal structure
-from src.sum.sum import sum_numbers, sum_list, sum_positive
+**The Modern Reality:**
+- **36 out of 37 `__init__.py` files in this project are completely empty** (0 bytes)
+- They're basically just marker files saying "this is a package"
+- Modern Python (3.3+) supports "namespace packages" without them
+- **But** tooling ecosystem (IDEs, linters, type checkers) still expects them
+
+#### Can You Eliminate Them?
+
+**Technically yes**, but practically no. Here's what happens:
+
+```bash
+# Delete all empty __init__.py files
+find src -name "__init__.py" -size 0 -delete
+
+# Code still works! Tests pass!
+make test  # ✅ 106 passed
+
+# But tooling breaks
+make pylint  # ❌ Import errors, 0.00/10 rating
 ```
 
-**With properly configured `__init__.py`:**
+**The Trade-offs:**
+
+| Approach | Pros | Cons |
+|----------|------|------|
+| **Keep `__init__.py`** | All tools work, IDE support, team familiarity | 36 empty files, feels outdated |
+| **Remove `__init__.py`** | Cleaner directory structure, modern approach | Tooling issues, import complications |
+
+#### Our Recommendation: Accept the Reality
+
+**Keep the empty `__init__.py` files** because:
+1. **Tooling compatibility** - pylint, mypy, IDEs work properly
+2. **Team consistency** - most Python projects use them
+3. **Zero overhead** - they're empty files (0 bytes each)
+4. **One real file** - only `src/sum/__init__.py` has actual content
+
+Think of them as Python's equivalent of .NET's necessary file boilerplate - an ecosystem requirement rather than a language requirement.
+
+#### The One File That Matters
+
+Only one `__init__.py` file in this project actually contains code:
+
 ```python
-# Clean, hides implementation details
-from src.sum import sum_numbers, sum_list, sum_positive
+# src/sum/__init__.py - The only non-empty one
+"""Sum kata module for practising TDD."""
+
+from .sum import sum_numbers, sum_list, sum_positive
+
+__all__ = ["sum_numbers", "sum_list", "sum_positive"]
+```
+
+This enables clean imports:
+```python
+# Instead of: from src.sum.sum import sum_numbers
+from src.sum import sum_numbers  # Much cleaner!
 ```
 
 #### Benefits for Kata Practice
 
 - **Focus on Learning**: Clean imports let you focus on the kata, not the file structure
-- **Scalability**: Easy to add new functions without changing import statements in tests
-- **Best Practices**: Learn professional Python package structure from the start
+- **Professional Structure**: Learn industry-standard Python patterns
+- **Tool Compatibility**: Everything works smoothly with modern tooling
 - **Maintainability**: Control what's public vs internal implementation
+
+**Bottom Line**: The `__init__.py` files are Python's "necessary evil" - accept them and move on to the fun stuff!
 
 ## Available Commands
 
@@ -279,7 +334,10 @@ from src.sum import sum_numbers, sum_list, sum_positive
 | `make test` | Run tests once |
 | `make watch` | Run tests in watch mode (auto-rerun on changes) |
 | `make lint` | Check code with ruff linter |
+| `make lint-fix` | Fix auto-fixable linting issues |
+| `make pylint` | Run pylint for additional code quality checks |
 | `make format` | Format code with ruff |
+| `make demo` | Run the Clean Architecture demo application |
 | `make clean` | Remove cache files and virtual environment |
 | `make all` | Clean install and start watch mode |
 
@@ -456,6 +514,99 @@ def test_sum_with_fixture(sample_data):
 - **Comprehensive**: Replaces flake8, black, isort, and more
 - **Configurable**: Sensible defaults with extensive customisation
 - **Maintained**: By the same team as uv
+
+## Clean Architecture Example
+
+In addition to kata practice, this project includes a **complete Clean Architecture implementation** demonstrating enterprise-level Python design patterns. This is especially valuable for .NET developers transitioning to Python.
+
+### What's Included
+
+```bash
+make demo  # Interactive CLI demonstrating clean architecture
+```
+
+The clean architecture example (`src/clean_architecture_example/`) showcases:
+
+**🏗️ Architecture Layers:**
+- **Domain**: Business entities, value objects, and repository interfaces
+- **Application**: Use cases, DTOs, and business orchestration
+- **Infrastructure**: File/memory repositories, external services
+- **Presentation**: CLI interface and API endpoints
+- **Shared**: Dependency injection container, exceptions, utilities
+
+**🔧 .NET Developer Friendly Features:**
+- **Dependency Injection**: Custom DI container similar to .NET Core
+- **Repository Pattern**: Abstract interfaces with multiple implementations
+- **Use Case Pattern**: Similar to MediatR handlers in .NET
+- **Value Objects**: Immutable objects with validation
+- **Exception Hierarchy**: Structured error handling
+- **DTOs**: Clean data transfer between layers
+
+**📋 Key Design Patterns:**
+- Dependency Inversion Principle
+- Single Responsibility Principle  
+- Repository Pattern
+- Factory Pattern
+- Strategy Pattern
+
+### Architecture Benefits
+
+```python
+# Clean separation of concerns
+from domain.entities.user import User                    # Business logic
+from application.use_cases.create_user import CreateUser # Orchestration
+from infrastructure.repositories import FileUserRepo     # Data access
+from presentation.cli import UserCLI                     # Interface
+```
+
+**For .NET Developers:**
+- Familiar patterns (DI, repositories, use cases)
+- Async/await support throughout
+- Strong typing with type hints
+- Clean exception hierarchy
+- Testable architecture with 73 comprehensive tests
+
+### Documentation
+
+See `CLEAN-ARCHITECTURE.md` for detailed implementation guidance, including:
+- Layer responsibilities and dependencies
+- Dependency injection setup
+- Testing strategies for each layer
+- Migration guide from .NET concepts
+
+## Code Quality Tooling
+
+This project includes comprehensive code quality tools:
+
+### Linting Strategy
+
+**Two-tier approach** for maximum coverage:
+
+1. **Ruff** (Primary): Fast linting and formatting
+   - Replaces flake8, black, isort, pylint for most checks
+   - Extremely fast (written in Rust)
+   - Auto-fixes most issues
+
+2. **Pylint** (Deep Analysis): Additional code quality insights
+   - Detects complex code smells
+   - Enforces coding standards
+   - Provides detailed quality scoring
+
+```bash
+make lint      # Fast ruff checks (primary workflow)
+make lint-fix  # Auto-fix common issues
+make pylint    # Deep analysis (when needed)
+```
+
+### Quality Configuration
+
+The project includes sensible defaults via `.pylintrc`:
+- Disables overly pedantic warnings
+- Focuses on meaningful quality metrics
+- Achieves 10.0/10 pylint score
+- Maintains fast development workflow
+
+**Result**: Professional code quality without workflow interruption.
 
 ## Example Kata: Sum Functions (Reference Implementation)
 

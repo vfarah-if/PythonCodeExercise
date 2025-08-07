@@ -75,6 +75,10 @@ demo:
 	@echo "🏗️  Starting Clean Architecture Demo..."
 	@echo "This demonstrates clean architecture principles in Python"
 	@echo "----------------------------------------"
+	@echo "First creating demo data..."
+	@uv run python -m src.clean_architecture_example.main --create-demo
+	@echo "----------------------------------------"
+	@echo "Now starting interactive CLI..."
 	@uv run python -m src.clean_architecture_example.main
 
 # Clean up generated files and caches
