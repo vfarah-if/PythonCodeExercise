@@ -143,6 +143,71 @@ Create a `Makefile` to standardise common commands (optional but recommended).
 
 The comprehensive `pyproject.toml` in this project represents what you'd build up over time, not what you'd write initially. Most projects start minimal and grow as needed.
 
+#### Python Package Manager Comparison
+
+When choosing a package manager for your Python project, consider these popular options:
+
+| Feature | **uv** | **Poetry** | **PDM** |
+|---------|--------|------------|---------|
+| **Speed** | ⚡ 10-100x faster than pip | 🐢 Slower, especially for large deps | 🏃 Faster than Poetry, slower than uv |
+| **Written in** | Rust (blazing fast) | Python (slower) | Python (moderate speed) |
+| **Lock Files** | ✅ `uv.lock` | ✅ `poetry.lock` | ✅ `pdm.lock` |
+| **Virtual Env Management** | ✅ Built-in | ✅ Built-in | ✅ Built-in |
+| **Python Version Management** | ✅ Built-in | ❌ Needs pyenv | ✅ Built-in |
+| **PEP Compliance** | ✅ PEP 517/518/621 | ⚠️ Some custom behaviour | ✅ Strict PEP 582/621 |
+| **Install Global Tools** | ✅ `uvx` (like npx) | ❌ Not supported | ❌ Not supported |
+| **Workspace/Monorepo** | ✅ Native support | ⚠️ Limited | ✅ Native support |
+| **Released** | 2024 (newest) | 2018 (mature) | 2020 (stable) |
+| **Backed by** | Astral (ruff team) | Independent | Independent |
+| **Learning Curve** | 📗 Easy (pip-like) | 📙 Moderate | 📗 Easy |
+| **Ecosystem** | 🌱 Growing rapidly | 🌳 Large, established | 🌿 Growing |
+
+#### Command Syntax Comparison
+
+| Task | **uv** | **Poetry** | **PDM** |
+|------|--------|------------|---------|
+| Initialise project | `uv init` | `poetry new` / `poetry init` | `pdm init` |
+| Add dependency | `uv add requests` | `poetry add requests` | `pdm add requests` |
+| Add dev dependency | `uv add --dev pytest` | `poetry add --dev pytest` | `pdm add -d pytest` |
+| Install deps | `uv sync` | `poetry install` | `pdm install` |
+| Run command | `uv run python app.py` | `poetry run python app.py` | `pdm run python app.py` |
+| Update deps | `uv lock --upgrade` | `poetry update` | `pdm update` |
+| Build package | `uv build` | `poetry build` | `pdm build` |
+
+#### When to Use Each Tool
+
+**Choose uv if you want:**
+- ⚡ Fastest possible performance
+- 🎯 Simple, pip-like commands
+- 🔧 All-in-one tool (packages + Python versions)
+- 🚀 Modern tool with active development
+- 📦 Drop-in pip replacement
+
+**Choose Poetry if you want:**
+- 🏢 Industry standard with wide adoption
+- 📚 Extensive documentation and tutorials
+- 🔌 Rich plugin ecosystem
+- 🎨 Opinionated, guided workflow
+- 👥 Large community support
+
+**Choose PDM if you want:**
+- 📏 Strict PEP compliance
+- 🐍 Pure Python implementation
+- 📁 PEP 582 `__pypackages__` support
+- 🔄 Easy migration from pip
+- 🏗️ Good for monorepos
+
+#### Why This Project Uses uv
+
+We chose **uv** for this kata practice environment because:
+1. **Speed matters for TDD**: Fast dependency installation keeps the flow going
+2. **Simplicity**: Familiar pip-like commands reduce learning curve
+3. **Modern**: Latest best practices and active development
+4. **Unified tool**: Manages packages AND Python versions
+5. **Same team as ruff**: Consistent, high-quality tooling ecosystem
+
+For kata practice where quick iteration is key, uv's speed advantage (10-100x faster) makes a noticeable difference in developer experience.
+
 ## Prerequisites
 
 - Python 3.12 or higher
