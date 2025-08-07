@@ -3,6 +3,7 @@ User Repository Interface (Port)
 Defines contract for data access without implementation details.
 Similar to C# interfaces - pure abstraction.
 """
+
 from abc import ABC, abstractmethod
 
 from ..entities.user import User
@@ -39,7 +40,6 @@ class UserRepository(ABC):
             UserAlreadyExistsError: If user with same email already exists
             RepositoryError: For other persistence errors
         """
-        pass
 
     @abstractmethod
     async def get_by_id(self, user_id: str) -> User | None:
@@ -52,7 +52,6 @@ class UserRepository(ABC):
         Returns:
             User entity if found, None otherwise
         """
-        pass
 
     @abstractmethod
     async def get_by_email(self, email: Email) -> User | None:
@@ -65,7 +64,6 @@ class UserRepository(ABC):
         Returns:
             User entity if found, None otherwise
         """
-        pass
 
     @abstractmethod
     async def get_all(self) -> list[User]:
@@ -75,7 +73,6 @@ class UserRepository(ABC):
         Returns:
             List of all user entities
         """
-        pass
 
     @abstractmethod
     async def update(self, user: User) -> User:
@@ -92,7 +89,6 @@ class UserRepository(ABC):
             UserNotFoundError: If user doesn't exist
             RepositoryError: For other persistence errors
         """
-        pass
 
     @abstractmethod
     async def delete(self, user_id: str) -> bool:
@@ -108,7 +104,6 @@ class UserRepository(ABC):
         Raises:
             RepositoryError: For persistence errors
         """
-        pass
 
     @abstractmethod
     async def exists_with_email(self, email: Email) -> bool:
@@ -121,4 +116,3 @@ class UserRepository(ABC):
         Returns:
             True if user exists with this email, False otherwise
         """
-        pass

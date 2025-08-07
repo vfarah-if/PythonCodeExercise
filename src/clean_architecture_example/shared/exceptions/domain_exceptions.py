@@ -5,7 +5,7 @@ Similar to C# custom exception classes with inheritance.
 """
 
 
-class DomainException(Exception):
+class DomainError(Exception):
     """
     Base exception for all domain-related errors.
     Similar to C# base exception classes.
@@ -24,8 +24,9 @@ class DomainException(Exception):
         self.inner_exception = inner_exception
 
 
-class UserDomainException(DomainException):
+class UserDomainException(DomainError):
     """Base exception for user-related domain errors."""
+
     pass
 
 

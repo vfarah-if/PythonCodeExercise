@@ -3,6 +3,7 @@ User Entity
 Demonstrates entity pattern - has identity and can change over time.
 Similar to C# domain entities with business logic.
 """
+
 import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -37,9 +38,9 @@ class User:
 
     def __post_init__(self) -> None:
         """Initialize entity after creation (similar to constructor in C#)"""
-        if not hasattr(self, 'id') or not self.id:
+        if not hasattr(self, "id") or not self.id:
             # Generate unique identifier
-            object.__setattr__(self, 'id', str(uuid.uuid4()))
+            object.__setattr__(self, "id", str(uuid.uuid4()))
 
         self._validate_names()
 

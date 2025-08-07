@@ -3,6 +3,7 @@ Application Entry Point and Dependency Configuration
 Demonstrates how to wire up all dependencies and start the application.
 Similar to C# Program.cs or Startup.cs in .NET applications.
 """
+
 import asyncio
 from pathlib import Path
 
@@ -18,7 +19,9 @@ from .presentation.cli.user_cli import UserCLI
 from .shared.di.container import DIContainer, ServiceLifetime
 
 
-def configure_dependencies(container: DIContainer, use_file_storage: bool = False) -> None:
+def configure_dependencies(
+    container: DIContainer, use_file_storage: bool = False
+) -> None:
     """
     Configure all application dependencies.
 
@@ -37,14 +40,11 @@ def configure_dependencies(container: DIContainer, use_file_storage: bool = Fals
         container.register_factory(
             UserRepository,
             lambda c: FileUserRepository(str(storage_path)),
-            ServiceLifetime.SINGLETON  # Single instance for file operations
+            ServiceLifetime.SINGLETON,  # Single instance for file operations
         )
     else:
         # Use in-memory storage (good for demos/testing)
-        container.register_singleton(
-            UserRepository,
-            InMemoryUserRepository
-        )
+        container.register_singleton(UserRepository, InMemoryUserRepository)
 
     # Configure use cases (Application Layer)
     container.register_transient(CreateUserUseCase)
@@ -73,7 +73,7 @@ async def main() -> None:
 
     # Ask user for storage preference
     storage_choice = input("Use file storage? (y/N): ").strip().lower()
-    use_file_storage = storage_choice in ['y', 'yes']
+    use_file_storage = storage_choice in ["y", "yes"]
 
     # Configure all dependencies
     configure_dependencies(container, use_file_storage)
@@ -110,7 +110,7 @@ def create_demo_data(container: DIContainer) -> None:
         demo_users = [
             CreateUserRequest("john.doe@example.com", "John", "Doe"),
             CreateUserRequest("jane.smith@example.com", "Jane", "Smith"),
-            CreateUserRequest("bob.wilson@example.com", "Bob", "Wilson")
+            CreateUserRequest("bob.wilson@example.com", "Bob", "Wilson"),
         ]
 
         print("Creating demo users...")
@@ -131,11 +131,11 @@ if __name__ == "__main__":
     """Entry point when running this module directly."""
 
     # Handle demo data creation
-    if input("Create demo data? (y/N): ").strip().lower() in ['y', 'yes']:
+    if input("Create demo data? (y/N): ").strip().lower() in ["y", "yes"]:
         print()
-        container = DIContainer()
-        configure_dependencies(container, use_file_storage=False)
-        create_demo_data(container)
+        demo_container = DIContainer()
+        configure_dependencies(demo_container, use_file_storage=False)
+        create_demo_data(demo_container)
 
     # Start main application
     asyncio.run(main())

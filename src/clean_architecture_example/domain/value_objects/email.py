@@ -3,6 +3,7 @@ Email Value Object
 Demonstrates value object pattern - immutable with validation.
 Similar to C# value types or records, but with behaviour.
 """
+
 import re
 from dataclasses import dataclass
 from typing import ClassVar
@@ -24,7 +25,7 @@ class Email:
 
     # Class-level validation pattern (similar to static readonly in C#)
     _EMAIL_PATTERN: ClassVar[re.Pattern] = re.compile(
-        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
     )
 
     def __post_init__(self) -> None:
@@ -36,7 +37,7 @@ class Email:
             raise ValueError(f"Invalid email format: {self.value}")
 
         # Convert to lowercase for consistency
-        object.__setattr__(self, 'value', self.value.lower())
+        object.__setattr__(self, "value", self.value.lower())
 
     def __str__(self) -> str:
         """String representation"""
@@ -45,9 +46,9 @@ class Email:
     @property
     def domain(self) -> str:
         """Extract domain part of email"""
-        return self.value.split('@')[1]
+        return self.value.split("@")[1]
 
     @property
     def local_part(self) -> str:
         """Extract local part of email (before @)"""
-        return self.value.split('@')[0]
+        return self.value.split("@")[0]

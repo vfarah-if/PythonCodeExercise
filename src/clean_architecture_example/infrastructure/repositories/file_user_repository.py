@@ -3,6 +3,7 @@ File-based User Repository Implementation
 Stores users in JSON files for persistence across application restarts.
 Demonstrates how to implement different storage strategies.
 """
+
 import asyncio
 import json
 from concurrent.futures import ThreadPoolExecutor
@@ -54,7 +55,7 @@ class FileUserRepository(UserRepository):
         """Load email -> user_id index from file."""
         if self._email_index_file.exists():
             try:
-                with open(self._email_index_file) as f:
+                with open(self._email_index_file, encoding="utf-8") as f:
                     return json.load(f)
             except (OSError, json.JSONDecodeError):
                 # If index is corrupted, rebuild it
@@ -70,9 +71,9 @@ class FileUserRepository(UserRepository):
                 continue
 
             try:
-                with open(user_file) as f:
+                with open(user_file, encoding="utf-8") as f:
                     user_data = json.load(f)
-                    index[user_data['email']] = user_data['id']
+                    index[user_data["email"]] = user_data["id"]
             except (OSError, json.JSONDecodeError, KeyError):
                 # Skip corrupted files
                 continue
@@ -83,10 +84,10 @@ class FileUserRepository(UserRepository):
     def _save_email_index(self, index: dict[str, str]) -> None:
         """Save email index to file."""
         try:
-            with open(self._email_index_file, 'w') as f:
+            with open(self._email_index_file, "w", encoding="utf-8") as f:
                 json.dump(index, f, indent=2)
         except OSError as e:
-            raise RepositoryException(f"Failed to save email index: {e}")
+            raise RepositoryException(f"Failed to save email index: {e}") from e
 
     def _user_file_path(self, user_id: str) -> Path:
         """Get file path for a user ID."""
@@ -95,33 +96,34 @@ class FileUserRepository(UserRepository):
     def _serialize_user(self, user: User) -> dict:
         """Convert User entity to JSON-serializable dictionary."""
         return {
-            'id': user.id,
-            'email': user.email.value,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'is_active': user.is_active,
-            'created_at': user.created_at.isoformat(),
-            'updated_at': user.updated_at.isoformat() if user.updated_at else None
+            "id": user.id,
+            "email": user.email.value,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "is_active": user.is_active,
+            "created_at": user.created_at.isoformat(),
+            "updated_at": user.updated_at.isoformat() if user.updated_at else None,
         }
 
     def _deserialize_user(self, data: dict) -> User:
         """Convert dictionary to User entity."""
         # Create user with required fields
-        email = Email(data['email'])
+        email = Email(data["email"])
 
         user = User(
             email=email,
-            first_name=data['first_name'],
-            last_name=data['last_name'],
-            is_active=data.get('is_active', True),
-            created_at=datetime.fromisoformat(data['created_at'])
+            first_name=data["first_name"],
+            last_name=data["last_name"],
+            is_active=data.get("is_active", True),
+            created_at=datetime.fromisoformat(data["created_at"]),
         )
 
         # Set ID and updated_at
-        object.__setattr__(user, 'id', data['id'])
+        object.__setattr__(user, "id", data["id"])
         user.updated_at = (
-            datetime.fromisoformat(data['updated_at'])
-            if data.get('updated_at') else None
+            datetime.fromisoformat(data["updated_at"])
+            if data.get("updated_at")
+            else None
         )
 
         return user
@@ -136,7 +138,7 @@ class FileUserRepository(UserRepository):
             user_file = self._user_file_path(user.id)
             user_data = self._serialize_user(user)
 
-            with open(user_file, 'w') as f:
+            with open(user_file, "w", encoding="utf-8") as f:
                 json.dump(user_data, f, indent=2)
 
             return user
@@ -154,6 +156,7 @@ class FileUserRepository(UserRepository):
 
     async def get_by_id(self, user_id: str) -> User | None:
         """Get user by ID from file system."""
+
         def _read_user():
             user_file = self._user_file_path(user_id)
 
@@ -161,7 +164,7 @@ class FileUserRepository(UserRepository):
                 return None
 
             try:
-                with open(user_file) as f:
+                with open(user_file, encoding="utf-8") as f:
                     user_data = json.load(f)
                 return self._deserialize_user(user_data)
             except (OSError, json.JSONDecodeError, KeyError):
@@ -180,6 +183,7 @@ class FileUserRepository(UserRepository):
 
     async def get_all(self) -> list[User]:
         """Get all users from file system."""
+
         def _read_all_users():
             users = []
 
@@ -188,7 +192,7 @@ class FileUserRepository(UserRepository):
                     continue
 
                 try:
-                    with open(user_file) as f:
+                    with open(user_file, encoding="utf-8") as f:
                         user_data = json.load(f)
                     user = self._deserialize_user(user_data)
                     users.append(user)
@@ -212,7 +216,7 @@ class FileUserRepository(UserRepository):
         def _update_user():
             user_data = self._serialize_user(user)
 
-            with open(user_file, 'w') as f:
+            with open(user_file, "w", encoding="utf-8") as f:
                 json.dump(user_data, f, indent=2)
 
             return user

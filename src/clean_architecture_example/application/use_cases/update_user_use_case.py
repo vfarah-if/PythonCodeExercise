@@ -41,8 +41,14 @@ class UpdateUserUseCase:
         # 2. Apply updates using domain methods
         if request.first_name is not None or request.last_name is not None:
             # Use domain entity's business method for name updates
-            new_first = request.first_name if request.first_name is not None else user.first_name
-            new_last = request.last_name if request.last_name is not None else user.last_name
+            new_first = (
+                request.first_name
+                if request.first_name is not None
+                else user.first_name
+            )
+            new_last = (
+                request.last_name if request.last_name is not None else user.last_name
+            )
             user.update_name(new_first.strip(), new_last.strip())
 
         # 3. Persist changes
@@ -61,5 +67,5 @@ class UpdateUserUseCase:
             full_name=user.full_name,
             is_active=user.is_active,
             created_at=user.created_at,
-            updated_at=user.updated_at
+            updated_at=user.updated_at,
         )

@@ -61,7 +61,7 @@ class CreateUserUseCase:
         user = User(
             email=email,
             first_name=request.first_name.strip(),
-            last_name=request.last_name.strip()
+            last_name=request.last_name.strip(),
         )
 
         # 4. Persist through repository
@@ -84,5 +84,5 @@ class CreateUserUseCase:
             full_name=user.full_name,
             is_active=user.is_active,
             created_at=user.created_at,
-            updated_at=user.updated_at
+            updated_at=user.updated_at,
         )

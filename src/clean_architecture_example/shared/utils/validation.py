@@ -3,6 +3,7 @@ Validation Utilities
 Common validation functions used across the application.
 Similar to C# validation attributes or FluentValidation.
 """
+
 import re
 from typing import Any
 
@@ -56,10 +57,7 @@ def validate_required(value: Any, field_name: str) -> None:
 
 
 def validate_string_length(
-    value: str,
-    field_name: str,
-    min_length: int = 0,
-    max_length: int | None = None
+    value: str, field_name: str, min_length: int = 0, max_length: int | None = None
 ) -> None:
     """
     Validate string length constraints.
@@ -80,16 +78,12 @@ def validate_string_length(
 
     if length < min_length:
         raise ValidationError(
-            field_name,
-            value,
-            f"must be at least {min_length} characters long"
+            field_name, value, f"must be at least {min_length} characters long"
         )
 
     if max_length is not None and length > max_length:
         raise ValidationError(
-            field_name,
-            value,
-            f"must be no more than {max_length} characters long"
+            field_name, value, f"must be no more than {max_length} characters long"
         )
 
 
@@ -113,7 +107,7 @@ def validate_email_format(email: str, field_name: str = "email") -> None:
         raise ValidationError(field_name, email, "cannot be empty")
 
     # Basic email regex pattern
-    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
 
     if not re.match(pattern, email):
         raise ValidationError(field_name, email, "is not a valid email format")
@@ -134,15 +128,17 @@ def validate_name(name: str, field_name: str) -> None:
     validate_string_length(name, field_name, min_length=1, max_length=50)
 
     # Check for invalid characters (optional - depends on requirements)
-    if not re.match(r'^[a-zA-Z\s\'-]+$', name.strip()):
+    if not re.match(r"^[a-zA-Z\s\'-]+$", name.strip()):
         raise ValidationError(
             field_name,
             name,
-            "can only contain letters, spaces, hyphens, and apostrophes"
+            "can only contain letters, spaces, hyphens, and apostrophes",
         )
 
 
-def validate_multiple(validators: list[tuple], result: ValidationResult = None) -> ValidationResult:
+def validate_multiple(
+    validators: list[tuple], result: ValidationResult = None
+) -> ValidationResult:
     """
     Run multiple validations and collect all errors.
 

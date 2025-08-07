@@ -8,7 +8,10 @@ Similar to C# in-memory implementations for unit testing.
 from ...domain.entities.user import User
 from ...domain.interfaces.user_repository import UserRepository
 from ...domain.value_objects.email import Email
-from ...shared.exceptions.domain_exceptions import UserNotFoundError
+from ...shared.exceptions.domain_exceptions import (
+    UserAlreadyExistsError,
+    UserNotFoundError,
+)
 
 
 class InMemoryUserRepository(UserRepository):
@@ -42,7 +45,6 @@ class InMemoryUserRepository(UserRepository):
         """
         # Check if email already exists
         if await self.exists_with_email(user.email):
-            from ...shared.exceptions.domain_exceptions import UserAlreadyExistsError
             raise UserAlreadyExistsError(user.email.value)
 
         # Store user and update email index

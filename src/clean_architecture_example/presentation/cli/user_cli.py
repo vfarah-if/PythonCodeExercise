@@ -9,7 +9,7 @@ from ...application.use_cases.create_user_use_case import CreateUserUseCase
 from ...application.use_cases.get_user_use_case import GetUserUseCase
 from ...application.use_cases.update_user_use_case import UpdateUserUseCase
 from ...shared.exceptions.domain_exceptions import (
-    DomainException,
+    DomainError,
     UserAlreadyExistsError,
     UserNotFoundError,
 )
@@ -30,7 +30,7 @@ class UserCLI:
         self,
         create_user_use_case: CreateUserUseCase,
         get_user_use_case: GetUserUseCase,
-        update_user_use_case: UpdateUserUseCase
+        update_user_use_case: UpdateUserUseCase,
     ):
         """
         Initialize CLI with use case dependencies.
@@ -52,23 +52,25 @@ class UserCLI:
             try:
                 command = input("> ").strip().lower()
 
-                if command == 'exit':
+                if command == "exit":
                     print("Goodbye!")
                     break
-                elif command == 'help':
+                elif command == "help":
                     self._show_help()
-                elif command == 'create':
+                elif command == "create":
                     await self._handle_create_user()
-                elif command == 'list':
+                elif command == "list":
                     await self._handle_list_users()
-                elif command == 'get':
+                elif command == "get":
                     await self._handle_get_user()
-                elif command == 'update':
+                elif command == "update":
                     await self._handle_update_user()
-                elif command == '':
+                elif command == "":
                     continue
                 else:
-                    print(f"Unknown command: {command}. Type 'help' for available commands.")
+                    print(
+                        f"Unknown command: {command}. Type 'help' for available commands."
+                    )
 
                 print()  # Add spacing between commands
 
@@ -102,9 +104,7 @@ class UserCLI:
                 return
 
             request = CreateUserRequest(
-                email=email,
-                first_name=first_name,
-                last_name=last_name
+                email=email, first_name=first_name, last_name=last_name
             )
 
             user = await self._create_user.execute(request)
@@ -118,7 +118,7 @@ class UserCLI:
             print(f"❌ {e.message}")
         except ValueError as e:
             print(f"❌ Invalid input: {e}")
-        except DomainException as e:
+        except DomainError as e:
             print(f"❌ {e.message}")
 
     async def _handle_list_users(self) -> None:
@@ -142,7 +142,7 @@ class UserCLI:
                 print(f"     Created: {user.created_at.strftime('%Y-%m-%d %H:%M')}")
                 print()
 
-        except DomainException as e:
+        except DomainError as e:
             print(f"❌ {e.message}")
 
     async def _handle_get_user(self) -> None:
@@ -150,7 +150,7 @@ class UserCLI:
         try:
             search_by = input("Search by (id/email): ").strip().lower()
 
-            if search_by not in ['id', 'email']:
+            if search_by not in ["id", "email"]:
                 print("❌ Please specify 'id' or 'email'")
                 return
 
@@ -160,7 +160,7 @@ class UserCLI:
                 print(f"❌ {search_by} cannot be empty")
                 return
 
-            if search_by == 'id':
+            if search_by == "id":
                 user = await self._get_user.get_by_id(search_value)
             else:
                 user = await self._get_user.get_by_email(search_value)
@@ -180,7 +180,7 @@ class UserCLI:
             print(f"❌ {e.message}")
         except ValueError as e:
             print(f"❌ Invalid input: {e}")
-        except DomainException as e:
+        except DomainError as e:
             print(f"❌ {e.message}")
 
     async def _handle_update_user(self) -> None:
@@ -205,7 +205,9 @@ class UserCLI:
 
             print("Enter new values (press Enter to keep current value):")
 
-            first_name_input = input(f"First name [{current_user.first_name}]: ").strip()
+            first_name_input = input(
+                f"First name [{current_user.first_name}]: "
+            ).strip()
             last_name_input = input(f"Last name [{current_user.last_name}]: ").strip()
 
             # Only update if new values provided
@@ -217,9 +219,7 @@ class UserCLI:
                 return
 
             request = UpdateUserRequest(
-                user_id=user_id,
-                first_name=first_name,
-                last_name=last_name
+                user_id=user_id, first_name=first_name, last_name=last_name
             )
 
             updated_user = await self._update_user.execute(request)
@@ -231,7 +231,7 @@ class UserCLI:
             print(f"❌ {e.message}")
         except ValueError as e:
             print(f"❌ Invalid input: {e}")
-        except DomainException as e:
+        except DomainError as e:
             print(f"❌ {e.message}")
 
 

@@ -4,11 +4,12 @@ Exceptions for repository/persistence layer errors.
 Similar to C# data access exceptions.
 """
 
-from .domain_exceptions import DomainException
+from .domain_exceptions import DomainError
 
 
-class RepositoryException(DomainException):
+class RepositoryException(DomainError):
     """Base exception for repository-related errors."""
+
     pass
 
 
@@ -27,7 +28,9 @@ class RepositoryTimeoutError(RepositoryException):
     """Raised when repository operation times out."""
 
     def __init__(self, operation: str, timeout_seconds: float):
-        message = f"Repository operation '{operation}' timed out after {timeout_seconds}s"
+        message = (
+            f"Repository operation '{operation}' timed out after {timeout_seconds}s"
+        )
         super().__init__(message)
         self.operation = operation
         self.timeout_seconds = timeout_seconds

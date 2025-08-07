@@ -73,10 +73,7 @@ class GetUserUseCase:
         """
         users = await self._user_repository.get_all()
 
-        user_responses = [
-            self._map_to_response(user)
-            for user in users
-        ]
+        user_responses = [self._map_to_response(user) for user in users]
 
         return UserListResponse.from_users(user_responses)
 
@@ -90,5 +87,5 @@ class GetUserUseCase:
             full_name=user.full_name,
             is_active=user.is_active,
             created_at=user.created_at,
-            updated_at=user.updated_at
+            updated_at=user.updated_at,
         )

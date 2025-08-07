@@ -3,16 +3,18 @@ Dependency Injection Container
 Simple DI container for managing dependencies and their lifetimes.
 Similar to C# DI containers but lightweight and Python-specific.
 """
+
 import inspect
 from collections.abc import Callable
 from enum import Enum
 from typing import Any, TypeVar
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class ServiceLifetime(Enum):
     """Service lifetime options."""
+
     SINGLETON = "singleton"
     TRANSIENT = "transient"
     SCOPED = "scoped"
@@ -26,7 +28,7 @@ class ServiceDescriptor:
         service_type: type,
         implementation: Any = None,
         factory: Callable | None = None,
-        lifetime: ServiceLifetime = ServiceLifetime.TRANSIENT
+        lifetime: ServiceLifetime = ServiceLifetime.TRANSIENT,
     ):
         self.service_type = service_type
         self.implementation = implementation
@@ -51,7 +53,9 @@ class DIContainer:
         self._services: dict[type, ServiceDescriptor] = {}
         self._resolving_stack: set = set()  # For circular dependency detection
 
-    def register_singleton(self, service_type: type[T], implementation: type[T] | None = None) -> 'DIContainer':
+    def register_singleton(
+        self, service_type: type[T], implementation: type[T] | None = None
+    ) -> "DIContainer":
         """
         Register a singleton service.
 
@@ -63,12 +67,14 @@ class DIContainer:
         descriptor = ServiceDescriptor(
             service_type=service_type,
             implementation=impl,
-            lifetime=ServiceLifetime.SINGLETON
+            lifetime=ServiceLifetime.SINGLETON,
         )
         self._services[service_type] = descriptor
         return self
 
-    def register_transient(self, service_type: type[T], implementation: type[T] | None = None) -> 'DIContainer':
+    def register_transient(
+        self, service_type: type[T], implementation: type[T] | None = None
+    ) -> "DIContainer":
         """
         Register a transient service (new instance each time).
 
@@ -80,7 +86,7 @@ class DIContainer:
         descriptor = ServiceDescriptor(
             service_type=service_type,
             implementation=impl,
-            lifetime=ServiceLifetime.TRANSIENT
+            lifetime=ServiceLifetime.TRANSIENT,
         )
         self._services[service_type] = descriptor
         return self
@@ -88,9 +94,9 @@ class DIContainer:
     def register_factory(
         self,
         service_type: type[T],
-        factory: Callable[['DIContainer'], T],
-        lifetime: ServiceLifetime = ServiceLifetime.TRANSIENT
-    ) -> 'DIContainer':
+        factory: Callable[["DIContainer"], T],
+        lifetime: ServiceLifetime = ServiceLifetime.TRANSIENT,
+    ) -> "DIContainer":
         """
         Register a service with a factory method.
 
@@ -100,9 +106,7 @@ class DIContainer:
             lifetime: Service lifetime
         """
         descriptor = ServiceDescriptor(
-            service_type=service_type,
-            factory=factory,
-            lifetime=lifetime
+            service_type=service_type, factory=factory, lifetime=lifetime
         )
         self._services[service_type] = descriptor
         return self
@@ -122,13 +126,13 @@ class DIContainer:
         """
         # Check for circular dependencies
         if service_type in self._resolving_stack:
-            service_name = getattr(service_type, '__name__', str(service_type))
+            service_name = getattr(service_type, "__name__", str(service_type))
             raise ValueError(f"Circular dependency detected for {service_name}")
 
         # Get service descriptor
         descriptor = self._services.get(service_type)
         if not descriptor:
-            service_name = getattr(service_type, '__name__', str(service_type))
+            service_name = getattr(service_type, "__name__", str(service_type))
             raise ValueError(f"Service {service_name} not registered")
 
         # Handle singleton
@@ -171,11 +175,14 @@ class DIContainer:
         # Resolve constructor parameters (skip 'self', *args, **kwargs)
         kwargs = {}
         for param_name, param in signature.parameters.items():
-            if param_name == 'self':
+            if param_name == "self":
                 continue
 
             # Skip *args and **kwargs parameters
-            if param.kind in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD):
+            if param.kind in (
+                inspect.Parameter.VAR_POSITIONAL,
+                inspect.Parameter.VAR_KEYWORD,
+            ):
                 continue
 
             # Get parameter type annotation
