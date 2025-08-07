@@ -1,4 +1,4 @@
-.PHONY: help setup install test watch lint lint-fix format clean all
+.PHONY: help setup install test watch lint lint-fix format clean all demo
 
 # Default target
 help:
@@ -11,6 +11,7 @@ help:
 	@echo "  make lint-fix - Fix auto-fixable linting issues"
 	@echo "  make format   - Format code with ruff"
 	@echo "  make clean    - Remove cache files and virtual environment"
+	@echo "  make demo     - Run the Clean Architecture demo application"
 	@echo "  make all      - Clean, setup, install, and start watch mode"
 
 # Install uv if not present and create virtual environment
@@ -63,6 +64,13 @@ format:
 	@uv run ruff format src tests
 	@echo "✅ Code formatted"
 
+# Run the Clean Architecture demo
+demo:
+	@echo "🏗️  Starting Clean Architecture Demo..."
+	@echo "This demonstrates clean architecture principles in Python"
+	@echo "----------------------------------------"
+	@uv run python -m src.clean_architecture_example.main
+
 # Clean up generated files and caches
 clean:
 	@echo "🧹 Cleaning up..."
@@ -72,6 +80,7 @@ clean:
 	@rm -rf __pycache__
 	@rm -rf src/__pycache__
 	@rm -rf tests/__pycache__
+	@rm -rf data/users  # Clean demo data directory
 	@find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 	@find . -type f -name "*.pyc" -delete 2>/dev/null || true
 	@find . -type f -name "*.pyo" -delete 2>/dev/null || true
