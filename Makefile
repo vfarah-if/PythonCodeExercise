@@ -43,7 +43,7 @@ watch:
 	@echo "👀 Starting test watch mode..."
 	@echo "Tests will automatically rerun when you save files."
 	@echo "Press Ctrl+C to stop."
-	@uv run pytest-watch -- -v
+	@uv run ptw --config /dev/null --clear --runner "pytest" -- -x --ff -q
 
 # Run linter
 lint:

@@ -105,9 +105,3 @@ known-first-party = ["src"]
     "SIM117", # Multiple contexts (okay in tests)
 ]
 
-[tool.pytest-watch]
-patterns = ["*.py"]
-ignore = [".git", ".venv", "__pycache__", "*.pyc", ".pytest_cache", ".coverage"]
-clear = true
-runner = "pytest"
-runner_args = ["-x", "--ff", "-q"]

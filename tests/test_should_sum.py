@@ -4,7 +4,7 @@ import pytest
 from src.sum import sum_numbers, sum_list, sum_positive
 
 
-class TestSumNumbers:
+class TestShouldSumNumbers:
     """Test suite for the sum_numbers function."""
 
     def test_sum_positive_integers(self):
@@ -44,7 +44,7 @@ class TestSumNumbers:
         assert sum_numbers(-1, 2.5) == 1.5
 
 
-class TestSumList:
+class TestShouldSumList:
     """Test suite for the sum_list function."""
 
     def test_sum_list_positive_integers(self):
@@ -89,7 +89,7 @@ class TestSumList:
         assert sum_list([0, -1, 0, 1]) == 0
 
 
-class TestSumPositive:
+class TestShouldSumPositive:
     """Test suite for the sum_positive function."""
 
     def test_sum_positive_all_positive(self):
@@ -132,7 +132,7 @@ class TestSumPositive:
         assert sum_positive([1e6, -5e5, 2e6]) == 3e6
 
 
-class TestEdgeCases:
+class TestShouldSumEdgeCases:
     """Test suite for edge cases and special scenarios."""
 
     def test_sum_numbers_large_values(self):
