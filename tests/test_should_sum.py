@@ -1,7 +1,8 @@
 """Tests for the sum kata functions."""
 
 import pytest
-from src.sum import sum_numbers, sum_list, sum_positive
+
+from src.sum import sum_list, sum_numbers, sum_positive
 
 
 class TestShouldSumNumbers:

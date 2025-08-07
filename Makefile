@@ -1,4 +1,4 @@
-.PHONY: help setup install test watch lint format clean all
+.PHONY: help setup install test watch lint lint-fix format clean all
 
 # Default target
 help:
@@ -8,6 +8,7 @@ help:
 	@echo "  make test     - Run tests once"
 	@echo "  make watch    - Run tests in watch mode (continuous testing)"
 	@echo "  make lint     - Run ruff linter"
+	@echo "  make lint-fix - Fix auto-fixable linting issues"
 	@echo "  make format   - Format code with ruff"
 	@echo "  make clean    - Remove cache files and virtual environment"
 	@echo "  make all      - Clean, setup, install, and start watch mode"
@@ -49,6 +50,12 @@ watch:
 lint:
 	@echo "🔍 Running linter..."
 	@uv run ruff check src tests
+
+# Fix auto-fixable linting issues
+lint-fix:
+	@echo "🔧 Fixing auto-fixable linting issues..."
+	@uv run ruff check --fix src tests
+	@echo "✅ Auto-fixable issues resolved"
 
 # Format code
 format:
