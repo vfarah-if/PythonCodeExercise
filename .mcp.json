@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y", 
+        "@upstash/context7-mcp@latest"
+      ]
+    },
+    "json-logs": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "logs-mcp@latest"
+      ]
+    },
+    "git": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@cyanheads/git-mcp-server@latest"
+      ]
+    }
+  }
+}
