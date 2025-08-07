@@ -26,6 +26,123 @@ make watch
 make test
 ```
 
+## Creating This Project From Scratch
+
+If you want to understand how this project was built or create something similar, here's the step-by-step process using uv:
+
+### Step 1: Install uv and Initialise Project
+
+```bash
+# Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Create project directory
+mkdir PythonCodeExercise
+cd PythonCodeExercise
+
+# Initialise with uv (creates basic pyproject.toml)
+uv init
+
+# Set Python version
+echo "3.12" > .python-version
+```
+
+### Step 2: Add Core Dependencies
+
+```bash
+# Add testing framework
+uv add pytest pytest-watch pytest-cov
+
+# Add linting/formatting tool
+uv add ruff
+
+# Add development dependencies (optional)
+uv add --dev ipython pytest-xdist pytest-mock
+```
+
+This automatically updates your `pyproject.toml` with the dependencies.
+
+### Step 3: Configure Tools in pyproject.toml
+
+After uv creates the basic file, you manually add tool configurations:
+
+```toml
+# Add these sections to pyproject.toml:
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+# ... more pytest config
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+# ... more ruff config
+
+[tool.coverage.run]
+source = ["src"]
+# ... more coverage config
+```
+
+### Step 4: Create Project Structure
+
+```bash
+# Create source and test directories
+mkdir -p src/sum tests
+
+# Create __init__.py file (IMPORTANT - see why below)
+touch src/sum/__init__.py
+
+# Create your first module
+touch src/sum/sum.py
+
+# Create your first test
+touch tests/test_sum.py
+```
+
+**Why `__init__.py`?** This file is crucial for Python packages:
+- **Makes the directory a package**: Without it, Python won't recognise `sum` as an importable package
+- **Simplifies imports**: Allows `from src.sum import sum_numbers` instead of `from src.sum.sum import sum_numbers`
+- **Controls the public API**: Use `__all__` to explicitly define what gets exported
+- **Professional structure**: Follows Python packaging best practices
+
+Example `__init__.py` content:
+```python
+"""Sum kata module for practising TDD."""
+
+from .sum import sum_numbers, sum_list, sum_positive
+
+__all__ = ["sum_numbers", "sum_list", "sum_positive"]  # Explicitly declare public API
+```
+
+### Step 5: Add Build Configuration
+
+For packaging, add to `pyproject.toml`:
+
+```toml
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+```
+
+### Step 6: Create Makefile for Workflow
+
+Create a `Makefile` to standardise common commands (optional but recommended).
+
+### Understanding pyproject.toml Creation
+
+**Important:** Developers rarely write `pyproject.toml` from scratch. The typical workflow is:
+
+1. **Use a tool to initialise** (`uv init`, `poetry init`, `pdm init`)
+2. **Add dependencies via commands** (`uv add`, `poetry add`, etc.)
+3. **Copy tool configurations** from documentation or other projects
+4. **Iterate and refine** as the project grows
+
+The comprehensive `pyproject.toml` in this project represents what you'd build up over time, not what you'd write initially. Most projects start minimal and grow as needed.
+
 ## Prerequisites
 
 - Python 3.12 or higher
@@ -39,14 +156,50 @@ PythonCodeExercise/
 ├── pyproject.toml        # Project configuration and dependencies
 ├── .python-version       # Python version specification
 ├── src/                  # Source code
-│   └── sum/             # Example kata module
-│       ├── __init__.py
-│       └── sum.py       # Simple sum function
+│   └── sum/             # Example kata module (reference only - create your own!)
+│       ├── __init__.py  # Package initialiser (see below)
+│       └── sum.py       # Example implementation
 ├── tests/               # Test suite
-│   └── test_sum.py      # Tests for sum kata
+│   └── test_sum.py      # Example tests for reference
 ├── README.md            # This file
 └── CLAUDE.md            # Claude Code AI assistant guidance
 ```
+
+**Workflow:** The `sum` module serves as a reference. For actual kata practice:
+1. Create a new branch: `git checkout -b kata/your-kata-name`
+2. Add your module: `src/your_kata/`
+3. Write tests: `tests/test_your_kata.py`
+4. Practice TDD with `make watch`
+
+### Understanding Python Package Structure
+
+The `__init__.py` files in this project serve critical purposes:
+
+1. **Package Recognition**: Tells Python that a directory should be treated as a package
+2. **Import Simplification**: Enables cleaner import statements
+3. **API Control**: Defines what's publicly available from the package
+4. **Documentation**: Provides package-level documentation
+
+#### Example: How `__init__.py` Improves Imports
+
+**Without `__init__.py`:**
+```python
+# Ugly, reveals internal structure
+from src.sum.sum import sum_numbers, sum_list, sum_positive
+```
+
+**With properly configured `__init__.py`:**
+```python
+# Clean, hides implementation details
+from src.sum import sum_numbers, sum_list, sum_positive
+```
+
+#### Benefits for Kata Practice
+
+- **Focus on Learning**: Clean imports let you focus on the kata, not the file structure
+- **Scalability**: Easy to add new functions without changing import statements in tests
+- **Best Practices**: Learn professional Python package structure from the start
+- **Maintainability**: Control what's public vs internal implementation
 
 ## Available Commands
 
@@ -81,23 +234,55 @@ uv run pytest -k "test_sum"
 
 ## Kata Practice Workflow
 
-### 1. Choose or Create a Kata
+### 1. Start a New Kata Branch
 
-Create a new module in `src/` for your kata:
+**Important:** The `sum` module is just an example. For each new kata, create a new branch:
+
 ```bash
-mkdir -p src/my_kata
-touch src/my_kata/__init__.py
-touch src/my_kata/my_kata.py
-touch tests/test_my_kata.py
+# Create a new branch for your kata
+git checkout -b kata/mars-rover
+
+# Or for another kata
+git checkout -b kata/fizz-buzz
 ```
 
-### 2. Follow the TDD Cycle
+### 2. Create Your Kata Module
+
+Create a new module in `src/` for your kata (e.g., `mars_rover`, `fizz_buzz`, `bowling_game`):
+
+```bash
+# Example: Mars Rover kata
+mkdir -p src/mars_rover
+touch src/mars_rover/__init__.py
+touch src/mars_rover/mars_rover.py
+touch tests/test_mars_rover.py
+```
+
+Configure `__init__.py` for your kata:
+```python
+# src/mars_rover/__init__.py
+"""Mars Rover kata module for practising OOP and state management."""
+
+from .mars_rover import Rover, Position, Direction
+
+__all__ = ["Rover", "Position", "Direction"]  # Export what's needed
+```
+
+This ensures clean imports in your tests:
+```python
+# tests/test_mars_rover.py
+from src.mars_rover import Rover, Position, Direction  # Clean import!
+```
+
+**Note:** Keep the `sum` module as a reference example, but create your own modules for actual kata practice.
+
+### 3. Follow the TDD Cycle
 
 1. **Red**: Write a failing test
 2. **Green**: Write minimal code to pass
 3. **Refactor**: Improve the code while keeping tests green
 
-### 3. Use Watch Mode
+### 4. Use Watch Mode
 
 ```bash
 make watch
@@ -205,26 +390,41 @@ def test_sum_with_fixture(sample_data):
 - **Configurable**: Sensible defaults with extensive customisation
 - **Maintained**: By the same team as uv
 
-## Example Kata: Sum Function
+## Example Kata: Sum Functions (Reference Implementation)
 
-The project includes a simple sum function as an example:
+**Note:** The `sum` module is provided as a reference example to demonstrate project structure and testing patterns. When practising katas, create your own modules in separate branches rather than modifying this example.
+
+The project includes three sum functions as examples:
 
 ```python
 # src/sum/sum.py
-def sum_numbers(a: int, b: int) -> int:
+def sum_numbers(a: int | float, b: int | float) -> int | float:
     """Add two numbers together."""
     return a + b
+
+def sum_list(numbers: list[int | float]) -> int | float:
+    """Calculate the sum of a list of numbers."""
+    if not numbers:
+        raise ValueError("Cannot sum an empty list")
+    return sum(numbers)
+
+def sum_positive(numbers: list[int | float]) -> int | float:
+    """Calculate the sum of only positive numbers in a list."""
+    return sum(n for n in numbers if n > 0)
 ```
 
-With comprehensive tests:
+With comprehensive tests demonstrating various testing patterns:
 
 ```python
 # tests/test_sum.py
 def test_sum_positive_numbers():
     assert sum_numbers(2, 3) == 5
 
-def test_sum_negative_numbers():
-    assert sum_numbers(-1, -1) == -2
+def test_sum_list_with_mixed():
+    assert sum_list([1, -2, 3, -4, 5]) == 3
+
+def test_sum_positive_filters_negative():
+    assert sum_positive([1, -2, 3, -4, 5]) == 9
 ```
 
 ## Resources
