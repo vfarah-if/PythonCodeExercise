@@ -215,7 +215,7 @@ class UserCLI:
             last_name = last_name_input if last_name_input else None
 
             if not first_name and not last_name:
-                print("ℹ️ No changes made")
+                print("Info: No changes made")
                 return
 
             request = UpdateUserRequest(

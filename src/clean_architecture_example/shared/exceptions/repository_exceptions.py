@@ -7,13 +7,13 @@ Similar to C# data access exceptions.
 from .domain_exceptions import DomainError
 
 
-class RepositoryException(DomainError):
+class RepositoryError(DomainError):
     """Base exception for repository-related errors."""
 
     pass
 
 
-class RepositoryConnectionError(RepositoryException):
+class RepositoryConnectionError(RepositoryError):
     """Raised when repository cannot connect to data store."""
 
     def __init__(self, data_store: str, details: str | None = None):
@@ -24,7 +24,7 @@ class RepositoryConnectionError(RepositoryException):
         self.data_store = data_store
 
 
-class RepositoryTimeoutError(RepositoryException):
+class RepositoryTimeoutError(RepositoryError):
     """Raised when repository operation times out."""
 
     def __init__(self, operation: str, timeout_seconds: float):
@@ -36,7 +36,7 @@ class RepositoryTimeoutError(RepositoryException):
         self.timeout_seconds = timeout_seconds
 
 
-class DataIntegrityError(RepositoryException):
+class DataIntegrityError(RepositoryError):
     """Raised when data integrity constraints are violated."""
 
     def __init__(self, constraint: str, details: str | None = None):
@@ -47,7 +47,7 @@ class DataIntegrityError(RepositoryException):
         self.constraint = constraint
 
 
-class ConcurrencyError(RepositoryException):
+class ConcurrencyError(RepositoryError):
     """Raised when concurrent modification conflicts occur."""
 
     def __init__(self, entity_id: str, entity_type: str):

@@ -24,13 +24,13 @@ class DomainError(Exception):
         self.inner_exception = inner_exception
 
 
-class UserDomainException(DomainError):
+class UserDomainError(DomainError):
     """Base exception for user-related domain errors."""
 
     pass
 
 
-class UserNotFoundError(UserDomainException):
+class UserNotFoundError(UserDomainError):
     """Raised when a user cannot be found."""
 
     def __init__(self, identifier: str, identifier_type: str = "id"):
@@ -40,7 +40,7 @@ class UserNotFoundError(UserDomainException):
         self.identifier_type = identifier_type
 
 
-class UserAlreadyExistsError(UserDomainException):
+class UserAlreadyExistsError(UserDomainError):
     """Raised when attempting to create a user that already exists."""
 
     def __init__(self, email: str):
@@ -49,7 +49,7 @@ class UserAlreadyExistsError(UserDomainException):
         self.email = email
 
 
-class InvalidUserDataError(UserDomainException):
+class InvalidUserDataError(UserDomainError):
     """Raised when user data is invalid."""
 
     def __init__(self, field: str, value: str, reason: str):
@@ -60,7 +60,7 @@ class InvalidUserDataError(UserDomainException):
         self.reason = reason
 
 
-class UserStateError(UserDomainException):
+class UserStateError(UserDomainError):
     """Raised when user is in invalid state for operation."""
 
     def __init__(self, operation: str, current_state: str):

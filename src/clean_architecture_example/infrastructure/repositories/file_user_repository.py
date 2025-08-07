@@ -17,7 +17,7 @@ from ...shared.exceptions.domain_exceptions import (
     UserAlreadyExistsError,
     UserNotFoundError,
 )
-from ...shared.exceptions.repository_exceptions import RepositoryException
+from ...shared.exceptions.repository_exceptions import RepositoryError
 
 
 class FileUserRepository(UserRepository):
@@ -87,7 +87,7 @@ class FileUserRepository(UserRepository):
             with open(self._email_index_file, "w", encoding="utf-8") as f:
                 json.dump(index, f, indent=2)
         except OSError as e:
-            raise RepositoryException(f"Failed to save email index: {e}") from e
+            raise RepositoryError(f"Failed to save email index: {e}") from e
 
     def _user_file_path(self, user_id: str) -> Path:
         """Get file path for a user ID."""
