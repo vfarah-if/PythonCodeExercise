@@ -1,9 +1,9 @@
-name: Pylint
+name: Lint
 
 on: [push]
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -19,7 +19,6 @@ jobs:
     - name: Install dependencies
       run: |
         uv sync
-        uv pip install pylint
-    - name: Analysing the code with pylint
+    - name: Run ruff linter
       run: |
-        uv run pylint $(git ls-files '*.py')
+        uv run ruff check src tests
