@@ -1,7 +1,7 @@
 """Infrastructure layer - External interfaces and implementations."""
 
 from .git.git_service import GitPythonService
-from .npm.npm_service import NPMFileService
+from .npmrc.npmrc_service import NPMRCFileService
 from .software.brew_service import BrewSoftwareService
 
-__all__ = ["BrewSoftwareService", "GitPythonService", "NPMFileService"]
+__all__ = ["BrewSoftwareService", "GitPythonService", "NPMRCFileService"]

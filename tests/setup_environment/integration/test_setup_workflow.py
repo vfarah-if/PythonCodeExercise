@@ -50,8 +50,8 @@ class TestSetupWorkflowIntegration:
         assert "octocat/Spoon-Knife" in result.output
         assert "Would clone" in result.output or "Git is not installed" in result.output
 
-    def test_complete_workflow_skip_npm(self, runner, temp_dev_folder):
-        """Test complete workflow skipping NPM configuration."""
+    def test_complete_workflow_skip_npmrc(self, runner, temp_dev_folder):
+        """Test complete workflow skipping npmrc configuration."""
         test_env = {
             "GIT_REPO_1": "https://github.com/octocat/Hello-World.git",
         }
@@ -59,13 +59,13 @@ class TestSetupWorkflowIntegration:
         with runner.isolated_filesystem():
             result = runner.invoke(
                 setup_environment,
-                ["--dev-folder", temp_dev_folder, "--skip-npm", "--skip-software"],
+                ["--dev-folder", temp_dev_folder, "--skip-npmrc", "--skip-software"],
                 env=test_env,
             )
 
         # Should exit successfully even if Git operations fail
         # because we're testing the overall flow
-        assert "Skipped NPM configuration" in result.output
+        assert "Skipped npmrc configuration" in result.output
         assert "octocat/Hello-World" in result.output
 
     def test_workflow_with_no_repositories(self, runner, temp_dev_folder):
@@ -122,6 +122,6 @@ class TestSetupWorkflowIntegration:
         assert result.exit_code == 0
         assert "Configure development environment" in result.output
         assert "--dev-folder" in result.output
-        assert "--skip-npm" in result.output
+        assert "--skip-npmrc" in result.output
         assert "--skip-software" in result.output
         assert "--dry-run" in result.output

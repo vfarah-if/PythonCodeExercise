@@ -1,26 +1,26 @@
-"""NPM service implementation for file system operations."""
+"""npmrc service implementation for file system operations."""
 
 import webbrowser
 from pathlib import Path
 
-from src.setup_environment.application.interfaces import NPMService
-from src.setup_environment.domain.entities import NPMConfiguration
+from src.setup_environment.application.interfaces import NPMRCService
+from src.setup_environment.domain.entities import NPMRCConfiguration
 from src.setup_environment.domain.value_objects import PersonalAccessToken
 
 
-class NPMFileService(NPMService):
-    """NPM service implementation using file system operations."""
+class NPMRCFileService(NPMRCService):
+    """npmrc service implementation using file system operations."""
 
     def __init__(self, home_dir: Path | None = None):
         """Initialise with optional home directory override."""
         self._home_dir = home_dir or Path.home()
 
     def config_exists(self) -> bool:
-        """Check if NPM configuration exists in the user's home directory."""
+        """Check if npmrc configuration exists in the user's home directory."""
         return self.get_config_path().exists()
 
     def has_github_token(self) -> bool:
-        """Check if the NPM configuration has a GitHub token configured."""
+        """Check if the npmrc configuration has a GitHub token configured."""
         config_path = self.get_config_path()
         if not config_path.exists():
             return False
@@ -31,8 +31,8 @@ class NPMFileService(NPMService):
         except Exception:
             return False
 
-    def write_config(self, config: NPMConfiguration) -> None:
-        """Write NPM configuration to the user's home directory."""
+    def write_config(self, config: NPMRCConfiguration) -> None:
+        """Write npmrc configuration to the user's home directory."""
         config_path = self.get_config_path()
 
         # If config exists, we might want to preserve some existing content
@@ -74,7 +74,7 @@ class NPMFileService(NPMService):
         config_path.write_text(final_content)
 
     def get_config_path(self) -> Path:
-        """Get the path to the NPM configuration file."""
+        """Get the path to the npmrc configuration file."""
         return self._home_dir / ".npmrc"
 
     def prompt_for_token(self) -> PersonalAccessToken:

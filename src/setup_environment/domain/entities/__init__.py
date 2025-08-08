@@ -1,6 +1,6 @@
 """Domain entities."""
 
-from .npm_config import NPMConfiguration
+from .npmrc_config import NPMRCConfiguration
 from .repository import Repository
 
-__all__ = ["NPMConfiguration", "Repository"]
+__all__ = ["NPMRCConfiguration", "Repository"]

@@ -1,4 +1,4 @@
-"""NPM Configuration entity."""
+"""npmrc Configuration entity."""
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -7,8 +7,8 @@ from src.setup_environment.domain.value_objects import PersonalAccessToken
 
 
 @dataclass(frozen=True)
-class NPMConfiguration:
-    """Represents NPM configuration settings."""
+class NPMRCConfiguration:
+    """Represents npmrc configuration settings."""
 
     token: PersonalAccessToken
     registry_url: str = "https://npm.pkg.github.com"
@@ -42,7 +42,7 @@ class NPMConfiguration:
 
     @classmethod
     def exists_at_path(cls, path: Path) -> bool:
-        """Check if NPM configuration exists at the given path."""
+        """Check if npmrc configuration exists at the given path."""
         if not path.exists():
             return False
 

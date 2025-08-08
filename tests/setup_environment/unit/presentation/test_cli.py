@@ -9,7 +9,7 @@ import pytest
 from click.testing import CliRunner
 
 from src.setup_environment.application.interfaces.git_service import CloneStatus
-from src.setup_environment.application.use_cases.configure_npm import (
+from src.setup_environment.application.use_cases.configure_npmrc import (
     ConfigurationStatus,
 )
 from src.setup_environment.presentation.cli import (
@@ -117,9 +117,9 @@ class TestSetupEnvironmentCLI:
         assert "does not exist" in result.output.lower()
 
     @patch("src.setup_environment.presentation.cli.SetupRepositoriesUseCase")
-    @patch("src.setup_environment.presentation.cli.ConfigureNPMUseCase")
+    @patch("src.setup_environment.presentation.cli.ConfigureNPMRCUseCase")
     @patch("src.setup_environment.presentation.cli.GitPythonService")
-    @patch("src.setup_environment.presentation.cli.NPMFileService")
+    @patch("src.setup_environment.presentation.cli.NPMRCFileService")
     def test_cli_successful_execution(
         self,
         mock_npm_service,
@@ -132,7 +132,7 @@ class TestSetupEnvironmentCLI:
     ):
         """Test successful CLI execution."""
         # Mock setup results
-        from src.setup_environment.application.use_cases.configure_npm import (
+        from src.setup_environment.application.use_cases.configure_npmrc import (
             ConfigureResult,
         )
         from src.setup_environment.application.use_cases.setup_repositories import (
@@ -184,7 +184,7 @@ class TestSetupEnvironmentCLI:
         with patch.dict(os.environ, mock_environment):
             result = runner.invoke(
                 setup_environment,
-                ["--dev-folder", temp_dev_folder, "--skip-npm", "--skip-software"],
+                ["--dev-folder", temp_dev_folder, "--skip-npmrc", "--skip-software"],
             )
 
         assert result.exit_code == 1
@@ -208,7 +208,7 @@ class TestSetupEnvironmentCLI:
     def test_cli_skip_npm_flag(
         self, mock_setup_use_case, runner, temp_dev_folder, mock_environment
     ):
-        """Test --skip-npm flag skips NPM configuration."""
+        """Test --skip-npmrc flag skips npmrc configuration."""
         from src.setup_environment.application.use_cases.setup_repositories import (
             SetupResult,
         )
@@ -219,11 +219,11 @@ class TestSetupEnvironmentCLI:
         with patch.dict(os.environ, mock_environment):
             result = runner.invoke(
                 setup_environment,
-                ["--dev-folder", temp_dev_folder, "--skip-npm", "--skip-software"],
+                ["--dev-folder", temp_dev_folder, "--skip-npmrc", "--skip-software"],
             )
 
         assert result.exit_code == 0
-        assert "Skipped NPM configuration" in result.output
+        assert "Skipped npmrc configuration" in result.output
 
     @patch("src.setup_environment.presentation.cli.DevFolderPath")
     def test_cli_handles_dev_folder_validation_error(
@@ -261,7 +261,7 @@ class TestSetupEnvironmentCLI:
         assert result.exit_code == 0
         assert "Configure development environment" in result.output
         assert "--dev-folder" in result.output
-        assert "--skip-npm" in result.output
+        assert "--skip-npmrc" in result.output
         assert "--skip-software" in result.output
 
 

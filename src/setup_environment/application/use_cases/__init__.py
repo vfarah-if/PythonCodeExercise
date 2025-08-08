@@ -1,6 +1,6 @@
 """Application use cases."""
 
-from .configure_npm import ConfigureNPMUseCase
+from .configure_npmrc import ConfigureNPMRCUseCase
 from .setup_repositories import SetupRepositoriesUseCase
 
-__all__ = ["ConfigureNPMUseCase", "SetupRepositoriesUseCase"]
+__all__ = ["ConfigureNPMRCUseCase", "SetupRepositoriesUseCase"]

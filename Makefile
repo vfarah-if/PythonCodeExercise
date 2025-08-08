@@ -138,7 +138,7 @@ setup-brew-software:
 	@echo "This will check for and install: python+uv, git+config+ssh, nvm+node, gh, awscli, azure-cli, zsh, terraform, oh-my-zsh, iterm2, slack"
 	@echo "You'll be prompted before each installation."
 	@if [ ! -d "/tmp" ]; then mkdir -p "/tmp"; fi
-	@uv run setup-environment --dev-folder /tmp --skip-npm
+	@uv run setup-environment --dev-folder /tmp --skip-npmrc
 	@echo "⚠️  Note: Skipped Git repository cloning (only software installation)"
 
 # Install all development software without prompts
@@ -147,5 +147,5 @@ setup-brew-all:
 	@echo "This will install: python+uv, git+config+ssh, nvm+node, gh, awscli, azure-cli, zsh, terraform, oh-my-zsh, iterm2, slack"
 	@echo "No prompts - installing everything configured as required or optional"
 	@if [ ! -d "/tmp" ]; then mkdir -p "/tmp"; fi
-	@uv run setup-environment --dev-folder /tmp --skip-npm --install-all-software
+	@uv run setup-environment --dev-folder /tmp --skip-npmrc --install-all-software
 	@echo "⚠️  Note: Skipped Git repository cloning (only software installation)"

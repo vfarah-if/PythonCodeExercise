@@ -1,15 +1,15 @@
-"""Use case for configuring NPM settings."""
+"""Use case for configuring npmrc settings."""
 
 from dataclasses import dataclass
 from enum import Enum
 
-from src.setup_environment.application.interfaces import NPMService
-from src.setup_environment.domain.entities import NPMConfiguration
+from src.setup_environment.application.interfaces import NPMRCService
+from src.setup_environment.domain.entities import NPMRCConfiguration
 from src.setup_environment.domain.value_objects import PersonalAccessToken
 
 
 class ConfigurationStatus(Enum):
-    """Status of NPM configuration."""
+    """Status of npmrc configuration."""
 
     CREATED = "created"
     ALREADY_EXISTS = "already_exists"
@@ -18,19 +18,19 @@ class ConfigurationStatus(Enum):
 
 @dataclass
 class ConfigureResult:
-    """Result of NPM configuration."""
+    """Result of npmrc configuration."""
 
     status: ConfigurationStatus
-    config: NPMConfiguration | None = None
+    config: NPMRCConfiguration | None = None
     message: str = ""
 
 
-class ConfigureNPMUseCase:
-    """Use case for configuring NPM settings."""
+class ConfigureNPMRCUseCase:
+    """Use case for configuring npmrc settings."""
 
-    def __init__(self, npm_service: NPMService):
-        """Initialise with an NPM service."""
-        self._npm_service = npm_service
+    def __init__(self, npmrc_service: NPMRCService):
+        """Initialise with an npmrc service."""
+        self._npmrc_service = npmrc_service
 
     def execute(
         self,
@@ -38,20 +38,23 @@ class ConfigureNPMUseCase:
         organisation: str = "@webuild-ai",
         registry_url: str = "https://npm.pkg.github.com",
     ) -> ConfigureResult:
-        """Configure NPM settings."""
+        """Configure npmrc settings."""
         # Check if configuration already exists with token
-        if self._npm_service.config_exists() and self._npm_service.has_github_token():
+        if (
+            self._npmrc_service.config_exists()
+            and self._npmrc_service.has_github_token()
+        ):
             return ConfigureResult(
                 status=ConfigurationStatus.ALREADY_EXISTS,
-                message="NPM configuration already exists with GitHub token",
+                message="npmrc configuration already exists with GitHub token",
             )
 
         # Get token if not provided
         if token is None:
-            token = self._npm_service.prompt_for_token()
+            token = self._npmrc_service.prompt_for_token()
 
         # Create configuration
-        config = NPMConfiguration(
+        config = NPMRCConfiguration(
             token=token,
             organisation=organisation,
             registry_url=registry_url,
@@ -60,15 +63,15 @@ class ConfigureNPMUseCase:
         # Determine status
         status = (
             ConfigurationStatus.UPDATED
-            if self._npm_service.config_exists()
+            if self._npmrc_service.config_exists()
             else ConfigurationStatus.CREATED
         )
 
         # Write configuration
-        self._npm_service.write_config(config)
+        self._npmrc_service.write_config(config)
 
         return ConfigureResult(
             status=status,
             config=config,
-            message=f"NPM configuration {status.value} at {self._npm_service.get_config_path()}",
+            message=f"npmrc configuration {status.value} at {self._npmrc_service.get_config_path()}",
         )

@@ -1,6 +1,6 @@
 """Application layer interfaces."""
 
 from .git_service import CloneResult, GitService
-from .npm_service import NPMService
+from .npmrc_service import NPMRCService
 
-__all__ = ["CloneResult", "GitService", "NPMService"]
+__all__ = ["CloneResult", "GitService", "NPMRCService"]

@@ -515,7 +515,7 @@ def test_sum_positive_filters_negative():
 
 ## Setup Environment CLI
 
-This project includes a production-grade CLI tool for setting up development environments with Git repositories and NPM configuration.
+This project includes a production-grade CLI tool for setting up development environments with Git repositories and npmrc configuration.
 
 ### Overview
 
@@ -524,7 +524,7 @@ The `setup-environment` CLI automates the process of:
 2. **Automatic SSH configuration** for private Git repositories
 3. **Reading repository URLs** from environment variables (`GIT_REPO_*`)
 4. **Cloning repositories** to a specified development folder
-5. **Setting up NPM configuration** for GitHub Package Registry
+5. **Setting up npmrc configuration** for GitHub Package Registry
 
 ### Architecture
 
@@ -533,11 +533,11 @@ Built following **Clean Architecture** principles with comprehensive test covera
 ```
 src/setup_environment/
 ├── domain/                 # Business logic & entities
-│   ├── entities/          # Repository, NPMConfiguration
+│   ├── entities/          # Repository, NPMRCConfiguration
 │   └── value_objects/     # DevFolderPath, PersonalAccessToken
 ├── application/           # Use cases & business rules
 │   ├── interfaces/        # Service abstractions
-│   └── use_cases/        # SetupRepositories, ConfigureNPM
+│   └── use_cases/        # SetupRepositories, ConfigureNPMRC
 ├── infrastructure/        # External dependencies
 │   ├── git/              # Git operations via subprocess
 │   └── npm/              # File system operations
@@ -558,7 +558,7 @@ tests/setup_environment/   # 124 comprehensive tests
 - **🔍 Dry-Run Mode**: Test setup without making changes (`--dry-run`)
 - **📄 .env File Support**: Secure, organised configuration management
 - **⚙️ Environment-Driven**: Configure repositories via `GIT_REPO_*` variables or .env files
-- **🔐 Interactive NPM Setup**: Guided GitHub Personal Access Token creation
+- **🔐 Interactive npmrc Setup**: Guided GitHub Personal Access Token creation
 - **📁 Smart Organisation**: Clones to `~/dev/{org}/{repo}` structure
 - **🚫 Skip Existing**: Automatically skips repositories that already exist
 - **📋 Template Generation**: Create `.env` and `.env.example` files automatically
@@ -618,8 +618,8 @@ setup-environment --dev-folder ~/dev
 # Use custom .env file
 setup-environment --dev-folder ~/dev --env-file .env.production
 
-# Skip NPM configuration
-setup-environment --dev-folder ~/dev --skip-npm
+# Skip npmrc configuration
+setup-environment --dev-folder ~/dev --skip-npmrc
 
 # Dry run (validation only, no changes)
 setup-environment --dev-folder ~/dev --dry-run
@@ -629,7 +629,7 @@ setup-environment --generate-env           # Creates .env
 setup-environment --generate-env-example   # Creates .env.example
 
 # All options together
-setup-environment --dev-folder ~/dev --env-file .env.custom --skip-npm --dry-run
+setup-environment --dev-folder ~/dev --env-file .env.custom --skip-npmrc --dry-run
 ```
 
 ### Configuration Options
@@ -723,9 +723,9 @@ Repositories are cloned to organised directories:
     └── dev-tools/          # cloned from GIT_REPO_TOOLS
 ```
 
-### NPM Configuration
+### npmrc Configuration
 
-The CLI provides a comprehensive, guided NPM configuration experience:
+The CLI provides a comprehensive, guided npmrc configuration experience:
 
 #### Automatic Browser Navigation
 1. **Direct Token Creation**: Opens directly to GitHub's token creation page
@@ -767,7 +767,7 @@ make setup-env-dry
 - ✅ Repository validation and parsing
 - 📁 Target paths where repos would be cloned  
 - 🔍 Git installation check
-- 📋 NPM configuration status
+- 📋 npmrc configuration status
 - 🚫 **No actual cloning or file modifications**
 
 ### Development Workflow Integration
@@ -832,9 +832,9 @@ uv run pytest tests/setup_environment/ --cov=src/setup_environment
 ### Implementation Highlights
 
 - **Value Objects**: `DevFolderPath`, `PersonalAccessToken` with validation
-- **Domain Entities**: `Repository`, `NPMConfiguration` with business logic
-- **Use Cases**: `SetupRepositoriesUseCase`, `ConfigureNPMUseCase`
-- **Clean Interfaces**: `GitService`, `NPMService` for easy testing and mocking
+- **Domain Entities**: `Repository`, `NPMRCConfiguration` with business logic
+- **Use Cases**: `SetupRepositoriesUseCase`, `ConfigureNPMRCUseCase`
+- **Clean Interfaces**: `GitService`, `NPMRCService` for easy testing and mocking
 - **Comprehensive Testing**: Unit tests, integration tests, mocking, parametrised tests
 - **Error Safety**: Extensive validation and graceful error handling
 

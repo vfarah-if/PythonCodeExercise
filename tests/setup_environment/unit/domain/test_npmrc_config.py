@@ -1,25 +1,25 @@
-"""Unit tests for NPMConfiguration entity."""
+"""Unit tests for NPMRCConfiguration entity."""
 
 import tempfile
 from pathlib import Path
 
 import pytest
 
-from src.setup_environment.domain.entities import NPMConfiguration
+from src.setup_environment.domain.entities import NPMRCConfiguration
 from src.setup_environment.domain.value_objects import PersonalAccessToken
 
 
-class TestNPMConfiguration:
-    """Test suite for NPMConfiguration entity."""
+class TestNPMRCConfiguration:
+    """Test suite for NPMRCConfiguration entity."""
 
     @pytest.fixture
     def valid_token(self):
         """Provide a valid personal access token."""
         return PersonalAccessToken("ghp_" + "a" * 36)
 
-    def test_create_npm_configuration_with_defaults(self, valid_token):
-        """Test creating NPM configuration with default values."""
-        config = NPMConfiguration(token=valid_token)
+    def test_create_npmrc_configuration_with_defaults(self, valid_token):
+        """Test creating npmrc configuration with default values."""
+        config = NPMRCConfiguration(token=valid_token)
 
         assert config.token == valid_token
         assert config.registry_url == "https://npm.pkg.github.com"
@@ -27,9 +27,9 @@ class TestNPMConfiguration:
         assert config.package_lock is True
         assert config.legacy_peer_deps is True
 
-    def test_create_npm_configuration_with_custom_values(self, valid_token):
+    def test_create_npmrc_configuration_with_custom_values(self, valid_token):
         """Test creating NPM configuration with custom values."""
-        config = NPMConfiguration(
+        config = NPMRCConfiguration(
             token=valid_token,
             registry_url="https://custom.registry.com",
             organisation="@custom-org",
@@ -45,7 +45,7 @@ class TestNPMConfiguration:
 
     def test_generate_config_content_with_defaults(self, valid_token):
         """Test generating config content with default settings."""
-        config = NPMConfiguration(token=valid_token)
+        config = NPMRCConfiguration(token=valid_token)
         content = config.generate_config_content()
 
         expected_lines = [
@@ -59,7 +59,7 @@ class TestNPMConfiguration:
 
     def test_generate_config_content_without_package_lock(self, valid_token):
         """Test generating config without package-lock setting."""
-        config = NPMConfiguration(token=valid_token, package_lock=False)
+        config = NPMRCConfiguration(token=valid_token, package_lock=False)
         content = config.generate_config_content()
 
         assert "package-lock=true" not in content
@@ -68,7 +68,7 @@ class TestNPMConfiguration:
 
     def test_generate_config_content_without_legacy_peer_deps(self, valid_token):
         """Test generating config without legacy-peer-deps setting."""
-        config = NPMConfiguration(token=valid_token, legacy_peer_deps=False)
+        config = NPMRCConfiguration(token=valid_token, legacy_peer_deps=False)
         content = config.generate_config_content()
 
         assert "package-lock=true" in content
@@ -77,7 +77,7 @@ class TestNPMConfiguration:
 
     def test_generate_config_with_custom_registry(self, valid_token):
         """Test generating config with custom registry URL."""
-        config = NPMConfiguration(
+        config = NPMRCConfiguration(
             token=valid_token,
             registry_url="https://custom.registry.com",
             organisation="@my-org",
@@ -91,7 +91,7 @@ class TestNPMConfiguration:
         """Test writing configuration to file."""
         with tempfile.TemporaryDirectory() as temp_dir:
             config_path = Path(temp_dir) / ".npmrc"
-            config = NPMConfiguration(token=valid_token)
+            config = NPMRCConfiguration(token=valid_token)
 
             config.write_to_file(config_path)
 
@@ -108,7 +108,7 @@ class TestNPMConfiguration:
         """Test that writing to file creates parent directory if needed."""
         with tempfile.TemporaryDirectory() as temp_dir:
             config_path = Path(temp_dir) / "nested" / "dir" / ".npmrc"
-            config = NPMConfiguration(token=valid_token)
+            config = NPMRCConfiguration(token=valid_token)
 
             config.write_to_file(config_path)
 
@@ -119,15 +119,15 @@ class TestNPMConfiguration:
         """Test checking if valid config exists at path."""
         with tempfile.TemporaryDirectory() as temp_dir:
             config_path = Path(temp_dir) / ".npmrc"
-            config = NPMConfiguration(token=valid_token)
+            config = NPMRCConfiguration(token=valid_token)
             config.write_to_file(config_path)
 
-            assert NPMConfiguration.exists_at_path(config_path) is True
+            assert NPMRCConfiguration.exists_at_path(config_path) is True
 
     def test_exists_at_path_returns_false_for_non_existent_file(self):
         """Test checking non-existent file."""
         non_existent = Path("/does/not/exist/.npmrc")
-        assert NPMConfiguration.exists_at_path(non_existent) is False
+        assert NPMRCConfiguration.exists_at_path(non_existent) is False
 
     def test_exists_at_path_returns_false_for_invalid_content(self):
         """Test checking file with invalid content."""
@@ -135,7 +135,7 @@ class TestNPMConfiguration:
             config_path = Path(temp_dir) / ".npmrc"
             config_path.write_text("some other content")
 
-            assert NPMConfiguration.exists_at_path(config_path) is False
+            assert NPMRCConfiguration.exists_at_path(config_path) is False
 
     def test_exists_at_path_returns_false_for_partial_content(self):
         """Test checking file with partial valid content."""
@@ -144,15 +144,15 @@ class TestNPMConfiguration:
 
             # Only has auth token, missing registry
             config_path.write_text("//npm.pkg.github.com/:_authToken=token")
-            assert NPMConfiguration.exists_at_path(config_path) is True
+            assert NPMRCConfiguration.exists_at_path(config_path) is True
 
             # Only has registry, missing auth token
             config_path.write_text("@org:registry=https://npm.pkg.github.com")
-            assert NPMConfiguration.exists_at_path(config_path) is False
+            assert NPMRCConfiguration.exists_at_path(config_path) is False
 
     def test_immutability(self, valid_token):
-        """Test that NPMConfiguration is immutable."""
-        config = NPMConfiguration(token=valid_token)
+        """Test that NPMRCConfiguration is immutable."""
+        config = NPMRCConfiguration(token=valid_token)
 
         with pytest.raises(AttributeError):
             config.token = PersonalAccessToken("ghp_" + "b" * 36)
@@ -165,7 +165,7 @@ class TestNPMConfiguration:
 
     def test_http_registry_url_handling(self, valid_token):
         """Test handling of HTTP (non-HTTPS) registry URLs."""
-        config = NPMConfiguration(
+        config = NPMRCConfiguration(
             token=valid_token, registry_url="http://insecure.registry.com"
         )
         content = config.generate_config_content()

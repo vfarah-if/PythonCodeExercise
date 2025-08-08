@@ -8,10 +8,10 @@ import click
 from dotenv import load_dotenv
 
 from src.setup_environment.application.use_cases import (
-    ConfigureNPMUseCase,
+    ConfigureNPMRCUseCase,
     SetupRepositoriesUseCase,
 )
-from src.setup_environment.application.use_cases.configure_npm import (
+from src.setup_environment.application.use_cases.configure_npmrc import (
     ConfigurationStatus,
 )
 from src.setup_environment.application.use_cases.install_software import (
@@ -19,7 +19,7 @@ from src.setup_environment.application.use_cases.install_software import (
 )
 from src.setup_environment.domain.entities import Repository
 from src.setup_environment.domain.value_objects import DevFolderPath
-from src.setup_environment.infrastructure import GitPythonService, NPMFileService
+from src.setup_environment.infrastructure import GitPythonService, NPMRCFileService
 from src.setup_environment.infrastructure.software import BrewSoftwareService
 from src.setup_environment.infrastructure.software.git_service import (
     GitService as GitInstallService,
@@ -120,19 +120,19 @@ def print_setup_summary(result):
     click.echo("\n" + "=" * 50)
 
 
-def print_npm_summary(result):
-    """Print a summary of the NPM configuration results."""
+def print_npmrc_summary(result):
+    """Print a summary of the npmrc configuration results."""
     click.echo("\n" + "=" * 50)
-    click.echo("NPM Configuration Summary")
+    click.echo("npmrc Configuration Summary")
     click.echo("=" * 50)
 
     if result.status == ConfigurationStatus.ALREADY_EXISTS:
-        click.echo("→ NPM configuration already exists with GitHub token")
+        click.echo("→ npmrc configuration already exists with GitHub token")
     elif result.status == ConfigurationStatus.CREATED:
-        click.echo("✓ Created new NPM configuration")
+        click.echo("✓ Created new npmrc configuration")
         click.echo(f"  Location: {result.message.split('at ')[-1]}")
     elif result.status == ConfigurationStatus.UPDATED:
-        click.echo("✓ Updated existing NPM configuration")
+        click.echo("✓ Updated existing npmrc configuration")
         click.echo(f"  Location: {result.message.split('at ')[-1]}")
 
     if result.config:
@@ -183,10 +183,10 @@ def print_software_summary(result):
     help="Development folder where repositories will be cloned",
 )
 @click.option(
-    "--skip-npm",
+    "--skip-npmrc",
     is_flag=True,
     default=False,
-    help="Skip NPM configuration setup",
+    help="Skip npmrc configuration setup",
 )
 @click.option(
     "--dry-run",
@@ -230,7 +230,7 @@ def print_software_summary(result):
 )
 def setup_environment(
     dev_folder: Path | None,
-    skip_npm: bool,
+    skip_npmrc: bool,
     dry_run: bool,
     env_file: Path | None,
     generate_env: bool,
@@ -239,10 +239,10 @@ def setup_environment(
     software_config: Path | None,
     install_all_software: bool,
 ):
-    """Configure development environment: software, Git repositories, and NPM.
+    """Configure development environment: software, Git repositories, and npmrc.
 
     Installs development software via Homebrew, clones Git repositories from
-    environment variables or .env files, and configures NPM for GitHub packages.
+    environment variables or .env files, and configures npmrc for GitHub packages.
 
     \b
     QUICK START:
@@ -389,35 +389,37 @@ def setup_environment(
             setup_result = setup_use_case.execute(repositories, dev_folder_path)
             print_setup_summary(setup_result)
 
-        # Configure NPM if not skipped
-        if not skip_npm:
+        # Configure npmrc if not skipped
+        if not skip_npmrc:
             if dry_run:
-                click.echo("\n--- DRY RUN: NPM Configuration ---")
-                npm_service = NPMFileService()
-                config_path = npm_service.get_config_path()
+                click.echo("\n--- DRY RUN: npmrc Configuration ---")
+                npmrc_service = NPMRCFileService()
+                config_path = npmrc_service.get_config_path()
 
-                if npm_service.config_exists():
-                    if npm_service.has_github_token():
+                if npmrc_service.config_exists():
+                    if npmrc_service.has_github_token():
                         click.echo(
-                            "→ Would skip NPM configuration (already exists with GitHub token)"
+                            "→ Would skip npmrc configuration (already exists with GitHub token)"
                         )
                     else:
                         click.echo(
-                            f"→ Would update existing NPM configuration at {config_path}"
+                            f"→ Would update existing npmrc configuration at {config_path}"
                         )
                 else:
-                    click.echo(f"→ Would create new NPM configuration at {config_path}")
+                    click.echo(
+                        f"→ Would create new npmrc configuration at {config_path}"
+                    )
 
                 click.echo("→ Would prompt for GitHub Personal Access Token")
             else:
-                click.echo("\nConfiguring NPM settings...")
-                npm_service = NPMFileService()
-                npm_use_case = ConfigureNPMUseCase(npm_service)
+                click.echo("\nConfiguring npmrc settings...")
+                npmrc_service = NPMRCFileService()
+                npmrc_use_case = ConfigureNPMRCUseCase(npmrc_service)
 
-                npm_result = npm_use_case.execute()
-                print_npm_summary(npm_result)
+                npmrc_result = npmrc_use_case.execute()
+                print_npmrc_summary(npmrc_result)
         else:
-            click.echo("\n→ Skipped NPM configuration (--skip-npm flag)")
+            click.echo("\n→ Skipped npmrc configuration (--skip-npmrc flag)")
 
         if dry_run:
             click.echo("\n✓ Dry run completed successfully! No changes were made.")
