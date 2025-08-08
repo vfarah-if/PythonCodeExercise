@@ -289,6 +289,10 @@ from src.sum import sum_numbers, sum_list, sum_positive
 | `make setup-env-help` | Show setup-environment CLI help and usage |
 | `make setup-env-init` | Generate .env template file |
 | `make setup-env-example` | Generate .env.example template file |
+| | |
+| **Software Installation** | |
+| `make setup-brew-software` | Install configured development software interactively |
+| `make setup-brew-all` | Install all configured software without prompts |
 
 ### Direct uv Commands
 
@@ -516,9 +520,11 @@ This project includes a production-grade CLI tool for setting up development env
 ### Overview
 
 The `setup-environment` CLI automates the process of:
-1. Reading repository URLs from environment variables (`GIT_REPO_*`)
-2. Cloning repositories to a specified development folder
-3. Setting up NPM configuration for GitHub Package Registry
+1. **Installing development software** with specialised services for complex tools
+2. **Automatic SSH configuration** for private Git repositories
+3. **Reading repository URLs** from environment variables (`GIT_REPO_*`)
+4. **Cloning repositories** to a specified development folder
+5. **Setting up NPM configuration** for GitHub Package Registry
 
 ### Architecture
 
@@ -545,7 +551,10 @@ tests/setup_environment/   # 124 comprehensive tests
 ### Key Features
 
 - **🏗️ Clean Architecture**: Domain-driven design with dependency injection
-- **✅ TDD Implementation**: 124 tests with 100% pass rate  
+- **🛠️ Software Installation**: Automated setup of development tools via Homebrew
+- **🔐 Intelligent SSH Setup**: Automatic SSH key generation and GitHub configuration
+- **🎯 Specialised Services**: Custom setup for Python+uv, Git+SSH, NVM+Node.js
+- **✅ TDD Implementation**: 205 tests with 100% pass rate  
 - **🔍 Dry-Run Mode**: Test setup without making changes (`--dry-run`)
 - **📄 .env File Support**: Secure, organised configuration management
 - **⚙️ Environment-Driven**: Configure repositories via `GIT_REPO_*` variables or .env files
@@ -557,6 +566,16 @@ tests/setup_environment/   # 124 comprehensive tests
 - **⚡ Error Handling**: Comprehensive validation and user feedback
 
 ### Quick Start
+
+**Development Software Setup:**
+
+```bash
+# Install development tools interactively
+make setup-brew-software
+
+# Or install all tools automatically
+make setup-brew-all
+```
 
 **Using .env Files (Recommended):**
 
@@ -819,7 +838,88 @@ uv run pytest tests/setup_environment/ --cov=src/setup_environment
 - **Comprehensive Testing**: Unit tests, integration tests, mocking, parametrised tests
 - **Error Safety**: Extensive validation and graceful error handling
 
-This CLI demonstrates production-ready Python development practices including clean architecture, comprehensive testing, and user-focused design.
+### Software Installation
+
+The CLI includes automated development software installation via Homebrew:
+
+#### Supported Software
+
+**Specialised Services (Advanced Setup):**
+- **Python Environment** - Python + uv package manager with custom configuration
+- **Git + SSH** - Git installation + user configuration + SSH key generation
+- **Node.js Environment** - NVM + latest Node.js LTS with proper shell integration
+
+**Essential Development Tools:**
+- **GitHub CLI (gh)** - GitHub's official command line tool ✅ *required*
+- **AWS CLI** - Amazon Web Services command line interface ✅ *required*
+- **Azure CLI** - Microsoft Azure command line interface ✅ *required*
+- **Terraform** - Infrastructure as Code tool ✅ *required*
+
+**Development Environment:**
+- **iTerm2** - Terminal emulator for macOS
+- **Zsh** - Z shell
+- **Slack** - Team communication platform
+
+#### Installation Modes
+
+**Interactive Installation:**
+```bash
+make setup-brew-software
+```
+- Prompts before each software installation
+- Options: Yes / No / Yes to All / Skip All
+- Shows software descriptions and installation commands
+
+**Automatic Installation:**
+```bash
+make setup-brew-all
+```
+- Installs all configured software without prompts
+- Useful for automated environment setup
+
+#### Homebrew Auto-Installation
+
+The CLI automatically detects if Homebrew is missing and offers to install it:
+- Prompts user for permission before installation
+- Handles the official Homebrew installation script
+- Supports dry-run mode for testing
+
+#### Configuration
+
+Software packages are defined in `src/setup_environment/config/software.yaml`:
+```yaml
+software:
+  - name: git
+    description: "Distributed version control system"
+    check_command: "git --version"
+    install_command: "brew install git"
+    required: true
+```
+
+Add custom software by extending this configuration file.
+
+### SSH Configuration
+
+The CLI provides intelligent SSH setup for Git repositories:
+
+#### Automatic SSH Detection
+- **Smart Detection**: Automatically detects SSH repository URLs (`git@github.com:...`)
+- **Conditional Setup**: Only configures SSH when SSH repositories are present
+- **Zero Assumptions**: Eliminates manual SSH configuration steps
+
+#### SSH Setup Process
+1. **Key Generation**: Creates Ed25519 SSH keys (GitHub recommended)
+2. **Agent Configuration**: Adds keys to ssh-agent automatically
+3. **Connection Testing**: Verifies GitHub SSH connectivity
+4. **Manual Fallback**: Provides clear instructions if automated setup fails
+
+#### SSH Features
+- **Email Integration**: Uses Git user email for SSH key generation
+- **Key Management**: Checks for existing keys before generating new ones
+- **Security**: Ed25519 keys with no passphrase for automation
+- **Instructions**: Step-by-step GitHub SSH key addition guidance
+
+This CLI demonstrates production-ready Python development practices including clean architecture, comprehensive testing, user-focused design, and intelligent SSH automation.
 
 ## Contributing
 

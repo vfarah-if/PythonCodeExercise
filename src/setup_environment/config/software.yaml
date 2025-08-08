@@ -1,0 +1,49 @@
+software:
+  - name: GitHub CLI
+    description: "GitHub's official command line tool"
+    check_command: "gh --version"
+    install_command: "brew install gh"
+    required: true
+    
+  - name: AWS CLI
+    description: "Amazon Web Services command line interface"
+    check_command: "aws --version"
+    install_command: "brew install awscli"
+    required: true
+    
+  - name: Azure CLI
+    description: "Microsoft Azure command line interface"
+    check_command: "az --version"
+    install_command: "brew install azure-cli"
+    required: true
+    
+  - name: Zsh
+    description: "Z shell"
+    check_command: "zsh --version"
+    install_command: "brew install zsh"
+    required: false
+    
+  - name: Terraform
+    description: "Infrastructure as Code tool"
+    check_command: "terraform --version"
+    install_command: "brew install terraform"
+    required: true
+    
+  - name: Oh My Zsh
+    description: "Zsh configuration framework"
+    check_command: "test -d ~/.oh-my-zsh"
+    install_command: 'sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
+    custom_install: true
+    required: false
+    
+  - name: iTerm2
+    description: "Terminal emulator for macOS"
+    check_command: "test -d /Applications/iTerm.app"
+    install_command: "brew install --cask iterm2"
+    required: false
+    
+  - name: Slack
+    description: "Team communication and collaboration platform"
+    check_command: "test -d /Applications/Slack.app"
+    install_command: "brew install --cask slack"
+    required: false

@@ -35,7 +35,9 @@ class GitService(ABC):
     """Interface for Git operations."""
 
     @abstractmethod
-    def clone_repository(self, repository: Repository, target_path: Path) -> CloneResult:
+    def clone_repository(
+        self, repository: Repository, target_path: Path
+    ) -> CloneResult:
         """Clone a repository to the specified path."""
         pass
 

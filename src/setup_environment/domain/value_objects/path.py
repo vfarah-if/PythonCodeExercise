@@ -14,18 +14,18 @@ class DevFolderPath:
         """Validate the path after initialisation."""
         if not isinstance(self.value, Path):
             object.__setattr__(self, "value", Path(self.value))
-        
+
         # Check for empty path
         if str(self.value) == ".":
             # Path("") or Path(".") both resolve to "."
             raise ValueError("Development folder path cannot be empty")
-        
+
         if not self.value.exists():
             raise ValueError(f"Development folder does not exist: {self.value}")
-        
+
         if not self.value.is_dir():
             raise ValueError(f"Path is not a directory: {self.value}")
-        
+
         if not self.value.is_absolute():
             object.__setattr__(self, "value", self.value.resolve())
 

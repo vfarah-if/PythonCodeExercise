@@ -11,12 +11,14 @@ from src.setup_environment.domain.entities import Repository
 class GitPythonService(GitService):
     """Git service implementation using subprocess for Git operations."""
 
-    def clone_repository(self, repository: Repository, target_path: Path) -> CloneResult:
+    def clone_repository(
+        self, repository: Repository, target_path: Path
+    ) -> CloneResult:
         """Clone a repository to the specified path."""
         try:
             # Ensure parent directory exists
             target_path.parent.mkdir(parents=True, exist_ok=True)
-            
+
             # Clone the repository
             result = subprocess.run(
                 ["git", "clone", repository.url, str(target_path)],
@@ -24,7 +26,7 @@ class GitPythonService(GitService):
                 text=True,
                 check=False,
             )
-            
+
             if result.returncode == 0:
                 return CloneResult(
                     repository=repository,
@@ -48,18 +50,18 @@ class GitPythonService(GitService):
             return CloneResult(
                 repository=repository,
                 status=CloneStatus.FAILED,
-                error_message=f"Unexpected error: {str(e)}",
+                error_message=f"Unexpected error: {e!s}",
             )
 
     def repository_exists(self, path: Path) -> bool:
         """Check if a valid Git repository exists at the given path."""
         if not path.exists() or not path.is_dir():
             return False
-        
+
         git_dir = path / ".git"
         if not git_dir.exists():
             return False
-        
+
         try:
             # Verify it's a valid Git repository
             result = subprocess.run(

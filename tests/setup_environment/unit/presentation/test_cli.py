@@ -3,7 +3,7 @@
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 import pytest
 from click.testing import CliRunner
@@ -31,10 +31,10 @@ class TestGetRepositoriesFromEnvironment:
             "GIT_REPO_TEST": "git@github.com:org/test.git",
             "OTHER_VAR": "not a repo",
         }
-        
+
         with patch.dict(os.environ, env_vars, clear=True):
             repositories = get_repositories_from_environment()
-        
+
         assert len(repositories) == 3
         assert repositories[0].organisation == "webuild-ai"
         assert repositories[0].name == "repo1"
@@ -47,7 +47,7 @@ class TestGetRepositoriesFromEnvironment:
         """Test with no GIT_REPO_* environment variables."""
         with patch.dict(os.environ, {}, clear=True):
             repositories = get_repositories_from_environment()
-        
+
         assert repositories == []
 
     def test_get_repositories_invalid_urls_skipped(self):
@@ -57,10 +57,10 @@ class TestGetRepositoriesFromEnvironment:
             "GIT_REPO_2": "invalid-url",
             "GIT_REPO_3": "https://gitlab.com/not/supported.git",
         }
-        
+
         with patch.dict(os.environ, env_vars, clear=True):
             repositories = get_repositories_from_environment()
-        
+
         # Only the valid GitHub repo should be included
         assert len(repositories) == 1
         assert repositories[0].name == "repo"
@@ -72,10 +72,10 @@ class TestGetRepositoriesFromEnvironment:
             "GIT_REPO_2": "",
             "GIT_REPO_3": "   ",  # Whitespace only
         }
-        
+
         with patch.dict(os.environ, env_vars, clear=True):
             repositories = get_repositories_from_environment()
-        
+
         assert len(repositories) == 1
         assert repositories[0].name == "repo"
 
@@ -105,16 +105,14 @@ class TestSetupEnvironmentCLI:
     def test_cli_requires_dev_folder_argument(self, runner):
         """Test that CLI requires --dev-folder argument."""
         result = runner.invoke(setup_environment, [])
-        
+
         assert result.exit_code != 0
         assert "--dev-folder" in result.output
 
     def test_cli_validates_dev_folder_exists(self, runner):
         """Test that CLI validates dev folder exists."""
-        result = runner.invoke(
-            setup_environment, ["--dev-folder", "/does/not/exist"]
-        )
-        
+        result = runner.invoke(setup_environment, ["--dev-folder", "/does/not/exist"])
+
         assert result.exit_code != 0
         assert "does not exist" in result.output.lower()
 
@@ -134,27 +132,27 @@ class TestSetupEnvironmentCLI:
     ):
         """Test successful CLI execution."""
         # Mock setup results
-        from src.setup_environment.application.use_cases.setup_repositories import (
-            SetupResult,
-        )
         from src.setup_environment.application.use_cases.configure_npm import (
             ConfigureResult,
         )
-        
+        from src.setup_environment.application.use_cases.setup_repositories import (
+            SetupResult,
+        )
+
         mock_setup_result = SetupResult(successful=[], skipped=[], failed=[])
         mock_setup_use_case.return_value.execute.return_value = mock_setup_result
-        
+
         mock_npm_result = ConfigureResult(
             status=ConfigurationStatus.CREATED,
             message="Configuration created at ~/.npmrc",
         )
         mock_npm_use_case.return_value.execute.return_value = mock_npm_result
-        
+
         with patch.dict(os.environ, mock_environment):
             result = runner.invoke(
-                setup_environment, ["--dev-folder", temp_dev_folder]
+                setup_environment, ["--dev-folder", temp_dev_folder, "--skip-software"]
             )
-        
+
         assert result.exit_code == 0
         assert "Setup completed successfully" in result.output
         mock_setup_use_case.return_value.execute.assert_called_once()
@@ -165,29 +163,30 @@ class TestSetupEnvironmentCLI:
         self, mock_setup_use_case, runner, temp_dev_folder, mock_environment
     ):
         """Test CLI exits with error when repositories fail to clone."""
+        from src.setup_environment.application.interfaces import CloneResult
         from src.setup_environment.application.use_cases.setup_repositories import (
             SetupResult,
         )
-        from src.setup_environment.application.interfaces import CloneResult
         from src.setup_environment.domain.entities import Repository
-        
+
         failed_repo = Repository.from_url("https://github.com/org/failed.git")
         failed_result = CloneResult(
             repository=failed_repo,
             status=CloneStatus.FAILED,
             error_message="Access denied",
         )
-        
+
         mock_setup_result = SetupResult(
             successful=[], skipped=[], failed=[failed_result]
         )
         mock_setup_use_case.return_value.execute.return_value = mock_setup_result
-        
+
         with patch.dict(os.environ, mock_environment):
             result = runner.invoke(
-                setup_environment, ["--dev-folder", temp_dev_folder, "--skip-npm"]
+                setup_environment,
+                ["--dev-folder", temp_dev_folder, "--skip-npm", "--skip-software"],
             )
-        
+
         assert result.exit_code == 1
         assert "Setup completed with" in result.output
         assert "failures" in result.output
@@ -198,9 +197,10 @@ class TestSetupEnvironmentCLI:
             # Ensure no .env file exists in the test directory
             with patch.dict(os.environ, {}, clear=True):
                 result = runner.invoke(
-                    setup_environment, ["--dev-folder", temp_dev_folder]
+                    setup_environment,
+                    ["--dev-folder", temp_dev_folder, "--skip-software"],
                 )
-        
+
         assert result.exit_code == 1
         assert "No repositories found" in result.output
 
@@ -212,16 +212,16 @@ class TestSetupEnvironmentCLI:
         from src.setup_environment.application.use_cases.setup_repositories import (
             SetupResult,
         )
-        
+
         mock_setup_result = SetupResult(successful=[], skipped=[], failed=[])
         mock_setup_use_case.return_value.execute.return_value = mock_setup_result
-        
+
         with patch.dict(os.environ, mock_environment):
             result = runner.invoke(
                 setup_environment,
-                ["--dev-folder", temp_dev_folder, "--skip-npm"],
+                ["--dev-folder", temp_dev_folder, "--skip-npm", "--skip-software"],
             )
-        
+
         assert result.exit_code == 0
         assert "Skipped NPM configuration" in result.output
 
@@ -231,11 +231,9 @@ class TestSetupEnvironmentCLI:
     ):
         """Test CLI handles development folder validation errors."""
         mock_dev_folder_path.side_effect = ValueError("Invalid path")
-        
-        result = runner.invoke(
-            setup_environment, ["--dev-folder", temp_dev_folder]
-        )
-        
+
+        result = runner.invoke(setup_environment, ["--dev-folder", temp_dev_folder])
+
         assert result.exit_code == 1
         assert "Error: Invalid path" in result.output
 
@@ -247,24 +245,24 @@ class TestSetupEnvironmentCLI:
         mock_setup_use_case.return_value.execute.side_effect = RuntimeError(
             "Git is not installed"
         )
-        
+
         with patch.dict(os.environ, mock_environment):
             result = runner.invoke(
-                setup_environment, ["--dev-folder", temp_dev_folder]
+                setup_environment, ["--dev-folder", temp_dev_folder, "--skip-software"]
             )
-        
+
         assert result.exit_code == 1
         assert "Error: Git is not installed" in result.output
 
     def test_cli_help_shows_usage_information(self, runner):
         """Test that CLI help shows proper usage information."""
         result = runner.invoke(setup_environment, ["--help"])
-        
+
         assert result.exit_code == 0
-        assert "Configure Git repositories" in result.output
+        assert "Configure development environment" in result.output
         assert "--dev-folder" in result.output
         assert "--skip-npm" in result.output
-        assert "GIT_REPO_*" in result.output
+        assert "--skip-software" in result.output
 
 
 class TestLoadEnvironmentConfig:
@@ -273,47 +271,52 @@ class TestLoadEnvironmentConfig:
     def test_load_from_specified_file(self):
         """Test loading from specified .env file."""
         import tempfile
-        
+
         with tempfile.TemporaryDirectory() as temp_dir:
             env_file = Path(temp_dir) / ".env.test"
             env_file.write_text("GIT_REPO_TEST=https://github.com/test/repo.git\n")
-            
+
             # Clear environment first
             if "GIT_REPO_TEST" in os.environ:
                 del os.environ["GIT_REPO_TEST"]
-            
+
             with patch("builtins.print"):  # Suppress output
                 load_environment_config(env_file)
-            
+
             assert os.environ.get("GIT_REPO_TEST") == "https://github.com/test/repo.git"
-            
+
             # Cleanup
             if "GIT_REPO_TEST" in os.environ:
                 del os.environ["GIT_REPO_TEST"]
 
     def test_load_from_default_env_file(self):
         """Test loading from default .env file."""
-        import tempfile
         import os as temp_os
-        
+        import tempfile
+
         with tempfile.TemporaryDirectory() as temp_dir:
             # Change to temp directory
             original_cwd = temp_os.getcwd()
             try:
                 temp_os.chdir(temp_dir)
-                
+
                 env_file = Path(".env")
-                env_file.write_text("GIT_REPO_DEFAULT=https://github.com/default/repo.git\n")
-                
+                env_file.write_text(
+                    "GIT_REPO_DEFAULT=https://github.com/default/repo.git\n"
+                )
+
                 # Clear environment first
                 if "GIT_REPO_DEFAULT" in os.environ:
                     del os.environ["GIT_REPO_DEFAULT"]
-                
+
                 with patch("builtins.print"):  # Suppress output
                     load_environment_config()
-                
-                assert os.environ.get("GIT_REPO_DEFAULT") == "https://github.com/default/repo.git"
-                
+
+                assert (
+                    os.environ.get("GIT_REPO_DEFAULT")
+                    == "https://github.com/default/repo.git"
+                )
+
                 # Cleanup
                 if "GIT_REPO_DEFAULT" in os.environ:
                     del os.environ["GIT_REPO_DEFAULT"]
@@ -323,7 +326,7 @@ class TestLoadEnvironmentConfig:
     def test_no_error_when_file_missing(self):
         """Test that missing .env file doesn't cause errors."""
         non_existent = Path("/does/not/exist/.env")
-        
+
         # Should not raise exception
         load_environment_config(non_existent)
 
@@ -334,13 +337,13 @@ class TestGenerateEnvTemplate:
     def test_generate_regular_template(self):
         """Test generating regular .env template."""
         import tempfile
-        
+
         with tempfile.TemporaryDirectory() as temp_dir:
             env_file = Path(temp_dir) / ".env"
-            
+
             with patch("click.echo"):  # Suppress output
                 generate_env_template(env_file, example=False)
-            
+
             assert env_file.exists()
             content = env_file.read_text()
             assert "GIT_REPO_1=https://github.com/facebook/react.git" in content
@@ -350,13 +353,13 @@ class TestGenerateEnvTemplate:
     def test_generate_example_template(self):
         """Test generating .env.example template."""
         import tempfile
-        
+
         with tempfile.TemporaryDirectory() as temp_dir:
             env_file = Path(temp_dir) / ".env"
-            
+
             with patch("click.echo"):  # Suppress output
                 generate_env_template(env_file, example=True)
-            
+
             example_file = Path(temp_dir) / ".env.example"
             assert example_file.exists()
             content = example_file.read_text()
@@ -366,15 +369,15 @@ class TestGenerateEnvTemplate:
     def test_template_contains_expected_content(self):
         """Test that template contains all expected sections."""
         import tempfile
-        
+
         with tempfile.TemporaryDirectory() as temp_dir:
             env_file = Path(temp_dir) / ".env"
-            
+
             with patch("click.echo"):  # Suppress output
                 generate_env_template(env_file)
-            
+
             content = env_file.read_text()
-            
+
             # Check for key sections
             assert "# Setup Environment Configuration" in content
             assert "GIT_REPO_*" in content
@@ -401,11 +404,11 @@ class TestSetupEnvironmentWithEnvFiles:
         """Test --generate-env option."""
         with runner.isolated_filesystem():
             result = runner.invoke(setup_environment, ["--generate-env"])
-            
+
             assert result.exit_code == 0
             assert "Generated template" in result.output
             assert Path(".env").exists()
-            
+
             content = Path(".env").read_text()
             assert "GIT_REPO_1=" in content
 
@@ -413,11 +416,11 @@ class TestSetupEnvironmentWithEnvFiles:
         """Test --generate-env-example option."""
         with runner.isolated_filesystem():
             result = runner.invoke(setup_environment, ["--generate-env-example"])
-            
+
             assert result.exit_code == 0
             assert "Generated template" in result.output
             assert Path(".env.example").exists()
-            
+
             content = Path(".env.example").read_text()
             assert "GIT_REPO_1=" in content
 
@@ -426,17 +429,21 @@ class TestSetupEnvironmentWithEnvFiles:
         with runner.isolated_filesystem():
             # Create custom env file
             custom_env = Path(".env.custom")
-            custom_env.write_text("GIT_REPO_CUSTOM=https://github.com/test/custom.git\n")
-            
+            custom_env.write_text(
+                "GIT_REPO_CUSTOM=https://github.com/test/custom.git\n"
+            )
+
             result = runner.invoke(
                 setup_environment,
                 [
-                    "--dev-folder", temp_dev_folder,
-                    "--env-file", str(custom_env),
-                    "--dry-run"
-                ]
+                    "--dev-folder",
+                    temp_dev_folder,
+                    "--env-file",
+                    str(custom_env),
+                    "--dry-run",
+                ],
             )
-            
+
             assert result.exit_code == 0
             assert "Loading configuration from" in result.output
             assert "test/custom" in result.output
@@ -444,7 +451,7 @@ class TestSetupEnvironmentWithEnvFiles:
     def test_dev_folder_required_for_non_generation(self, runner):
         """Test that --dev-folder is required for non-generation operations."""
         result = runner.invoke(setup_environment, ["--dry-run"])
-        
+
         assert result.exit_code == 1
         assert "--dev-folder is required" in result.output
 
@@ -457,12 +464,11 @@ class TestSetupEnvironmentWithEnvFiles:
                 "GIT_REPO_1=https://github.com/octocat/Hello-World.git\n"
                 "GIT_REPO_2=https://github.com/octocat/Spoon-Knife.git\n"
             )
-            
+
             result = runner.invoke(
-                setup_environment,
-                ["--dev-folder", temp_dev_folder, "--dry-run"]
+                setup_environment, ["--dev-folder", temp_dev_folder, "--dry-run"]
             )
-            
+
             assert result.exit_code == 0
             assert "Loading configuration" in result.output
             assert "octocat/Hello-World" in result.output

@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 
 from src.setup_environment.application.interfaces import CloneResult, GitService
+from src.setup_environment.application.interfaces.git_service import CloneStatus
 from src.setup_environment.domain.entities import Repository
 from src.setup_environment.domain.value_objects import DevFolderPath
 
@@ -61,7 +62,7 @@ class SetupRepositoriesUseCase:
 
         for repository in repositories:
             target_path = repository.calculate_target_path(dev_folder.value)
-            
+
             # Check if repository already exists
             if self._git_service.repository_exists(target_path):
                 result = CloneResult(
@@ -71,10 +72,10 @@ class SetupRepositoriesUseCase:
                 )
                 skipped.append(result)
                 continue
-            
+
             # Clone the repository
             result = self._git_service.clone_repository(repository, target_path)
-            
+
             if result.is_success:
                 if result.status == CloneStatus.SUCCESS:
                     successful.append(result)
@@ -88,6 +89,3 @@ class SetupRepositoriesUseCase:
             skipped=skipped,
             failed=failed,
         )
-
-
-from src.setup_environment.application.interfaces.git_service import CloneStatus

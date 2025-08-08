@@ -1,0 +1,135 @@
+@startuml CLI Flow Sequence Diagram
+title Setup Environment CLI - Complete Flow
+
+actor User
+participant CLI
+participant "InstallSoftwareUseCase" as SoftwareUC
+participant "BrewSoftwareService" as BrewService
+participant "PythonService" as PythonSvc
+participant "GitInstallService" as GitSvc
+participant "NVMService" as NVMSvc
+participant "SetupRepositoriesUseCase" as RepoUC
+participant "GitPythonService" as GitPySvc
+participant "ConfigureNPMUseCase" as NPMUC
+participant "NPMFileService" as NPMSvc
+
+== Initialisation ==
+User -> CLI: setup-environment --dev-folder ~/dev
+CLI -> CLI: Load .env configuration
+CLI -> CLI: Validate dev folder path
+
+== Software Installation Phase ==
+note over CLI: Check repositories for SSH URLs to determine SSH setup needed
+CLI -> CLI: Detect SSH repository URLs
+CLI -> SoftwareUC: execute(setup_ssh=detected)
+
+group Specialised Services Setup
+    SoftwareUC -> SoftwareUC: Check if Homebrew installed
+    alt Homebrew not installed
+        SoftwareUC -> User: Prompt to install Homebrew?
+        User -> SoftwareUC: Yes/No/All/Skip
+        alt User accepts
+            SoftwareUC -> BrewService: install_package_manager()
+        end
+    end
+    
+    SoftwareUC -> User: Setup Python environment?
+    User -> SoftwareUC: Yes/No/All/Skip
+    alt User accepts
+        SoftwareUC -> PythonSvc: setup_python_environment()
+        PythonSvc -> PythonSvc: Check/Install Python
+        PythonSvc -> PythonSvc: Check/Install uv
+        PythonSvc -> SoftwareUC: Success/Failure message
+    end
+    
+    SoftwareUC -> User: Setup Git + SSH?
+    User -> SoftwareUC: Yes/No/All/Skip
+    alt User accepts
+        SoftwareUC -> GitSvc: setup_git(setup_ssh=True)
+        GitSvc -> GitSvc: Check/Install Git
+        
+        alt Git needs configuration
+            GitSvc -> User: Prompt for name/email
+            User -> GitSvc: Credentials
+            GitSvc -> GitSvc: Configure Git user
+        end
+        
+        alt SSH setup requested
+            GitSvc -> GitSvc: Check SSH keys exist
+            alt No SSH keys
+                GitSvc -> GitSvc: Generate Ed25519 key
+            end
+            GitSvc -> GitSvc: Add key to ssh-agent
+            GitSvc -> GitSvc: Test GitHub connection
+            alt SSH test fails
+                GitSvc -> User: Display GitHub SSH setup instructions
+            end
+        end
+        
+        GitSvc -> SoftwareUC: Success/Failure message
+    end
+    
+    SoftwareUC -> User: Setup Node.js environment?
+    User -> SoftwareUC: Yes/No/All/Skip
+    alt User accepts
+        SoftwareUC -> NVMSvc: setup_node_environment()
+        NVMSvc -> NVMSvc: Check/Install NVM
+        NVMSvc -> NVMSvc: Install latest Node.js LTS
+        NVMSvc -> SoftwareUC: Success/Failure message
+    end
+end
+
+group Generic Software Installation
+    loop For each software in config
+        SoftwareUC -> User: Install {software}?
+        User -> SoftwareUC: Yes/No/All/Skip
+        alt User accepts
+            SoftwareUC -> BrewService: install_software()
+            BrewService -> BrewService: Check if installed
+            alt Not installed
+                BrewService -> BrewService: Run brew install
+            end
+            BrewService -> SoftwareUC: Success/Failure message
+        end
+    end
+end
+
+SoftwareUC -> CLI: Installation summary
+CLI -> User: Display software installation results
+
+== Repository Setup Phase ==
+CLI -> CLI: Get repositories from environment
+CLI -> RepoUC: execute(repositories, dev_folder)
+
+loop For each repository
+    RepoUC -> GitPySvc: Check if repository exists
+    alt Repository doesn't exist
+        RepoUC -> GitPySvc: Clone repository
+        note over GitPySvc: SSH keys already configured\nif repository uses SSH URLs
+    else Repository exists
+        RepoUC -> RepoUC: Skip (already exists)
+    end
+end
+
+RepoUC -> CLI: Clone results
+CLI -> User: Display repository setup summary
+
+== NPM Configuration Phase ==
+alt NPM not skipped
+    CLI -> NPMUC: execute()
+    NPMUC -> NPMSvc: Check existing configuration
+    alt No config or missing GitHub token
+        NPMUC -> NPMSvc: Open browser to GitHub token page
+        NPMUC -> User: Display token permissions checklist
+        NPMUC -> User: Prompt for GitHub token (hidden input)
+        User -> NPMUC: GitHub token
+        NPMUC -> NPMSvc: Save NPM configuration
+    end
+    NPMUC -> CLI: Configuration result
+    CLI -> User: Display NPM configuration summary
+end
+
+== Completion ==
+CLI -> User: Setup completed successfully!
+
+@enduml

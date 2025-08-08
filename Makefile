@@ -1,4 +1,4 @@
-.PHONY: help setup install test watch lint lint-fix format clean all setup-env setup-env-dry setup-env-help setup-env-init setup-env-example
+.PHONY: help setup install test watch lint lint-fix format clean all setup-env setup-env-dry setup-env-help setup-env-init setup-env-example setup-brew-software setup-brew-all
 
 # Default target
 help:
@@ -19,6 +19,10 @@ help:
 	@echo "  make setup-env-help    - Show setup-environment CLI help and usage"
 	@echo "  make setup-env-init    - Generate .env template file"
 	@echo "  make setup-env-example - Generate .env.example template file"
+	@echo ""
+	@echo "Software Installation:"
+	@echo "  make setup-brew-software - Install configured development software interactively"
+	@echo "  make setup-brew-all      - Install all configured software without prompts"
 
 # Install uv if not present and create virtual environment
 setup:
@@ -127,3 +131,21 @@ setup-env-example:
 	@echo "📝 Generating .env.example template file..."
 	@uv run setup-environment --generate-env-example
 	@echo "💡 Copy .env.example to .env and customise with your repositories"
+
+# Install development software interactively
+setup-brew-software:
+	@echo "🛠️  Installing development software..."
+	@echo "This will check for and install: python+uv, git+config+ssh, nvm+node, gh, awscli, azure-cli, zsh, terraform, oh-my-zsh, iterm2, slack"
+	@echo "You'll be prompted before each installation."
+	@if [ ! -d "/tmp" ]; then mkdir -p "/tmp"; fi
+	@uv run setup-environment --dev-folder /tmp --skip-npm
+	@echo "⚠️  Note: Skipped Git repository cloning (only software installation)"
+
+# Install all development software without prompts
+setup-brew-all:
+	@echo "🚀 Installing all development software automatically..."
+	@echo "This will install: python+uv, git+config+ssh, nvm+node, gh, awscli, azure-cli, zsh, terraform, oh-my-zsh, iterm2, slack"
+	@echo "No prompts - installing everything configured as required or optional"
+	@if [ ! -d "/tmp" ]; then mkdir -p "/tmp"; fi
+	@uv run setup-environment --dev-folder /tmp --skip-npm --install-all-software
+	@echo "⚠️  Note: Skipped Git repository cloning (only software installation)"

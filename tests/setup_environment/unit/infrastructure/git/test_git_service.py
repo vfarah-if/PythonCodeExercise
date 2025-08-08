@@ -1,6 +1,5 @@
 """Unit tests for GitPythonService."""
 
-import subprocess
 import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -29,9 +28,9 @@ class TestGitPythonService:
         """Test that is_git_installed returns True when Git is available."""
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = Mock(returncode=0)
-            
+
             result = git_service.is_git_installed()
-            
+
             assert result is True
             mock_run.assert_called_once_with(
                 ["git", "--version"],
@@ -43,18 +42,18 @@ class TestGitPythonService:
         """Test that is_git_installed returns False when Git is not available."""
         with patch("subprocess.run") as mock_run:
             mock_run.side_effect = FileNotFoundError()
-            
+
             result = git_service.is_git_installed()
-            
+
             assert result is False
 
     def test_is_git_installed_returns_false_on_error(self, git_service):
         """Test that is_git_installed returns False on command error."""
         with patch("subprocess.run") as mock_run:
             mock_run.return_value = Mock(returncode=1)
-            
+
             result = git_service.is_git_installed()
-            
+
             assert result is False
 
     def test_repository_exists_returns_true_for_valid_repo(self, git_service):
@@ -63,12 +62,12 @@ class TestGitPythonService:
             repo_path = Path(temp_dir)
             git_dir = repo_path / ".git"
             git_dir.mkdir()
-            
+
             with patch("subprocess.run") as mock_run:
                 mock_run.return_value = Mock(returncode=0)
-                
+
                 result = git_service.repository_exists(repo_path)
-                
+
                 assert result is True
                 mock_run.assert_called_once_with(
                     ["git", "rev-parse", "--git-dir"],
@@ -80,18 +79,18 @@ class TestGitPythonService:
     def test_repository_exists_returns_false_for_non_existent_path(self, git_service):
         """Test that repository_exists returns False for non-existent path."""
         non_existent = Path("/does/not/exist")
-        
+
         result = git_service.repository_exists(non_existent)
-        
+
         assert result is False
 
     def test_repository_exists_returns_false_for_non_git_directory(self, git_service):
         """Test that repository_exists returns False for directory without .git."""
         with tempfile.TemporaryDirectory() as temp_dir:
             repo_path = Path(temp_dir)
-            
+
             result = git_service.repository_exists(repo_path)
-            
+
             assert result is False
 
     def test_repository_exists_returns_false_when_git_command_fails(self, git_service):
@@ -100,29 +99,29 @@ class TestGitPythonService:
             repo_path = Path(temp_dir)
             git_dir = repo_path / ".git"
             git_dir.mkdir()
-            
+
             with patch("subprocess.run") as mock_run:
                 mock_run.return_value = Mock(returncode=1)
-                
+
                 result = git_service.repository_exists(repo_path)
-                
+
                 assert result is False
 
     def test_clone_repository_success(self, git_service, sample_repository):
         """Test successful repository cloning."""
         with tempfile.TemporaryDirectory() as temp_dir:
             target_path = Path(temp_dir) / "test-repo"
-            
+
             with patch("subprocess.run") as mock_run:
                 mock_run.return_value = Mock(returncode=0, stderr="", stdout="")
-                
+
                 result = git_service.clone_repository(sample_repository, target_path)
-                
+
                 assert result.status == CloneStatus.SUCCESS
                 assert result.repository == sample_repository
                 assert result.path == target_path
                 assert result.error_message is None
-                
+
                 mock_run.assert_called_once_with(
                     ["git", "clone", sample_repository.url, str(target_path)],
                     capture_output=True,
@@ -136,12 +135,12 @@ class TestGitPythonService:
         """Test that clone_repository creates parent directory if needed."""
         with tempfile.TemporaryDirectory() as temp_dir:
             target_path = Path(temp_dir) / "org" / "repo"
-            
+
             with patch("subprocess.run") as mock_run:
                 mock_run.return_value = Mock(returncode=0, stderr="", stdout="")
-                
+
                 result = git_service.clone_repository(sample_repository, target_path)
-                
+
                 assert result.status == CloneStatus.SUCCESS
                 # Parent directory should be created
                 assert target_path.parent.exists()
@@ -152,16 +151,16 @@ class TestGitPythonService:
         """Test repository cloning failure with error message."""
         with tempfile.TemporaryDirectory() as temp_dir:
             target_path = Path(temp_dir) / "test-repo"
-            
+
             with patch("subprocess.run") as mock_run:
                 mock_run.return_value = Mock(
                     returncode=128,
                     stderr="fatal: repository not found",
                     stdout="",
                 )
-                
+
                 result = git_service.clone_repository(sample_repository, target_path)
-                
+
                 assert result.status == CloneStatus.FAILED
                 assert result.repository == sample_repository
                 assert result.path is None
@@ -171,12 +170,12 @@ class TestGitPythonService:
         """Test clone_repository when Git is not installed."""
         with tempfile.TemporaryDirectory() as temp_dir:
             target_path = Path(temp_dir) / "test-repo"
-            
+
             with patch("subprocess.run") as mock_run:
                 mock_run.side_effect = FileNotFoundError()
-                
+
                 result = git_service.clone_repository(sample_repository, target_path)
-                
+
                 assert result.status == CloneStatus.FAILED
                 assert "Git command not found" in result.error_message
 
@@ -184,12 +183,12 @@ class TestGitPythonService:
         """Test clone_repository with unexpected error."""
         with tempfile.TemporaryDirectory() as temp_dir:
             target_path = Path(temp_dir) / "test-repo"
-            
+
             with patch("subprocess.run") as mock_run:
                 mock_run.side_effect = Exception("Unexpected error")
-                
+
                 result = git_service.clone_repository(sample_repository, target_path)
-                
+
                 assert result.status == CloneStatus.FAILED
                 assert "Unexpected error" in result.error_message
 
@@ -199,15 +198,15 @@ class TestGitPythonService:
         """Test that stdout is used for error message if stderr is empty."""
         with tempfile.TemporaryDirectory() as temp_dir:
             target_path = Path(temp_dir) / "test-repo"
-            
+
             with patch("subprocess.run") as mock_run:
                 mock_run.return_value = Mock(
                     returncode=1,
                     stderr="",
                     stdout="Error: Permission denied",
                 )
-                
+
                 result = git_service.clone_repository(sample_repository, target_path)
-                
+
                 assert result.status == CloneStatus.FAILED
                 assert "Permission denied" in result.error_message

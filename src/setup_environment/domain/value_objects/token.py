@@ -14,7 +14,7 @@ class PersonalAccessToken:
         """Validate the token format after initialisation."""
         if not self.value:
             raise ValueError("Personal access token cannot be empty")
-        
+
         if not self._is_valid_format():
             raise ValueError(
                 "Invalid token format. Expected format: ghp_* or github_pat_*"
@@ -24,10 +24,10 @@ class PersonalAccessToken:
         """Check if token has valid GitHub PAT format."""
         classic_pattern = r"^ghp_[a-zA-Z0-9]{36}$"
         fine_grained_pattern = r"^github_pat_[a-zA-Z0-9_]{82}$"
-        
+
         return (
-            re.match(classic_pattern, self.value) is not None or
-            re.match(fine_grained_pattern, self.value) is not None
+            re.match(classic_pattern, self.value) is not None
+            or re.match(fine_grained_pattern, self.value) is not None
         )
 
     def __str__(self) -> str:
@@ -38,4 +38,4 @@ class PersonalAccessToken:
 
     def __repr__(self) -> str:
         """Return masked representation for security."""
-        return f"PersonalAccessToken({str(self)})"
+        return f"PersonalAccessToken({self!s})"

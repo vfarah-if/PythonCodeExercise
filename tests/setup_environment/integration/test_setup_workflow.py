@@ -1,8 +1,6 @@
 """Integration tests for the complete setup workflow."""
 
-import os
 import tempfile
-from pathlib import Path
 
 import pytest
 from click.testing import CliRunner
@@ -37,14 +35,14 @@ class TestSetupWorkflowIntegration:
             "GIT_REPO_1": "https://github.com/octocat/Hello-World.git",
             "GIT_REPO_2": "https://github.com/octocat/Spoon-Knife.git",
         }
-        
+
         with runner.isolated_filesystem():
             result = runner.invoke(
                 setup_environment,
                 ["--dev-folder", temp_dev_folder, "--dry-run"],
                 env=test_env,
             )
-        
+
         assert result.exit_code == 0
         assert "DRY RUN" in result.output
         assert "No changes will be made" in result.output
@@ -57,14 +55,14 @@ class TestSetupWorkflowIntegration:
         test_env = {
             "GIT_REPO_1": "https://github.com/octocat/Hello-World.git",
         }
-        
+
         with runner.isolated_filesystem():
             result = runner.invoke(
                 setup_environment,
-                ["--dev-folder", temp_dev_folder, "--skip-npm"],
+                ["--dev-folder", temp_dev_folder, "--skip-npm", "--skip-software"],
                 env=test_env,
             )
-        
+
         # Should exit successfully even if Git operations fail
         # because we're testing the overall flow
         assert "Skipped NPM configuration" in result.output
@@ -75,10 +73,10 @@ class TestSetupWorkflowIntegration:
         with runner.isolated_filesystem():
             result = runner.invoke(
                 setup_environment,
-                ["--dev-folder", temp_dev_folder],
+                ["--dev-folder", temp_dev_folder, "--skip-software"],
                 env={},  # No GIT_REPO_* variables
             )
-        
+
         assert result.exit_code == 1
         assert "No repositories found" in result.output
 
@@ -87,14 +85,14 @@ class TestSetupWorkflowIntegration:
         test_env = {
             "GIT_REPO_1": "https://github.com/octocat/Hello-World.git",
         }
-        
+
         with runner.isolated_filesystem():
             result = runner.invoke(
                 setup_environment,
-                ["--dev-folder", "/does/not/exist"],
+                ["--dev-folder", "/does/not/exist", "--skip-software"],
                 env=test_env,
             )
-        
+
         assert result.exit_code != 0
 
     def test_workflow_with_invalid_repository_urls(self, runner, temp_dev_folder):
@@ -104,14 +102,14 @@ class TestSetupWorkflowIntegration:
             "GIT_REPO_2": "invalid-url",  # Invalid
             "GIT_REPO_3": "https://gitlab.com/user/repo.git",  # Not supported
         }
-        
+
         with runner.isolated_filesystem():
             result = runner.invoke(
                 setup_environment,
                 ["--dev-folder", temp_dev_folder, "--dry-run"],
                 env=test_env,
             )
-        
+
         # Should process the valid repository and skip invalid ones
         assert "octocat/Hello-World" in result.output
         # Invalid URLs should generate warnings but not stop execution
@@ -120,10 +118,10 @@ class TestSetupWorkflowIntegration:
     def test_help_command(self, runner):
         """Test that help command provides useful information."""
         result = runner.invoke(setup_environment, ["--help"])
-        
+
         assert result.exit_code == 0
-        assert "Configure Git repositories" in result.output
+        assert "Configure development environment" in result.output
         assert "--dev-folder" in result.output
         assert "--skip-npm" in result.output
+        assert "--skip-software" in result.output
         assert "--dry-run" in result.output
-        assert "GIT_REPO_*" in result.output

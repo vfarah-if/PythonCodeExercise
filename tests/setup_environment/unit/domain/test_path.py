@@ -46,9 +46,10 @@ class TestDevFolderPath:
             # Create a subdirectory
             sub_dir = Path(temp_dir) / "subdir"
             sub_dir.mkdir()
-            
+
             # Change to temp directory and use relative path
             import os
+
             original_cwd = os.getcwd()
             try:
                 os.chdir(temp_dir)
@@ -68,14 +69,14 @@ class TestDevFolderPath:
         """Test creating subdirectory under development folder."""
         with tempfile.TemporaryDirectory() as temp_dir:
             dev_folder = DevFolderPath(temp_dir)
-            
+
             # Create nested subdirectory
             sub_path = dev_folder.create_subdirectory("org", "repo")
-            
+
             assert sub_path.exists()
             assert sub_path.is_dir()
             assert sub_path == Path(temp_dir) / "org" / "repo"
-            
+
             # Test idempotency - creating again should not fail
             sub_path2 = dev_folder.create_subdirectory("org", "repo")
             assert sub_path2 == sub_path
@@ -84,16 +85,19 @@ class TestDevFolderPath:
         """Test that DevFolderPath is immutable."""
         with tempfile.TemporaryDirectory() as temp_dir:
             dev_folder = DevFolderPath(temp_dir)
-            
+
             # Attempt to modify value should raise error
             with pytest.raises(AttributeError):
                 dev_folder.value = Path("/different/path")
 
-    @pytest.mark.parametrize("invalid_path", [
-        None,
-        "",
-        " ",
-    ])
+    @pytest.mark.parametrize(
+        "invalid_path",
+        [
+            None,
+            "",
+            " ",
+        ],
+    )
     def test_invalid_path_inputs(self, invalid_path):
         """Test handling of invalid path inputs."""
         with pytest.raises((ValueError, TypeError)):

@@ -3,4 +3,4 @@
 from .npm_config import NPMConfiguration
 from .repository import Repository
 
-__all__ = ["Repository", "NPMConfiguration"]
+__all__ = ["NPMConfiguration", "Repository"]

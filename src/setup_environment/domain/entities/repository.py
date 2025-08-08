@@ -19,7 +19,7 @@ class Repository:
         """Create a Repository from a Git URL."""
         if not url:
             raise ValueError("Repository URL cannot be empty")
-        
+
         # Support both HTTPS and SSH URLs
         if url.startswith("git@"):
             # SSH format: git@github.com:org/repo.git
@@ -32,17 +32,17 @@ class Repository:
             parsed = urlparse(url)
             if parsed.hostname != "github.com":
                 raise ValueError(f"Only GitHub repositories are supported: {url}")
-            
+
             path_parts = parsed.path.strip("/").split("/")
             if len(path_parts) < 2:
                 raise ValueError(f"Invalid repository URL format: {url}")
-            
+
             organisation = path_parts[0]
             name = path_parts[1].removesuffix(".git")
-        
+
         if not organisation or not name:
             raise ValueError(f"Could not extract organisation and name from URL: {url}")
-        
+
         return cls(url=url, organisation=organisation, name=name)
 
     def calculate_target_path(self, base_path: Path) -> Path:
