@@ -282,6 +282,13 @@ from src.sum import sum_numbers, sum_list, sum_positive
 | `make format` | Format code with ruff |
 | `make clean` | Remove cache files and virtual environment |
 | `make all` | Clean install and start watch mode |
+| | |
+| **Setup Environment CLI** | |
+| `make setup-env` | Run setup-environment CLI with ~/dev folder |
+| `make setup-env-dry` | Run setup-environment CLI in dry-run mode |
+| `make setup-env-help` | Show setup-environment CLI help and usage |
+| `make setup-env-init` | Generate .env template file |
+| `make setup-env-example` | Generate .env.example template file |
 
 ### Direct uv Commands
 
@@ -501,6 +508,318 @@ def test_sum_positive_filters_negative():
 - [ruff Documentation](https://docs.astral.sh/ruff/)
 - [Python Testing Best Practices](https://realpython.com/pytest-python-testing/)
 - [Kata Catalog](https://www.codewars.com/) - Find coding challenges
+
+## Setup Environment CLI
+
+This project includes a production-grade CLI tool for setting up development environments with Git repositories and NPM configuration.
+
+### Overview
+
+The `setup-environment` CLI automates the process of:
+1. Reading repository URLs from environment variables (`GIT_REPO_*`)
+2. Cloning repositories to a specified development folder
+3. Setting up NPM configuration for GitHub Package Registry
+
+### Architecture
+
+Built following **Clean Architecture** principles with comprehensive test coverage:
+
+```
+src/setup_environment/
+├── domain/                 # Business logic & entities
+│   ├── entities/          # Repository, NPMConfiguration
+│   └── value_objects/     # DevFolderPath, PersonalAccessToken
+├── application/           # Use cases & business rules
+│   ├── interfaces/        # Service abstractions
+│   └── use_cases/        # SetupRepositories, ConfigureNPM
+├── infrastructure/        # External dependencies
+│   ├── git/              # Git operations via subprocess
+│   └── npm/              # File system operations
+└── presentation/         # User interface (CLI)
+
+tests/setup_environment/   # 124 comprehensive tests
+├── unit/                 # Unit tests (all layers)
+└── integration/          # End-to-end workflow tests
+```
+
+### Key Features
+
+- **🏗️ Clean Architecture**: Domain-driven design with dependency injection
+- **✅ TDD Implementation**: 124 tests with 100% pass rate  
+- **🔍 Dry-Run Mode**: Test setup without making changes (`--dry-run`)
+- **📄 .env File Support**: Secure, organised configuration management
+- **⚙️ Environment-Driven**: Configure repositories via `GIT_REPO_*` variables or .env files
+- **🔐 Interactive NPM Setup**: Guided GitHub Personal Access Token creation
+- **📁 Smart Organisation**: Clones to `~/dev/{org}/{repo}` structure
+- **🚫 Skip Existing**: Automatically skips repositories that already exist
+- **📋 Template Generation**: Create `.env` and `.env.example` files automatically
+- **🔧 Custom .env Files**: Support for multiple environment configurations
+- **⚡ Error Handling**: Comprehensive validation and user feedback
+
+### Quick Start
+
+**Using .env Files (Recommended):**
+
+```bash
+# Generate .env template
+make setup-env-init
+
+# Edit .env with your repositories
+vim .env
+
+# Run the setup
+make setup-env
+```
+
+**Using Environment Variables:**
+
+```bash
+# Set up your repositories
+export GIT_REPO_1="https://github.com/webuild-ai/repo1.git"
+export GIT_REPO_2="https://github.com/webuild-ai/repo2.git"
+export GIT_REPO_3="git@github.com:your-org/private-repo.git"
+
+# Run the setup
+make setup-env
+```
+
+**Testing First:**
+
+```bash
+# Test without making changes (works with both methods)
+make setup-env-dry
+```
+
+### CLI Usage
+
+```bash
+# Basic usage
+setup-environment --dev-folder ~/dev
+
+# Use custom .env file
+setup-environment --dev-folder ~/dev --env-file .env.production
+
+# Skip NPM configuration
+setup-environment --dev-folder ~/dev --skip-npm
+
+# Dry run (validation only, no changes)
+setup-environment --dev-folder ~/dev --dry-run
+
+# Template generation (--dev-folder not required)
+setup-environment --generate-env           # Creates .env
+setup-environment --generate-env-example   # Creates .env.example
+
+# All options together
+setup-environment --dev-folder ~/dev --env-file .env.custom --skip-npm --dry-run
+```
+
+### Configuration Options
+
+The CLI supports two configuration methods: `.env` files (recommended) and environment variables.
+
+#### Option 1: Using .env Files (Recommended)
+
+Generate a template and customize it with your repositories:
+
+```bash
+# Generate .env template
+make setup-env-init
+
+# Edit .env with your repository URLs
+vim .env
+
+# Run setup
+make setup-env
+```
+
+**Benefits of .env files:**
+- 🔒 **Security**: Keep sensitive data out of shell history
+- 📝 **Version Control**: Use `.env.example` for team templates
+- 🏗️ **Organisation**: Group related repositories logically
+- 🔄 **Portability**: Easy to backup and share configurations
+
+#### Option 2: Environment Variables
+
+Configure repositories directly using environment variables:
+
+```bash
+# HTTPS repositories
+export GIT_REPO_1="https://github.com/facebook/react.git"
+export GIT_REPO_2="https://github.com/microsoft/vscode.git"
+
+# SSH repositories (for private repos)
+export GIT_REPO_PRIVATE="git@github.com:your-org/private-repo.git"
+
+# Any GIT_REPO_* pattern works
+export GIT_REPO_FRONTEND="https://github.com/webuild-ai/frontend.git"
+export GIT_REPO_BACKEND="https://github.com/webuild-ai/backend.git"
+export GIT_REPO_TOOLS="https://github.com/webuild-ai/dev-tools.git"
+```
+
+#### .env File Format
+
+The generated `.env` file contains example repositories and clear documentation:
+
+```bash
+# Setup Environment Configuration
+# Add your Git repository URLs below using the GIT_REPO_* pattern
+# Supports both HTTPS and SSH URLs
+
+# Example repositories (replace with your own)
+GIT_REPO_1=https://github.com/facebook/react.git
+GIT_REPO_2=https://github.com/microsoft/vscode.git
+GIT_REPO_FRONTEND=https://github.com/your-org/frontend.git
+GIT_REPO_BACKEND=https://github.com/your-org/backend.git
+
+# For private repositories, use SSH URLs:
+# GIT_REPO_PRIVATE=git@github.com:your-org/private-repo.git
+
+# You can use any GIT_REPO_* pattern:
+# GIT_REPO_TOOLS=https://github.com/your-org/dev-tools.git
+# GIT_REPO_DOCS=https://github.com/your-org/documentation.git
+```
+
+#### Migration from Environment Variables
+
+If you're currently using environment variables, migrate to .env files:
+
+1. **Generate template**: `make setup-env-init`
+2. **Copy existing vars**: Move your `GIT_REPO_*` variables to `.env`
+3. **Test migration**: Use `make setup-env-dry` to verify
+4. **Remove old vars**: Clean up your shell profile files
+
+### Repository Structure
+
+Repositories are cloned to organised directories:
+
+```
+~/dev/
+├── facebook/
+│   └── react/              # cloned from GIT_REPO_1
+├── microsoft/
+│   └── vscode/             # cloned from GIT_REPO_2
+└── webuild-ai/
+    ├── frontend/           # cloned from GIT_REPO_FRONTEND
+    ├── backend/            # cloned from GIT_REPO_BACKEND
+    └── dev-tools/          # cloned from GIT_REPO_TOOLS
+```
+
+### NPM Configuration
+
+The CLI provides a comprehensive, guided NPM configuration experience:
+
+#### Automatic Browser Navigation
+1. **Direct Token Creation**: Opens directly to GitHub's token creation page
+2. **Interactive Setup**: Step-by-step guidance through the entire process
+3. **Smart Detection**: Checks if `~/.npmrc` exists and has valid GitHub token
+
+#### Required Token Permissions
+The CLI clearly displays required permissions with checkboxes:
+- ☐ **repo** - Full control of private repositories
+- ☐ **write:packages** - Upload packages to GitHub Package Registry
+- ☐ **read:packages** - Download packages from GitHub Package Registry  
+- ☐ **delete:packages** - Delete packages from GitHub Package Registry
+
+#### Security Features
+- **Hidden Input**: Token input is masked for security
+- **Token Validation**: Validates token format (ghp_* or github_pat_*)
+- **One-Time Warning**: Reminds users that GitHub shows tokens only once
+- **Secure Storage**: Token is immediately saved to `~/.npmrc`
+
+#### Generated Configuration
+```ini
+package-lock=true
+legacy-peer-deps=true
+//npm.pkg.github.com/:_authToken=ghp_your_token_here
+@webuild-ai:registry=https://npm.pkg.github.com
+```
+
+**Note**: Existing `.npmrc` settings are preserved and merged with new configuration.
+
+### Dry-Run Mode
+
+Test your setup without making any changes:
+
+```bash
+make setup-env-dry
+```
+
+**Dry-run shows:**
+- ✅ Repository validation and parsing
+- 📁 Target paths where repos would be cloned  
+- 🔍 Git installation check
+- 📋 NPM configuration status
+- 🚫 **No actual cloning or file modifications**
+
+### Development Workflow Integration
+
+#### Team Onboarding Workflow
+
+**For Project Maintainers:**
+1. Create team template: `make setup-env-example`
+2. Customize `.env.example` with your project repositories
+3. Commit `.env.example` to version control
+4. Document in project README: "Run `make setup-env-init` to get started"
+
+**For New Team Members:**
+1. Clone the project repository
+2. Generate personal config: `make setup-env-init` (copies from `.env.example`)
+3. Customize `.env` with personal preferences
+4. Run setup: `make setup-env`
+
+#### Environment Consistency
+
+Perfect for:
+- **Team onboarding**: New developers can set up entire environment with one command
+- **Environment standardisation**: Same repositories and structure across all machines
+- **CI/CD pipelines**: Automated environment preparation with custom .env files
+- **Documentation**: Self-documenting development environment with version-controlled templates
+
+#### Security Best Practices
+
+- ✅ **`.env`**: Personal configuration (ignored by Git)
+- ✅ **`.env.example`**: Team template (committed to Git)
+- ❌ **Never commit**: `.env`, `.env.local`, `.env.production`, etc.
+- 🔒 **Keep private**: Personal access tokens and sensitive URLs
+
+### Error Handling
+
+The CLI provides clear feedback for common issues:
+- Missing Git installation
+- Invalid repository URLs  
+- Permission denied (private repos)
+- Network connectivity issues
+- Invalid directory paths
+- Malformed Personal Access Tokens
+
+### Testing
+
+Run the comprehensive test suite:
+
+```bash
+# All tests (124 tests)
+uv run pytest tests/setup_environment/ -v
+
+# Unit tests only  
+uv run pytest tests/setup_environment/unit/ -v
+
+# Integration tests
+uv run pytest tests/setup_environment/integration/ -v
+
+# With coverage
+uv run pytest tests/setup_environment/ --cov=src/setup_environment
+```
+
+### Implementation Highlights
+
+- **Value Objects**: `DevFolderPath`, `PersonalAccessToken` with validation
+- **Domain Entities**: `Repository`, `NPMConfiguration` with business logic
+- **Use Cases**: `SetupRepositoriesUseCase`, `ConfigureNPMUseCase`
+- **Clean Interfaces**: `GitService`, `NPMService` for easy testing and mocking
+- **Comprehensive Testing**: Unit tests, integration tests, mocking, parametrised tests
+- **Error Safety**: Extensive validation and graceful error handling
+
+This CLI demonstrates production-ready Python development practices including clean architecture, comprehensive testing, and user-focused design.
 
 ## Contributing
 

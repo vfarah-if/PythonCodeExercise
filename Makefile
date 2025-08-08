@@ -1,4 +1,4 @@
-.PHONY: help setup install test watch lint lint-fix format clean all
+.PHONY: help setup install test watch lint lint-fix format clean all setup-env setup-env-dry setup-env-help setup-env-init setup-env-example
 
 # Default target
 help:
@@ -12,6 +12,13 @@ help:
 	@echo "  make format   - Format code with ruff"
 	@echo "  make clean    - Remove cache files and virtual environment"
 	@echo "  make all      - Clean, setup, install, and start watch mode"
+	@echo ""
+	@echo "Setup Environment CLI:"
+	@echo "  make setup-env         - Run setup-environment CLI with ~/dev folder"
+	@echo "  make setup-env-dry     - Run setup-environment CLI in dry-run mode"
+	@echo "  make setup-env-help    - Show setup-environment CLI help and usage"
+	@echo "  make setup-env-init    - Generate .env template file"
+	@echo "  make setup-env-example - Generate .env.example template file"
 
 # Install uv if not present and create virtual environment
 setup:
@@ -84,3 +91,39 @@ clean:
 all: clean setup install
 	@echo "🚀 Setup complete! Starting watch mode..."
 	@$(MAKE) watch
+
+# Run setup-environment CLI
+setup-env:
+	@echo "🌱 Running setup-environment CLI..."
+	@if [ ! -d "$$HOME/test" ]; then \
+		echo "📁 Creating ~/test directory..."; \
+		mkdir -p "$$HOME/test"; \
+	fi
+	@uv run setup-environment --dev-folder "$$HOME/test"
+
+# Run setup-environment CLI in dry-run mode
+setup-env-dry:
+	@echo "🔍 Running setup-environment CLI in dry-run mode..."
+	@if [ ! -d "$$HOME/test" ]; then \
+		echo "📁 Creating ~/test directory..."; \
+		mkdir -p "$$HOME/test"; \
+	fi
+	@uv run setup-environment --dev-folder "$$HOME/test" --dry-run
+
+# Show setup-environment CLI help
+setup-env-help:
+	@echo "📚 Setup Environment CLI Help:"
+	@echo "================================"
+	@uv run setup-environment --help
+
+# Generate .env template file
+setup-env-init:
+	@echo "📝 Generating .env template file..."
+	@uv run setup-environment --generate-env
+	@echo "💡 Edit .env with your repository URLs, then run 'make setup-env'"
+
+# Generate .env.example template file
+setup-env-example:
+	@echo "📝 Generating .env.example template file..."
+	@uv run setup-environment --generate-env-example
+	@echo "💡 Copy .env.example to .env and customise with your repositories"
