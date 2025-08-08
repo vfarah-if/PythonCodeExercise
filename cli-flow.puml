@@ -10,8 +10,8 @@ participant "GitInstallService" as GitSvc
 participant "NVMService" as NVMSvc
 participant "SetupRepositoriesUseCase" as RepoUC
 participant "GitPythonService" as GitPySvc
-participant "ConfigureNPMUseCase" as NPMUC
-participant "NPMFileService" as NPMSvc
+participant "ConfigureNPMRCUseCase" as NPMRCUC
+participant "NPMRCFileService" as NPMRCSvc
 
 == Initialisation ==
 User -> CLI: setup-environment --dev-folder ~/dev
@@ -114,19 +114,19 @@ end
 RepoUC -> CLI: Clone results
 CLI -> User: Display repository setup summary
 
-== NPM Configuration Phase ==
-alt NPM not skipped
-    CLI -> NPMUC: execute()
-    NPMUC -> NPMSvc: Check existing configuration
+== npmrc Configuration Phase ==
+alt npmrc not skipped
+    CLI -> NPMRCUC: execute()
+    NPMRCUC -> NPMRCSvc: Check existing configuration
     alt No config or missing GitHub token
-        NPMUC -> NPMSvc: Open browser to GitHub token page
-        NPMUC -> User: Display token permissions checklist
-        NPMUC -> User: Prompt for GitHub token (hidden input)
-        User -> NPMUC: GitHub token
-        NPMUC -> NPMSvc: Save NPM configuration
+        NPMRCUC -> NPMRCSvc: Open browser to GitHub token page
+        NPMRCUC -> User: Display token permissions checklist
+        NPMRCUC -> User: Prompt for GitHub token (hidden input)
+        User -> NPMRCUC: GitHub token
+        NPMRCUC -> NPMRCSvc: Save npmrc configuration
     end
-    NPMUC -> CLI: Configuration result
-    CLI -> User: Display NPM configuration summary
+    NPMRCUC -> CLI: Configuration result
+    CLI -> User: Display npmrc configuration summary
 end
 
 == Completion ==
