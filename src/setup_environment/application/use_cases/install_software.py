@@ -342,9 +342,13 @@ class InstallSoftwareUseCase:
 
         if install_all or dry_run:
             success, message = self._python_service.setup_python_environment(dry_run)
-            status = (
-                InstallationStatus.INSTALLED if success else InstallationStatus.FAILED
-            )
+            # Check if everything was already installed
+            if success and "already installed" in message.lower():
+                status = InstallationStatus.ALREADY_INSTALLED
+            elif success:
+                status = InstallationStatus.INSTALLED
+            else:
+                status = InstallationStatus.FAILED
             return [
                 InstallationResult(
                     Software(
@@ -366,9 +370,13 @@ class InstallSoftwareUseCase:
             click.style("Set up Python environment?", fg="cyan"), default=True
         ):
             success, message = self._python_service.setup_python_environment(dry_run)
-            status = (
-                InstallationStatus.INSTALLED if success else InstallationStatus.FAILED
-            )
+            # Check if everything was already installed
+            if success and "already installed" in message.lower():
+                status = InstallationStatus.ALREADY_INSTALLED
+            elif success:
+                status = InstallationStatus.INSTALLED
+            else:
+                status = InstallationStatus.FAILED
             return [
                 InstallationResult(
                     Software(
@@ -419,9 +427,17 @@ class InstallSoftwareUseCase:
 
         if install_all or dry_run:
             success, message = self._git_service.setup_git(dry_run, setup_ssh=setup_ssh)
-            status = (
-                InstallationStatus.INSTALLED if success else InstallationStatus.FAILED
-            )
+            # Check if everything was already installed/configured
+            if (
+                success
+                and "already" in message.lower()
+                and "already installed" in message.lower()
+            ):
+                status = InstallationStatus.ALREADY_INSTALLED
+            elif success:
+                status = InstallationStatus.INSTALLED
+            else:
+                status = InstallationStatus.FAILED
             return [
                 InstallationResult(
                     Software("git", service_name, "git --version", "specialised"),
@@ -441,9 +457,17 @@ class InstallSoftwareUseCase:
 
         if click.confirm(click.style("Set up Git?", fg="cyan"), default=True):
             success, message = self._git_service.setup_git(dry_run, setup_ssh=setup_ssh)
-            status = (
-                InstallationStatus.INSTALLED if success else InstallationStatus.FAILED
-            )
+            # Check if everything was already installed/configured
+            if (
+                success
+                and "already" in message.lower()
+                and "already installed" in message.lower()
+            ):
+                status = InstallationStatus.ALREADY_INSTALLED
+            elif success:
+                status = InstallationStatus.INSTALLED
+            else:
+                status = InstallationStatus.FAILED
             return [
                 InstallationResult(
                     Software("git", service_name, "git --version", "specialised"),
@@ -480,9 +504,13 @@ class InstallSoftwareUseCase:
 
         if install_all or dry_run:
             success, message = self._nvm_service.setup_node_environment(dry_run)
-            status = (
-                InstallationStatus.INSTALLED if success else InstallationStatus.FAILED
-            )
+            # Check if everything was already installed
+            if success and "already installed" in message.lower():
+                status = InstallationStatus.ALREADY_INSTALLED
+            elif success:
+                status = InstallationStatus.INSTALLED
+            else:
+                status = InstallationStatus.FAILED
             return [
                 InstallationResult(
                     Software(
@@ -504,9 +532,13 @@ class InstallSoftwareUseCase:
             click.style("Set up Node.js environment?", fg="cyan"), default=True
         ):
             success, message = self._nvm_service.setup_node_environment(dry_run)
-            status = (
-                InstallationStatus.INSTALLED if success else InstallationStatus.FAILED
-            )
+            # Check if everything was already installed
+            if success and "already installed" in message.lower():
+                status = InstallationStatus.ALREADY_INSTALLED
+            elif success:
+                status = InstallationStatus.INSTALLED
+            else:
+                status = InstallationStatus.FAILED
             return [
                 InstallationResult(
                     Software(

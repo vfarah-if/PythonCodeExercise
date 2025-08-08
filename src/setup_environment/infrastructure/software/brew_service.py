@@ -78,12 +78,17 @@ class BrewSoftwareService(SoftwareService):
 
     def is_installed(self, software: Software) -> bool:
         """Check if software is installed by running its check command."""
+        import os
+
         try:
             # Parse command safely using shlex
             cmd_parts = shlex.split(software.check_command)
 
+            # Expand environment variables in command parts
+            expanded_cmd = [os.path.expandvars(part) for part in cmd_parts]
+
             result = subprocess.run(
-                cmd_parts, capture_output=True, text=True, timeout=10
+                expanded_cmd, capture_output=True, text=True, timeout=10
             )
             return result.returncode == 0
         except (subprocess.SubprocessError, FileNotFoundError):

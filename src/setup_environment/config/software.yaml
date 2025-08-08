@@ -31,7 +31,7 @@ software:
     
   - name: Oh My Zsh
     description: "Zsh configuration framework"
-    check_command: "test -d ~/.oh-my-zsh"
+    check_command: "test -d $HOME/.oh-my-zsh"
     install_command: 'sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
     custom_install: true
     required: false
