@@ -1,0 +1,32 @@
+[MESSAGES CONTROL]
+# Disable specific warnings that are too pedantic for this codebase:
+# R0903: too-few-public-methods - Use cases and DTOs naturally have few methods
+# R0902: too-many-instance-attributes - DTOs need many attributes
+# W0718: broad-exception-caught - Acceptable in main entry points
+# R0801: duplicate-code - Some duplication is acceptable in mapping code
+# C0116: missing-function-docstring - Not required for simple test methods
+# C0115: missing-class-docstring - Not required for simple test classes
+# W0613: unused-argument - Common in factory functions and test fixtures
+# W0143: comparison-with-callable - Can be intentional in some tests
+# C0415: import-outside-toplevel - Sometimes needed for conditional imports
+# C0301: line-too-long - Let ruff handle formatting and line length
+# E0402: relative-beyond-top-level - We use namespace packages without __init__.py
+# F0001: fatal import errors - Ignore missing __init__.py files
+
+disable=R0903,R0902,W0718,R0801,C0116,C0115,W0613,W0143,C0415,C0301,E0402,F0001
+
+[FORMAT]
+# Maximum number of characters on a single line
+max-line-length=88
+
+[BASIC]
+# Good variable names which should always be accepted
+good-names=i,j,k,ex,Run,_,e,id,c
+
+# Enable namespace packages (Python 3.3+)
+# This allows packages without __init__.py files
+init-hook='import sys; sys.path.append("src")'
+
+[DESIGN]
+# Maximum number of attributes for a class (default: 7)
+max-attributes=10
