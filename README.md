@@ -1,5 +1,7 @@
 # PythonCodeExercise
 
+[TOC]
+
 A modern Python kata practice environment using uv and pytest for Test-Driven Development (TDD) exercises.
 
 ## Overview
@@ -217,12 +219,12 @@ For kata practice where quick iteration is key, uv's speed advantage (10-100x fa
 
 ## Project Structure
 
-```
+```shell
 PythonCodeExercise/
-├── Makefile              # Development workflow commands
-├── pyproject.toml        # Project configuration and dependencies
-├── .python-version       # Python version specification
-├── src/                  # Source code
+├── Makefile             # Development workflow commands
+├── pyproject.toml       # Project configuration and dependencies
+├── .python-version      # Python version specification
+├── src/                 # Source code
 │   └── sum/             # Example kata module (reference only - create your own!)
 │       ├── __init__.py  # Package initialiser (see below)
 │       └── sum.py       # Example implementation
@@ -282,6 +284,18 @@ from src.sum import sum_numbers, sum_list, sum_positive
 | `make format` | Format code with ruff |
 | `make clean` | Remove cache files and virtual environment |
 | `make all` | Clean install and start watch mode |
+| | |
+| **Setup Environment CLI** | |
+| `make setup-env` | Run setup-environment CLI with ~/dev folder |
+| `make setup-env-dry` | Run setup-environment CLI in dry-run mode |
+| `make setup-env-help` | Show setup-environment CLI help and usage |
+| `make setup-env-init` | Generate .env template file |
+| `make setup-env-example` | Generate .env.example template file |
+| | |
+| **Software Installation** | |
+| `make setup-brew-software` | Install configured development software interactively |
+| `make setup-brew-all` | Install all configured software without prompts |
+| `make install-setup-env-global` | Install setup-environment CLI tool globally |
 
 ### Direct uv Commands
 
@@ -493,6 +507,391 @@ def test_sum_list_with_mixed():
 def test_sum_positive_filters_negative():
     assert sum_positive([1, -2, 3, -4, 5]) == 9
 ```
+
+# Setup Environment CLI
+
+This project includes a production-grade CLI tool for setting up development environments with Git repositories and npmrc configuration.
+
+### Overview
+
+The `setup-environment` CLI automates the process of:
+1. **Installing development software** with specialised services for complex tools
+2. **Automatic SSH configuration** for private Git repositories
+3. **Loading repository definitions** from YAML configuration files
+4. **Cloning repositories** to a specified development folder
+5. **Setting up npmrc configuration** for GitHub Package Registry
+
+### Architecture
+
+Built following **Clean Architecture** principles with comprehensive test coverage:
+
+```shell
+src/setup_environment/
+├── config/                # Configuration files
+│   ├── repositories.yaml  # Repository definitions
+│   └── software.yaml      # Software to install
+├── domain/                # Business logic & entities
+│   ├── entities/          # Repository, NPMRCConfiguration
+│   └── value_objects/     # DevFolderPath, PersonalAccessToken
+├── application/           # Use cases & business rules
+│   ├── interfaces/        # Service abstractions
+│   └── use_cases/         # SetupRepositories, ConfigureNPMRC
+├── infrastructure/        # External dependencies
+│   ├── git/               # Git operations via subprocess
+│   ├── npm/               # File system operations
+│   └── repository_config_service.py  # YAML config loader
+└── presentation/          # User interface (CLI)
+
+tests/setup_environment/   # 124 comprehensive tests
+├── unit/                  # Unit tests (all layers)
+└── integration/           # End-to-end workflow tests
+```
+
+#### Architecture Documentation
+
+For detailed architecture documentation and visual diagrams, see:
+
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Comprehensive Clean Architecture documentation with layer breakdown, component responsibilities, and data flow examples
+- **[CLEAN_ARCHITECTURE_VISUAL.md](CLEAN_ARCHITECTURE_VISUAL.md)** - Visual ASCII diagrams and Mermaid charts showing the circular/onion architecture structure  
+- **[makefile-workflow.puml](makefile-workflow.puml)** - PlantUML diagram visualizing Makefile command relationships and development workflow
+
+### Key Features
+
+- **🏗️ Clean Architecture**: Domain-driven design with dependency injection
+- **🛠️ Software Installation**: Automated setup of development tools via Homebrew
+- **🔐 Intelligent SSH Setup**: Automatic SSH key generation and GitHub configuration
+- **🎯 Specialised Services**: Custom setup for Python+uv, Git+SSH, NVM+Node.js
+- **✅ TDD Implementation**: 205 tests with 100% pass rate  
+- **🔍 Dry-Run Mode**: Test setup without making changes (`--dry-run`)
+- **📄 YAML Configuration**: Structured repository definitions in YAML format
+- **⚙️ Configuration-Driven**: Configure repositories via repositories.yaml
+- **🔐 Interactive npmrc Setup**: Guided GitHub Personal Access Token creation
+- **📁 Smart Organisation**: Clones to `~/dev/{org}/{repo}` structure
+- **🚫 Skip Existing**: Automatically skips repositories that already exist
+- **🔧 Custom Config Files**: Support for multiple repository configurations
+- **⚡ Error Handling**: Comprehensive validation and user feedback
+
+### Quick Start
+
+**Development Software Setup:**
+
+```bash
+# Install development tools interactively
+make setup-brew-software
+
+# Or install all tools automatically
+make setup-brew-all
+```
+
+**Using Repository Configuration:**
+
+```bash
+# Repository definitions are in config/repositories.yaml
+# Edit to add your repositories
+vim src/setup_environment/config/repositories.yaml
+
+# Run the setup
+make setup-env
+
+# Or use a custom config file
+setup-environment --dev-folder ~/dev --repositories-config ~/my-repos.yaml
+```
+
+**Testing First:**
+
+```bash
+# Test without making changes (works with both methods)
+make setup-env-dry
+```
+
+### CLI Usage
+
+The `setup-environment` CLI can be used either locally within the project or installed globally for system-wide access.
+
+#### Local Usage (Within Project)
+
+```bash
+# Using the Makefile commands
+make setup-env              # Run with ~/test folder
+make setup-env-dry          # Dry-run mode
+make setup-env-help         # Show help
+
+# Direct usage with uv
+uv run setup-environment --dev-folder ~/dev
+```
+
+#### Global Installation
+
+Install the CLI globally to use it from anywhere on your system:
+
+```bash
+# Install globally using the Makefile
+make install-setup-env-global
+
+# Or install manually with uv
+uv tool install .
+
+# Or with pipx (if you prefer)
+pipx install .
+```
+
+After global installation, the `setup-environment` command is available system-wide:
+
+```bash
+# Basic usage
+setup-environment --dev-folder ~/dev
+
+# Use custom repository config file
+setup-environment --dev-folder ~/dev --repositories-config ~/repos-production.yaml
+
+# Skip npmrc configuration
+setup-environment --dev-folder ~/dev --skip-npmrc
+
+# Dry run (validation only, no changes)
+setup-environment --dev-folder ~/dev --dry-run
+
+# All options together
+setup-environment --dev-folder ~/dev --repositories-config custom-repos.yaml --skip-npmrc --dry-run
+```
+
+### Repository Configuration
+
+Repositories are defined in a YAML configuration file located at `src/setup_environment/config/repositories.yaml`:
+
+```yaml
+repositories:
+  - name: Frontend Application
+    url: git@github.com:your-org/frontend.git
+    description: "Main frontend application"
+    
+  - name: Backend Services
+    url: git@github.com:your-org/backend.git
+    description: "Backend API services"
+```
+
+**Benefits of YAML configuration:**
+- 📝 **Structure**: Clear, readable repository definitions
+- 🏗️ **Organisation**: Group related repositories with metadata
+- 🔄 **Portability**: Easy to share and version control
+- 📋 **Documentation**: Include descriptions for each repository
+
+#### Migration from Environment Variables
+
+If you're currently using environment variables, migrate to .env files:
+
+1. **Generate template**: `make setup-env-init`
+2. **Copy existing vars**: Move your `GIT_REPO_*` variables to `.env`
+3. **Test migration**: Use `make setup-env-dry` to verify
+4. **Remove old vars**: Clean up your shell profile files
+
+### Repository Structure
+
+Repositories are cloned to organised directories:
+
+```
+~/dev/
+├── facebook/
+│   └── react/              # cloned from GIT_REPO_1
+├── microsoft/
+│   └── vscode/             # cloned from GIT_REPO_2
+└── webuild-ai/
+    ├── frontend/           # cloned from GIT_REPO_FRONTEND
+    ├── backend/            # cloned from GIT_REPO_BACKEND
+    └── dev-tools/          # cloned from GIT_REPO_TOOLS
+```
+
+### npmrc Configuration
+
+The CLI provides a comprehensive, guided npmrc configuration experience:
+
+#### Automatic Browser Navigation
+1. **Direct Token Creation**: Opens directly to GitHub's token creation page
+2. **Interactive Setup**: Step-by-step guidance through the entire process
+3. **Smart Detection**: Checks if `~/.npmrc` exists and has valid GitHub token
+
+#### Required Token Permissions
+The CLI clearly displays required permissions with checkboxes:
+- ☐ **repo** - Full control of private repositories
+- ☐ **write:packages** - Upload packages to GitHub Package Registry
+- ☐ **read:packages** - Download packages from GitHub Package Registry  
+- ☐ **delete:packages** - Delete packages from GitHub Package Registry
+
+#### Security Features
+- **Hidden Input**: Token input is masked for security
+- **Token Validation**: Validates token format (ghp_* or github_pat_*)
+- **One-Time Warning**: Reminds users that GitHub shows tokens only once
+- **Secure Storage**: Token is immediately saved to `~/.npmrc`
+
+#### Generated Configuration
+```ini
+package-lock=true
+legacy-peer-deps=true
+//npm.pkg.github.com/:_authToken=ghp_your_token_here
+@webuild-ai:registry=https://npm.pkg.github.com
+```
+
+**Note**: Existing `.npmrc` settings are preserved and merged with new configuration.
+
+### Dry-Run Mode
+
+Test your setup without making any changes:
+
+```bash
+make setup-env-dry
+```
+
+**Dry-run shows:**
+- ✅ Repository validation and parsing
+- 📁 Target paths where repos would be cloned  
+- 🔍 Git installation check
+- 📋 npmrc configuration status
+- 🚫 **No actual cloning or file modifications**
+
+### Development Workflow Integration
+
+#### Environment Consistency
+
+Perfect for:
+- **Team onboarding**: New developers can set up entire environment with one command
+- **Environment standardisation**: Same repositories and structure across all machines
+- **CI/CD pipelines**: Automated environment preparation with custom .env files
+- **Documentation**: Self-documenting development environment with version-controlled templates
+
+### Error Handling
+
+The CLI provides clear feedback for common issues:
+- Missing Git installation
+- Invalid repository URLs  
+- Permission denied (private repos)
+- Network connectivity issues
+- Invalid directory paths
+- Malformed Personal Access Tokens
+
+### Testing
+
+Run the comprehensive test suite:
+
+```bash
+# All tests (124 tests)
+uv run pytest tests/setup_environment/ -v
+
+# Unit tests only  
+uv run pytest tests/setup_environment/unit/ -v
+
+# Integration tests
+uv run pytest tests/setup_environment/integration/ -v
+
+# With coverage
+uv run pytest tests/setup_environment/ --cov=src/setup_environment
+```
+
+### Implementation Highlights
+
+- **Value Objects**: `DevFolderPath`, `PersonalAccessToken` with validation
+- **Domain Entities**: `Repository`, `NPMRCConfiguration` with business logic
+- **Use Cases**: `SetupRepositoriesUseCase`, `ConfigureNPMRCUseCase`
+- **Clean Interfaces**: `GitService`, `NPMRCService` for easy testing and mocking
+- **Comprehensive Testing**: Unit tests, integration tests, mocking, parametrised tests
+- **Error Safety**: Extensive validation and graceful error handling
+
+### Software Installation
+
+The CLI includes automated development software installation via Homebrew:
+
+#### Supported Software
+
+**Specialised Services (Advanced Setup):**
+- **Python Environment** - Python + uv package manager with custom configuration
+- **Git + SSH** - Git installation + user configuration + SSH key generation
+- **Node.js Environment** - NVM + latest Node.js LTS with proper shell integration
+
+**Essential Development Tools:**
+- **GitHub CLI (gh)** - GitHub's official command line tool ✅ *required*
+- **AWS CLI** - Amazon Web Services command line interface ✅ *required*
+- **Azure CLI** - Microsoft Azure command line interface ✅ *required*
+- **Terraform** - Infrastructure as Code tool ✅ *required*
+
+**Development Environment:**
+- **iTerm2** - Terminal emulator for macOS
+- **Zsh** - Z shell
+- **Oh My Zsh** - Zsh configuration framework
+- **Slack** - Team communication and collaboration platform
+- **Cursor** - AI-powered code editor built on VS Code
+- **Claude Code** - Anthropic's official CLI for Claude
+- **Visual Studio Code** - Open-source code editor from Microsoft
+- **Rectangle** - Window management app for macOS
+- **Docker Desktop** - Docker containerization platform
+- **AltTab** - Windows-style alt-tab window switcher for macOS
+- **Google Chrome** - Web browser from Google
+- **Brave Browser** - Privacy-focused web browser with no adverts in youtube videos
+- **Firefox** - Open-source web browser from Mozilla
+- **Postman** - API development and testing platform
+- **Xcode** - Apple's integrated development environment
+- **Android Studio** - IDE for Android development
+- **OpenJDK** - Open-source Java Development Kit to help drawing tools
+- **PlantUML** - UML diagram generation tool
+- **Mermaid CLI** - Diagram generation from text definitions
+
+#### Installation Modes
+
+**Interactive Installation:**
+```bash
+make setup-brew-software
+```
+- Prompts before each software installation
+- Options: Yes / No / Yes to All / Skip All
+- Shows software descriptions and installation commands
+
+**Automatic Installation:**
+```bash
+make setup-brew-all
+```
+- Installs all configured software without prompts
+- Useful for automated environment setup
+
+#### Homebrew Auto-Installation
+
+The CLI automatically detects if Homebrew is missing and offers to install it:
+- Prompts user for permission before installation
+- Handles the official Homebrew installation script
+- Supports dry-run mode for testing
+
+#### Configuration
+
+Software packages are defined in `src/setup_environment/config/software.yaml`:
+```yaml
+software:
+  - name: git
+    description: "Distributed version control system"
+    check_command: "git --version"
+    install_command: "brew install git"
+    required: true
+```
+
+Add custom software by extending this configuration file.
+
+### SSH Configuration
+
+The CLI provides intelligent SSH setup for Git repositories:
+
+#### Automatic SSH Detection
+- **Smart Detection**: Automatically detects SSH repository URLs (`git@github.com:...`)
+- **Conditional Setup**: Only configures SSH when SSH repositories are present
+- **Zero Assumptions**: Eliminates manual SSH configuration steps
+
+#### SSH Setup Process
+1. **Key Generation**: Creates Ed25519 SSH keys (GitHub recommended)
+2. **Agent Configuration**: Adds keys to ssh-agent automatically
+3. **Connection Testing**: Verifies GitHub SSH connectivity
+4. **Manual Fallback**: Provides clear instructions if automated setup fails
+
+#### SSH Features
+- **Email Integration**: Uses Git user email for SSH key generation
+- **Key Management**: Checks for existing keys before generating new ones
+- **Security**: Ed25519 keys with no passphrase for automation
+- **Instructions**: Step-by-step GitHub SSH key addition guidance
+
+This CLI demonstrates production-ready Python development practices including clean architecture, comprehensive testing, user-focused design, and intelligent SSH automation.
 
 ## Resources
 

@@ -1,4 +1,4 @@
-.PHONY: help setup install test watch lint lint-fix format clean all
+.PHONY: help setup install test watch lint lint-fix format clean all setup-env setup-env-dry setup-env-help setup-brew-software setup-brew-all install-setup-env-global uninstall-setup-env-global
 
 # Default target
 help:
@@ -12,6 +12,17 @@ help:
 	@echo "  make format   - Format code with ruff"
 	@echo "  make clean    - Remove cache files and virtual environment"
 	@echo "  make all      - Clean, setup, install, and start watch mode"
+	@echo ""
+	@echo "Setup Environment CLI:"
+	@echo "  make setup-env         - Run setup-environment CLI with ~/dev folder"
+	@echo "  make setup-env-dry     - Run setup-environment CLI in dry-run mode"
+	@echo "  make setup-env-help    - Show setup-environment CLI help and usage"
+	@echo ""
+	@echo "Software Installation:"
+	@echo "  make setup-brew-software - Install configured development software interactively"
+	@echo "  make setup-brew-all      - Install all configured software without prompts"
+	@echo "  make install-setup-env-global   - Install setup-environment CLI tool globally"
+	@echo "  make uninstall-setup-env-global - Uninstall setup-environment CLI tool"
 
 # Install uv if not present and create virtual environment
 setup:
@@ -84,3 +95,114 @@ clean:
 all: clean setup install
 	@echo "🚀 Setup complete! Starting watch mode..."
 	@$(MAKE) watch
+
+# Run setup-environment CLI
+setup-env:
+	@echo "🌱 Running setup-environment CLI..."
+	@if [ ! -d "$$HOME/test" ]; then \
+		echo "📁 Creating ~/test directory..."; \
+		mkdir -p "$$HOME/test"; \
+	fi
+	@uv run setup-environment --dev-folder "$$HOME/test"
+
+# Run setup-environment CLI in dry-run mode
+setup-env-dry:
+	@echo "🔍 Running setup-environment CLI in dry-run mode..."
+	@if [ ! -d "$$HOME/test" ]; then \
+		echo "📁 Creating ~/test directory..."; \
+		mkdir -p "$$HOME/test"; \
+	fi
+	@uv run setup-environment --dev-folder "$$HOME/test" --dry-run
+
+# Show setup-environment CLI help
+setup-env-help:
+	@echo "📚 Setup Environment CLI Help:"
+	@echo "================================"
+	@uv run setup-environment --help
+
+# Install development software interactively
+setup-brew-software:
+	@echo "🛠️  Installing development software..."
+	@echo "This will check for and install: python+uv, git+config+ssh, nvm+node, gh, awscli, azure-cli, zsh, terraform, oh-my-zsh, iterm2, slack"
+	@echo "You'll be prompted before each installation."
+	@if [ ! -d "/tmp" ]; then mkdir -p "/tmp"; fi
+	@uv run setup-environment --dev-folder /tmp --skip-npmrc
+	@echo "⚠️  Note: Skipped Git repository cloning (only software installation)"
+
+# Install all development software without prompts
+setup-brew-all:
+	@echo "🚀 Installing all development software automatically..."
+	@echo "This will install: python+uv, git+config+ssh, nvm+node, gh, awscli, azure-cli, zsh, terraform, oh-my-zsh, iterm2, slack"
+	@echo "No prompts - installing everything configured as required or optional"
+	@if [ ! -d "/tmp" ]; then mkdir -p "/tmp"; fi
+	@uv run setup-environment --dev-folder /tmp --skip-npmrc --install-all-software
+	@echo "⚠️  Note: Skipped Git repository cloning (only software installation)"
+
+# Install setup-environment CLI globally
+install-setup-env-global:
+	@echo "🌍 Installing setup-environment CLI globally..."
+	@echo ""
+	@echo "📚 About setup-environment CLI:"
+	@echo "  The setup-environment tool automates developer environment setup including:"
+	@echo "  • Installing development software (via Homebrew)"
+	@echo "  • Cloning and organising Git repositories"
+	@echo "  • Setting up SSH keys and Git configuration"
+	@echo "  • Configuring Node.js, Python, and other tools"
+	@echo ""
+	@echo "🔧 Installation options:"
+	@echo ""
+	@echo "Option 1: Install with uvx (recommended for global tools):"
+	@echo "  uvx install --from . setup-environment"
+	@echo ""
+	@echo "Option 2: Install with uv tool (creates isolated environment):"
+	@echo "  uv tool install ."
+	@echo ""
+	@echo "Option 3: Install with pipx (if you prefer pipx):"
+	@echo "  pipx install ."
+	@echo ""
+	@echo "📦 Installing with uv tool..."
+	@if ! command -v uv &> /dev/null; then \
+		echo "❌ uv is not installed. Please run 'make setup' first."; \
+		exit 1; \
+	fi
+	@uv tool install . --force
+	@echo ""
+	@echo "✅ setup-environment CLI installed globally!"
+	@echo ""
+	@echo "📍 The command 'setup-environment' is now available system-wide"
+	@echo ""
+	@echo "💡 Usage examples:"
+	@echo "  setup-environment --help                    # Show help"
+	@echo "  setup-environment --dev-folder ~/dev        # Set up dev environment"
+	@echo "  setup-environment --generate-env            # Generate .env template"
+	@echo "  setup-environment --dry-run                 # Preview actions"
+	@echo ""
+	@echo "🔍 To verify installation:"
+	@which setup-environment
+	@setup-environment --version 2>/dev/null || setup-environment --help | head -n 1
+
+# Uninstall setup-environment CLI globally
+uninstall-setup-env-global:
+	@echo "🗑️  Uninstalling setup-environment CLI globally..."
+	@echo ""
+	@if ! command -v uv &> /dev/null; then \
+		echo "❌ uv is not installed. Cannot proceed with uninstallation."; \
+		exit 1; \
+	fi
+	@if command -v setup-environment &> /dev/null; then \
+		echo "📍 Found setup-environment at: $$(which setup-environment)"; \
+		echo ""; \
+		uv tool uninstall setup-environment; \
+		echo ""; \
+		if command -v setup-environment &> /dev/null; then \
+			echo "⚠️  setup-environment still exists. It may have been installed with a different tool."; \
+			echo "💡 Try these alternative uninstall methods:"; \
+			echo "  pipx uninstall setup-environment    # If installed with pipx"; \
+			echo "  pip uninstall python-code-exercise  # If installed with pip"; \
+		else \
+			echo "✅ setup-environment CLI successfully uninstalled!"; \
+		fi; \
+	else \
+		echo "ℹ️  setup-environment is not installed globally."; \
+		echo "Nothing to uninstall."; \
+	fi
