@@ -219,12 +219,12 @@ For kata practice where quick iteration is key, uv's speed advantage (10-100x fa
 
 ## Project Structure
 
-```
+```shell
 PythonCodeExercise/
-├── Makefile              # Development workflow commands
-├── pyproject.toml        # Project configuration and dependencies
-├── .python-version       # Python version specification
-├── src/                  # Source code
+├── Makefile             # Development workflow commands
+├── pyproject.toml       # Project configuration and dependencies
+├── .python-version      # Python version specification
+├── src/                 # Source code
 │   └── sum/             # Example kata module (reference only - create your own!)
 │       ├── __init__.py  # Package initialiser (see below)
 │       └── sum.py       # Example implementation
@@ -812,10 +812,25 @@ The CLI includes automated development software installation via Homebrew:
 - **Terraform** - Infrastructure as Code tool ✅ *required*
 
 **Development Environment:**
-
 - **iTerm2** - Terminal emulator for macOS
 - **Zsh** - Z shell
-- **Slack** - Team communication platform
+- **Oh My Zsh** - Zsh configuration framework
+- **Slack** - Team communication and collaboration platform
+- **Cursor** - AI-powered code editor built on VS Code
+- **Claude Code** - Anthropic's official CLI for Claude
+- **Visual Studio Code** - Open-source code editor from Microsoft
+- **Rectangle** - Window management app for macOS
+- **Docker Desktop** - Docker containerization platform
+- **AltTab** - Windows-style alt-tab window switcher for macOS
+- **Google Chrome** - Web browser from Google
+- **Brave Browser** - Privacy-focused web browser with no adverts in youtube videos
+- **Firefox** - Open-source web browser from Mozilla
+- **Postman** - API development and testing platform
+- **Xcode** - Apple's integrated development environment
+- **Android Studio** - IDE for Android development
+- **OpenJDK** - Open-source Java Development Kit to help drawing tools
+- **PlantUML** - UML diagram generation tool
+- **Mermaid CLI** - Diagram generation from text definitions
 
 #### Installation Modes
 
