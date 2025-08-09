@@ -523,7 +523,7 @@ This project includes a production-grade CLI tool for setting up development env
 The `setup-environment` CLI automates the process of:
 1. **Installing development software** with specialised services for complex tools
 2. **Automatic SSH configuration** for private Git repositories
-3. **Reading repository URLs** from environment variables (`GIT_REPO_*`)
+3. **Loading repository definitions** from YAML configuration files
 4. **Cloning repositories** to a specified development folder
 5. **Setting up npmrc configuration** for GitHub Package Registry
 
@@ -533,16 +533,20 @@ Built following **Clean Architecture** principles with comprehensive test covera
 
 ```
 src/setup_environment/
-├── domain/                 # Business logic & entities
-│   ├── entities/          # Repository, NPMRCConfiguration
-│   └── value_objects/     # DevFolderPath, PersonalAccessToken
-├── application/           # Use cases & business rules
-│   ├── interfaces/        # Service abstractions
-│   └── use_cases/        # SetupRepositories, ConfigureNPMRC
-├── infrastructure/        # External dependencies
-│   ├── git/              # Git operations via subprocess
-│   └── npm/              # File system operations
-└── presentation/         # User interface (CLI)
+├── config/                # Configuration files
+│   ├── repositories.yaml  # Repository definitions
+│   └── software.yaml     # Software to install
+├── domain/               # Business logic & entities
+│   ├── entities/        # Repository, NPMRCConfiguration
+│   └── value_objects/   # DevFolderPath, PersonalAccessToken
+├── application/         # Use cases & business rules
+│   ├── interfaces/      # Service abstractions
+│   └── use_cases/      # SetupRepositories, ConfigureNPMRC
+├── infrastructure/      # External dependencies
+│   ├── git/            # Git operations via subprocess
+│   ├── npm/            # File system operations
+│   └── repository_config_service.py  # YAML config loader
+└── presentation/       # User interface (CLI)
 
 tests/setup_environment/   # 124 comprehensive tests
 ├── unit/                 # Unit tests (all layers)
@@ -557,13 +561,12 @@ tests/setup_environment/   # 124 comprehensive tests
 - **🎯 Specialised Services**: Custom setup for Python+uv, Git+SSH, NVM+Node.js
 - **✅ TDD Implementation**: 205 tests with 100% pass rate  
 - **🔍 Dry-Run Mode**: Test setup without making changes (`--dry-run`)
-- **📄 .env File Support**: Secure, organised configuration management
-- **⚙️ Environment-Driven**: Configure repositories via `GIT_REPO_*` variables or .env files
+- **📄 YAML Configuration**: Structured repository definitions in YAML format
+- **⚙️ Configuration-Driven**: Configure repositories via repositories.yaml
 - **🔐 Interactive npmrc Setup**: Guided GitHub Personal Access Token creation
 - **📁 Smart Organisation**: Clones to `~/dev/{org}/{repo}` structure
 - **🚫 Skip Existing**: Automatically skips repositories that already exist
-- **📋 Template Generation**: Create `.env` and `.env.example` files automatically
-- **🔧 Custom .env Files**: Support for multiple environment configurations
+- **🔧 Custom Config Files**: Support for multiple repository configurations
 - **⚡ Error Handling**: Comprehensive validation and user feedback
 
 ### Quick Start
@@ -578,29 +581,18 @@ make setup-brew-software
 make setup-brew-all
 ```
 
-**Using .env Files (Recommended):**
+**Using Repository Configuration:**
 
 ```bash
-# Generate .env template
-make setup-env-init
-
-# Edit .env with your repositories
-vim .env
+# Repository definitions are in config/repositories.yaml
+# Edit to add your repositories
+vim src/setup_environment/config/repositories.yaml
 
 # Run the setup
 make setup-env
-```
 
-**Using Environment Variables:**
-
-```bash
-# Set up your repositories
-export GIT_REPO_1="https://github.com/webuild-ai/repo1.git"
-export GIT_REPO_2="https://github.com/webuild-ai/repo2.git"
-export GIT_REPO_3="git@github.com:your-org/private-repo.git"
-
-# Run the setup
-make setup-env
+# Or use a custom config file
+setup-environment --dev-folder ~/dev --repositories-config ~/my-repos.yaml
 ```
 
 **Testing First:**
@@ -647,8 +639,8 @@ After global installation, the `setup-environment` command is available system-w
 # Basic usage
 setup-environment --dev-folder ~/dev
 
-# Use custom .env file
-setup-environment --dev-folder ~/dev --env-file .env.production
+# Use custom repository config file
+setup-environment --dev-folder ~/dev --repositories-config ~/repos-production.yaml
 
 # Skip npmrc configuration
 setup-environment --dev-folder ~/dev --skip-npmrc
@@ -656,42 +648,34 @@ setup-environment --dev-folder ~/dev --skip-npmrc
 # Dry run (validation only, no changes)
 setup-environment --dev-folder ~/dev --dry-run
 
-# Template generation (--dev-folder not required)
-setup-environment --generate-env           # Creates .env
-setup-environment --generate-env-example   # Creates .env.example
-
 # All options together
-setup-environment --dev-folder ~/dev --env-file .env.custom --skip-npmrc --dry-run
+setup-environment --dev-folder ~/dev --repositories-config custom-repos.yaml --skip-npmrc --dry-run
 ```
 
-### Configuration Options
+### Repository Configuration
 
-The CLI supports two configuration methods: `.env` files (recommended) and environment variables.
+Repositories are defined in a YAML configuration file located at `src/setup_environment/config/repositories.yaml`:
 
-#### Option 1: Using .env Files (Recommended)
-
-Generate a template and customize it with your repositories:
-
-```bash
-# Generate .env template
-make setup-env-init
-
-# Edit .env with your repository URLs
-vim .env
-
-# Run setup
-make setup-env
+```yaml
+repositories:
+  - name: Frontend Application
+    url: git@github.com:your-org/frontend.git
+    description: "Main frontend application"
+    
+  - name: Backend Services
+    url: git@github.com:your-org/backend.git
+    description: "Backend API services"
 ```
 
-**Benefits of .env files:**
-- 🔒 **Security**: Keep sensitive data out of shell history
-- 📝 **Version Control**: Use `.env.example` for team templates
-- 🏗️ **Organisation**: Group related repositories logically
-- 🔄 **Portability**: Easy to backup and share configurations
+**Benefits of YAML configuration:**
+- 📝 **Structure**: Clear, readable repository definitions
+- 🏗️ **Organisation**: Group related repositories with metadata
+- 🔄 **Portability**: Easy to share and version control
+- 📋 **Documentation**: Include descriptions for each repository
 
-#### Option 2: Environment Variables
+#### Backward Compatibility
 
-Configure repositories directly using environment variables:
+For backward compatibility, the CLI will fall back to environment variables (`GIT_REPO_*`) if no configuration file is found:
 
 ```bash
 # HTTPS repositories

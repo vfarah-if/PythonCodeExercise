@@ -1,6 +1,7 @@
 """Integration tests for the complete setup workflow."""
 
 import tempfile
+from unittest.mock import patch
 
 import pytest
 from click.testing import CliRunner
@@ -71,11 +72,16 @@ class TestSetupWorkflowIntegration:
     def test_workflow_with_no_repositories(self, runner, temp_dev_folder):
         """Test workflow when no repositories are configured."""
         with runner.isolated_filesystem():
-            result = runner.invoke(
-                setup_environment,
-                ["--dev-folder", temp_dev_folder, "--skip-software"],
-                env={},  # No GIT_REPO_* variables
-            )
+            # Mock the repository loading to return empty list
+            with patch(
+                "src.setup_environment.presentation.cli.load_repositories_from_config"
+            ) as mock_load:
+                mock_load.return_value = []
+                result = runner.invoke(
+                    setup_environment,
+                    ["--dev-folder", temp_dev_folder, "--skip-software"],
+                    env={},  # No GIT_REPO_* variables
+                )
 
         assert result.exit_code == 1
         assert "No repositories found" in result.output

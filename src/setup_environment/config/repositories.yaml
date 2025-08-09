@@ -1,0 +1,32 @@
+repositories:
+  - name: Hello World
+    url: https://github.com/octocat/Hello-World.git
+    description: "GitHub's Hello World repository"
+    
+  - name: Spoon-Knife
+    url: https://github.com/octocat/Spoon-Knife.git
+    description: "GitHub's Spoon-Knife test repository"
+    
+  - name: Pathway Frontend
+    url: git@github.com:webuild-ai/pathway.git
+    description: "Frontend application for Pathway"
+    
+  - name: Admin Backend
+    url: git@github.com:webuild-ai/admin.git
+    description: "Admin backend services"
+    
+  - name: Pathway Test Theater
+    url: git@github.com:webuild-ai/pathway-test-theater.git
+    description: "Testing framework and test suites"
+    
+  - name: Python Utils
+    url: git@github.com:webuild-ai/python-utils.git
+    description: "Shared Python utilities library"
+    
+  - name: Infrastructure
+    url: git@github.com:webuild-ai/infrastructure.git
+    description: "Infrastructure as Code and deployment configurations"
+    
+  - name: CPP IB POC
+    url: git@github.com:webuild-ai/cpp-ib-poc.git
+    description: "CPP IB proof of concept"

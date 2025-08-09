@@ -13,9 +13,7 @@ from src.setup_environment.application.use_cases.configure_npmrc import (
     ConfigurationStatus,
 )
 from src.setup_environment.presentation.cli import (
-    generate_env_template,
     get_repositories_from_environment,
-    load_environment_config,
     setup_environment,
 )
 
@@ -192,10 +190,13 @@ class TestSetupEnvironmentCLI:
         assert "failures" in result.output
 
     def test_cli_exits_when_no_repositories_found(self, runner, temp_dev_folder):
-        """Test CLI exits when no repositories are found in environment."""
+        """Test CLI exits when no repositories are found."""
         with runner.isolated_filesystem():
-            # Ensure no .env file exists in the test directory
-            with patch.dict(os.environ, {}, clear=True):
+            # Mock load_repositories_from_config to return empty list
+            with patch(
+                "src.setup_environment.presentation.cli.load_repositories_from_config"
+            ) as mock_load:
+                mock_load.return_value = []
                 result = runner.invoke(
                     setup_environment,
                     ["--dev-folder", temp_dev_folder, "--skip-software"],
@@ -265,129 +266,13 @@ class TestSetupEnvironmentCLI:
         assert "--skip-software" in result.output
 
 
-class TestLoadEnvironmentConfig:
-    """Test suite for load_environment_config function."""
-
-    def test_load_from_specified_file(self):
-        """Test loading from specified .env file."""
-        import tempfile
-
-        with tempfile.TemporaryDirectory() as temp_dir:
-            env_file = Path(temp_dir) / ".env.test"
-            env_file.write_text("GIT_REPO_TEST=https://github.com/test/repo.git\n")
-
-            # Clear environment first
-            if "GIT_REPO_TEST" in os.environ:
-                del os.environ["GIT_REPO_TEST"]
-
-            with patch("builtins.print"):  # Suppress output
-                load_environment_config(env_file)
-
-            assert os.environ.get("GIT_REPO_TEST") == "https://github.com/test/repo.git"
-
-            # Cleanup
-            if "GIT_REPO_TEST" in os.environ:
-                del os.environ["GIT_REPO_TEST"]
-
-    def test_load_from_default_env_file(self):
-        """Test loading from default .env file."""
-        import os as temp_os
-        import tempfile
-
-        with tempfile.TemporaryDirectory() as temp_dir:
-            # Change to temp directory
-            original_cwd = temp_os.getcwd()
-            try:
-                temp_os.chdir(temp_dir)
-
-                env_file = Path(".env")
-                env_file.write_text(
-                    "GIT_REPO_DEFAULT=https://github.com/default/repo.git\n"
-                )
-
-                # Clear environment first
-                if "GIT_REPO_DEFAULT" in os.environ:
-                    del os.environ["GIT_REPO_DEFAULT"]
-
-                with patch("builtins.print"):  # Suppress output
-                    load_environment_config()
-
-                assert (
-                    os.environ.get("GIT_REPO_DEFAULT")
-                    == "https://github.com/default/repo.git"
-                )
-
-                # Cleanup
-                if "GIT_REPO_DEFAULT" in os.environ:
-                    del os.environ["GIT_REPO_DEFAULT"]
-            finally:
-                temp_os.chdir(original_cwd)
-
-    def test_no_error_when_file_missing(self):
-        """Test that missing .env file doesn't cause errors."""
-        non_existent = Path("/does/not/exist/.env")
-
-        # Should not raise exception
-        load_environment_config(non_existent)
+# Test classes for removed functions have been deleted
+# The functions load_environment_config and generate_env_template
+# have been replaced with YAML-based configuration
 
 
-class TestGenerateEnvTemplate:
-    """Test suite for generate_env_template function."""
-
-    def test_generate_regular_template(self):
-        """Test generating regular .env template."""
-        import tempfile
-
-        with tempfile.TemporaryDirectory() as temp_dir:
-            env_file = Path(temp_dir) / ".env"
-
-            with patch("click.echo"):  # Suppress output
-                generate_env_template(env_file, example=False)
-
-            assert env_file.exists()
-            content = env_file.read_text()
-            assert "GIT_REPO_1=https://github.com/facebook/react.git" in content
-            assert "GIT_REPO_FRONTEND=" in content
-            assert "# For private repositories" in content
-
-    def test_generate_example_template(self):
-        """Test generating .env.example template."""
-        import tempfile
-
-        with tempfile.TemporaryDirectory() as temp_dir:
-            env_file = Path(temp_dir) / ".env"
-
-            with patch("click.echo"):  # Suppress output
-                generate_env_template(env_file, example=True)
-
-            example_file = Path(temp_dir) / ".env.example"
-            assert example_file.exists()
-            content = example_file.read_text()
-            assert "GIT_REPO_1=https://github.com/facebook/react.git" in content
-            assert "# Setup Environment Configuration" in content
-
-    def test_template_contains_expected_content(self):
-        """Test that template contains all expected sections."""
-        import tempfile
-
-        with tempfile.TemporaryDirectory() as temp_dir:
-            env_file = Path(temp_dir) / ".env"
-
-            with patch("click.echo"):  # Suppress output
-                generate_env_template(env_file)
-
-            content = env_file.read_text()
-
-            # Check for key sections
-            assert "# Setup Environment Configuration" in content
-            assert "GIT_REPO_*" in content
-            assert "HTTPS and SSH URLs" in content
-            assert "private repositories" in content
-            assert "git@github.com" in content
-
-
-class TestSetupEnvironmentWithEnvFiles:
-    """Test suite for setup_environment CLI with .env file support."""
+class TestSetupEnvironmentWithRepositoryConfig:
+    """Test suite for setup_environment CLI with YAML repository configuration."""
 
     @pytest.fixture
     def runner(self):
@@ -400,76 +285,52 @@ class TestSetupEnvironmentWithEnvFiles:
         with tempfile.TemporaryDirectory() as temp_dir:
             yield temp_dir
 
-    def test_generate_env_option(self, runner):
-        """Test --generate-env option."""
-        with runner.isolated_filesystem():
-            result = runner.invoke(setup_environment, ["--generate-env"])
-
-            assert result.exit_code == 0
-            assert "Generated template" in result.output
-            assert Path(".env").exists()
-
-            content = Path(".env").read_text()
-            assert "GIT_REPO_1=" in content
-
-    def test_generate_env_example_option(self, runner):
-        """Test --generate-env-example option."""
-        with runner.isolated_filesystem():
-            result = runner.invoke(setup_environment, ["--generate-env-example"])
-
-            assert result.exit_code == 0
-            assert "Generated template" in result.output
-            assert Path(".env.example").exists()
-
-            content = Path(".env.example").read_text()
-            assert "GIT_REPO_1=" in content
-
-    def test_custom_env_file_option(self, runner, temp_dev_folder):
-        """Test --env-file option with custom file."""
-        with runner.isolated_filesystem():
-            # Create custom env file
-            custom_env = Path(".env.custom")
-            custom_env.write_text(
-                "GIT_REPO_CUSTOM=https://github.com/test/custom.git\n"
-            )
-
-            result = runner.invoke(
-                setup_environment,
-                [
-                    "--dev-folder",
-                    temp_dev_folder,
-                    "--env-file",
-                    str(custom_env),
-                    "--dry-run",
-                ],
-            )
-
-            assert result.exit_code == 0
-            assert "Loading configuration from" in result.output
-            assert "test/custom" in result.output
-
-    def test_dev_folder_required_for_non_generation(self, runner):
-        """Test that --dev-folder is required for non-generation operations."""
+    def test_dev_folder_required(self, runner):
+        """Test that --dev-folder is required for setup operations."""
         result = runner.invoke(setup_environment, ["--dry-run"])
 
         assert result.exit_code == 1
         assert "--dev-folder is required" in result.output
 
-    def test_env_file_integration_with_repositories(self, runner, temp_dev_folder):
-        """Test .env file loading integrates with repository processing."""
+    def test_custom_repository_config_option(self, runner, temp_dev_folder):
+        """Test --repositories-config option with custom file."""
         with runner.isolated_filesystem():
-            # Create .env file with repositories
-            env_file = Path(".env")
-            env_file.write_text(
-                "GIT_REPO_1=https://github.com/octocat/Hello-World.git\n"
-                "GIT_REPO_2=https://github.com/octocat/Spoon-Knife.git\n"
-            )
+            # Create custom repository config
+            import yaml
 
-            result = runner.invoke(
-                setup_environment, ["--dev-folder", temp_dev_folder, "--dry-run"]
-            )
+            custom_config = Path("custom-repos.yaml")
+            config_data = {
+                "repositories": [
+                    {
+                        "name": "Test Repo",
+                        "url": "https://github.com/test/custom.git",
+                        "description": "Test repository",
+                    }
+                ]
+            }
+            custom_config.write_text(yaml.dump(config_data))
 
-            assert result.exit_code == 0
-            assert "Loading configuration" in result.output
-            assert "octocat/Hello-World" in result.output
-            assert "octocat/Spoon-Knife" in result.output
+            # Mock the repository loading to avoid actual file operations
+            from src.setup_environment.domain.entities import Repository
+
+            with patch(
+                "src.setup_environment.presentation.cli.load_repositories_from_config"
+            ) as mock_load:
+                # Return a mock repository to avoid "no repositories found" error
+                mock_repo = Repository.from_url("https://github.com/test/custom.git")
+                mock_load.return_value = [mock_repo]
+                
+                result = runner.invoke(
+                    setup_environment,
+                    [
+                        "--dev-folder",
+                        temp_dev_folder,
+                        "--repositories-config",
+                        str(custom_config),
+                        "--dry-run",
+                    ],
+                )
+
+                # Verify the custom config path was passed
+                mock_load.assert_called_once_with(custom_config)
+                assert result.exit_code == 0

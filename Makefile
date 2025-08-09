@@ -1,4 +1,4 @@
-.PHONY: help setup install test watch lint lint-fix format clean all setup-env setup-env-dry setup-env-help setup-env-init setup-env-example setup-brew-software setup-brew-all install-setup-env-global uninstall-setup-env-global
+.PHONY: help setup install test watch lint lint-fix format clean all setup-env setup-env-dry setup-env-help setup-brew-software setup-brew-all install-setup-env-global uninstall-setup-env-global
 
 # Default target
 help:
@@ -17,8 +17,6 @@ help:
 	@echo "  make setup-env         - Run setup-environment CLI with ~/dev folder"
 	@echo "  make setup-env-dry     - Run setup-environment CLI in dry-run mode"
 	@echo "  make setup-env-help    - Show setup-environment CLI help and usage"
-	@echo "  make setup-env-init    - Generate .env template file"
-	@echo "  make setup-env-example - Generate .env.example template file"
 	@echo ""
 	@echo "Software Installation:"
 	@echo "  make setup-brew-software - Install configured development software interactively"
@@ -121,18 +119,6 @@ setup-env-help:
 	@echo "📚 Setup Environment CLI Help:"
 	@echo "================================"
 	@uv run setup-environment --help
-
-# Generate .env template file
-setup-env-init:
-	@echo "📝 Generating .env template file..."
-	@uv run setup-environment --generate-env
-	@echo "💡 Edit .env with your repository URLs, then run 'make setup-env'"
-
-# Generate .env.example template file
-setup-env-example:
-	@echo "📝 Generating .env.example template file..."
-	@uv run setup-environment --generate-env-example
-	@echo "💡 Copy .env.example to .env and customise with your repositories"
 
 # Install development software interactively
 setup-brew-software:

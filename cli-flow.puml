@@ -3,6 +3,7 @@ title Setup Environment CLI - Complete Flow
 
 actor User
 participant CLI
+participant "RepositoryConfigService" as RepoConfigSvc
 participant "InstallSoftwareUseCase" as SoftwareUC
 participant "BrewSoftwareService" as BrewService
 participant "PythonService" as PythonSvc
@@ -15,7 +16,9 @@ participant "NPMRCFileService" as NPMRCSvc
 
 == Initialisation ==
 User -> CLI: setup-environment --dev-folder ~/dev
-CLI -> CLI: Load .env configuration
+CLI -> RepoConfigSvc: Load repositories.yaml
+RepoConfigSvc -> RepoConfigSvc: Parse YAML configuration
+RepoConfigSvc -> CLI: Return list of repositories
 CLI -> CLI: Validate dev folder path
 
 == Software Installation Phase ==
@@ -98,7 +101,7 @@ SoftwareUC -> CLI: Installation summary
 CLI -> User: Display software installation results
 
 == Repository Setup Phase ==
-CLI -> CLI: Get repositories from environment
+note over CLI: Repositories already loaded from YAML config
 CLI -> RepoUC: execute(repositories, dev_folder)
 
 loop For each repository

@@ -10,7 +10,6 @@ dependencies = [
     "pytest-cov>=5.0.0",
     "ruff>=0.7.0",
     "click>=8.1.0", # CLI framework
-    "python-dotenv>=1.0.0", # Environment variable management
     "pyyaml>=6.0.2",
 ]
 
@@ -30,6 +29,13 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src"]
+
+[tool.hatch.build]
+include = [
+    "src/**/*.py",
+    "src/**/*.yaml",
+    "src/**/*.yml",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -5,7 +5,6 @@ import sys
 from pathlib import Path
 
 import click
-from dotenv import load_dotenv
 
 from src.setup_environment.application.use_cases import (
     ConfigureNPMRCUseCase,
@@ -20,6 +19,9 @@ from src.setup_environment.application.use_cases.install_software import (
 from src.setup_environment.domain.entities import Repository
 from src.setup_environment.domain.value_objects import DevFolderPath
 from src.setup_environment.infrastructure import GitPythonService, NPMRCFileService
+from src.setup_environment.infrastructure.repository_config_service import (
+    RepositoryConfigService,
+)
 from src.setup_environment.infrastructure.software import BrewSoftwareService
 from src.setup_environment.infrastructure.software.git_service import (
     GitService as GitInstallService,
@@ -28,17 +30,34 @@ from src.setup_environment.infrastructure.software.nvm_service import NVMService
 from src.setup_environment.infrastructure.software.python_service import PythonService
 
 
-def load_environment_config(env_file: Path | None = None) -> None:
-    """Load configuration from .env file if it exists."""
-    if env_file and env_file.exists():
-        click.echo(f"📄 Loading configuration from {env_file}")
-        load_dotenv(env_file)
-    else:
-        # Try default .env file
-        default_env = Path(".env")
-        if default_env.exists():
-            click.echo(f"📄 Loading configuration from {default_env}")
-            load_dotenv(default_env)
+def load_repositories_from_config(
+    config_path: Path | None = None,
+) -> list[Repository]:
+    """Load repository configurations from YAML file.
+
+    Args:
+        config_path: Optional path to custom repositories.yaml file.
+
+    Returns:
+        List of Repository entities.
+    """
+    config_service = RepositoryConfigService()
+
+    try:
+        repositories = config_service.load_repositories(
+            str(config_path) if config_path else None
+        )
+        return repositories
+    except FileNotFoundError as e:
+        # Fall back to environment variables for backward compatibility
+        click.echo(
+            f"⚠️  Repository config not found: {e}. Checking environment variables...",
+            err=True,
+        )
+        return get_repositories_from_environment()
+    except ValueError as e:
+        click.echo(f"Error loading repository configuration: {e}", err=True)
+        return []
 
 
 def get_repositories_from_environment() -> list[Repository]:
@@ -58,39 +77,6 @@ def get_repositories_from_environment() -> list[Repository]:
                 )
 
     return repositories
-
-
-def generate_env_template(env_file: Path, example: bool = False) -> None:
-    """Generate a template .env file."""
-    suffix = ".example" if example else ""
-    template_path = env_file.parent / f"{env_file.name}{suffix}"
-
-    template_content = """# Setup Environment Configuration
-# Add your Git repository URLs below using the GIT_REPO_* pattern
-# Supports both HTTPS and SSH URLs
-
-# Example repositories (replace with your own)
-GIT_REPO_1=https://github.com/facebook/react.git
-GIT_REPO_2=https://github.com/microsoft/vscode.git
-GIT_REPO_FRONTEND=https://github.com/your-org/frontend.git
-GIT_REPO_BACKEND=https://github.com/your-org/backend.git
-
-# For private repositories, use SSH URLs:
-# GIT_REPO_PRIVATE=git@github.com:your-org/private-repo.git
-
-# You can use any GIT_REPO_* pattern:
-# GIT_REPO_TOOLS=https://github.com/your-org/dev-tools.git
-# GIT_REPO_DOCS=https://github.com/your-org/documentation.git
-"""
-
-    template_path.write_text(template_content)
-    click.echo(f"✅ Generated template: {template_path}")
-
-    if not example:
-        click.echo("💡 Edit the file to add your repository URLs, then run:")
-        click.echo(f"   setup-environment --dev-folder ~/dev --env-file {env_file}")
-    else:
-        click.echo("💡 Copy .env.example to .env and customize with your repositories")
 
 
 def print_setup_summary(result):
@@ -195,21 +181,9 @@ def print_software_summary(result):
     help="Show what would be done without actually doing it (validation and logging only)",
 )
 @click.option(
-    "--env-file",
+    "--repositories-config",
     type=click.Path(exists=False, path_type=Path),
-    help="Environment file to load (default: .env if exists)",
-)
-@click.option(
-    "--generate-env",
-    is_flag=True,
-    default=False,
-    help="Generate a template .env file and exit",
-)
-@click.option(
-    "--generate-env-example",
-    is_flag=True,
-    default=False,
-    help="Generate a .env.example template file and exit",
+    help="Repository configuration YAML file (default: config/repositories.yaml)",
 )
 @click.option(
     "--skip-software",
@@ -232,9 +206,7 @@ def setup_environment(
     dev_folder: Path | None,
     skip_npmrc: bool,
     dry_run: bool,
-    env_file: Path | None,
-    generate_env: bool,
-    generate_env_example: bool,
+    repositories_config: Path | None,
     skip_software: bool,
     software_config: Path | None,
     install_all_software: bool,
@@ -242,12 +214,11 @@ def setup_environment(
     """Configure development environment: software, Git repositories, and npmrc.
 
     Installs development software via Homebrew, clones Git repositories from
-    environment variables or .env files, and configures npmrc for GitHub packages.
+    YAML configuration files, and configures npmrc for GitHub packages.
 
     \b
     QUICK START:
-      setup-environment --generate-env     # Create template
-      setup-environment --dev-folder ~/dev # Run full setup
+      setup-environment --dev-folder ~/dev  # Run full setup
 
     \b
     TESTING:
@@ -257,16 +228,12 @@ def setup_environment(
     SOFTWARE OPTIONS:
       setup-environment --dev-folder ~/dev --skip-software
       setup-environment --dev-folder ~/dev --install-all-software
+
+    \b
+    REPOSITORY CONFIGURATION:
+      Repositories are defined in config/repositories.yaml by default.
+      Use --repositories-config to specify a custom location.
     """
-    # Handle template generation options first
-    if generate_env or generate_env_example:
-        env_target = env_file or Path(".env")
-        generate_env_template(env_target, example=generate_env_example)
-        return
-
-    # Load environment configuration
-    load_environment_config(env_file)
-
     if dry_run:
         click.echo("Setup Environment CLI (DRY RUN - No changes will be made)")
     else:
@@ -284,8 +251,8 @@ def setup_environment(
         dev_folder_path = DevFolderPath(dev_folder)
         click.echo(f"Development folder: {dev_folder_path}")
 
-        # Get repositories early to check for SSH URLs
-        repositories = get_repositories_from_environment()
+        # Load repositories from configuration
+        repositories = load_repositories_from_config(repositories_config)
 
         # Check if any repositories use SSH
         ssh_needed = any(repo.url.startswith("git@") for repo in repositories)
@@ -342,15 +309,15 @@ def setup_environment(
 
         if not repositories:
             click.echo(
-                "\nNo repositories found in environment variables.",
+                "\nNo repositories found in configuration.",
                 err=True,
             )
             click.echo(
-                "Please set GIT_REPO_* environment variables with repository URLs.",
+                "Please create a repositories.yaml file with repository definitions.",
                 err=True,
             )
             click.echo(
-                "Example: export GIT_REPO_1='https://github.com/org/repo.git'",
+                "Run with --generate-repo-template to create an example configuration.",
                 err=True,
             )
             sys.exit(1)
