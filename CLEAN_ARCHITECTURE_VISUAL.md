@@ -40,6 +40,79 @@
                └───────────────────────────────┘
 ```
 
+```mermaid
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor': '#f9f9f9', 'primaryTextColor': '#000', 'primaryBorderColor': '#333', 'lineColor': '#666', 'fontSize': '14px'}}}%%
+
+graph LR
+    %% External Systems (outermost ring)
+    User([👤 User])
+    Git([🔧 Git CLI])
+    Homebrew([🍺 Homebrew])
+    Files([📁 File System])
+    GitHub([🐙 GitHub])
+    
+    %% Infrastructure Layer (outer ring)
+    CLI[CLI Interface]
+    GitSvc[GitPythonService]
+    BrewSvc[BrewSoftwareService]
+    NPMSvc[NPMRCFileService]
+    ConfigSvc[RepositoryConfigService]
+    
+    %% Application Layer (middle ring)
+    SetupUC[SetupRepositories]
+    InstallUC[InstallSoftware]
+    NPMrcUC[ConfigureNPMRC]
+    GitPort[GitService Port]
+    SwPort[SoftwareService Port]
+    NPMPort[NPMRCService Port]
+    
+    %% Domain Layer (inner ring)
+    RepoEntity[Repository Entity]
+    SwEntity[Software Entity]
+    NPMEntity[NPMRC Entity]
+    PathVO[DevFolderPath]
+    TokenVO[PersonalAccessToken]
+    
+    %% Connections - Dependencies flow inward
+    User --> CLI
+    CLI --> SetupUC
+    CLI --> InstallUC
+    CLI --> NPMrcUC
+    
+    SetupUC --> GitPort
+    InstallUC --> SwPort
+    NPMrcUC --> NPMPort
+    
+    GitPort -.-> GitSvc
+    SwPort -.-> BrewSvc
+    NPMPort -.-> NPMSvc
+    
+    GitSvc --> Git
+    BrewSvc --> Homebrew
+    NPMSvc --> Files
+    ConfigSvc --> Files
+    
+    SetupUC -.-> RepoEntity
+    InstallUC -.-> SwEntity
+    NPMrcUC -.-> NPMEntity
+    
+    RepoEntity -.-> PathVO
+    NPMEntity -.-> TokenVO
+    
+    %% Styling for circular appearance
+    classDef external fill:#50C878,stroke:#fff,stroke-width:3px,color:#000
+    classDef infrastructure fill:#4A90E2,stroke:#fff,stroke-width:3px,color:#fff
+    classDef application fill:#F5A623,stroke:#fff,stroke-width:3px,color:#000
+    classDef domain fill:#7B68EE,stroke:#fff,stroke-width:3px,color:#fff
+    classDef entity fill:#9B59B6,stroke:#fff,stroke-width:2px,color:#fff
+    
+    class User,Git,Homebrew,Files,GitHub external
+    class CLI,GitSvc,BrewSvc,NPMSvc,ConfigSvc infrastructure
+    class SetupUC,InstallUC,NPMrcUC,GitPort,SwPort,NPMPort application
+    class RepoEntity,SwEntity,NPMEntity domain
+    class PathVO,TokenVO entity
+```
+
 ## Layer Breakdown
 
 ### 🔵 Infrastructure Layer (Outermost - Dark Blue)
@@ -170,78 +243,6 @@ Primary Adapters          Secondary Adapters
 │  Infrastructure │    │  Port/Adapter   │
 │  Adapters       │    │  Interfaces     │
 └─────────────────┘    └─────────────────┘
-```
-
-```mermaid
-graph TB
-    subgraph "Infrastructure Layer"
-        CLI[CLI Interface]
-        GitSvc[GitPythonService]
-        BrewSvc[BrewSoftwareService]
-        NPMSvc[NPMRCFileService]
-        ConfigSvc[RepositoryConfigService]
-    end
-    
-    subgraph "Application Layer"
-        SetupUC[SetupRepositories UseCase]
-        InstallUC[InstallSoftware UseCase]
-        NPMrcUC[ConfigureNPMRC UseCase]
-        
-        GitPort[GitService Port]
-        SwPort[SoftwareService Port]
-        NPMPort[NPMRCService Port]
-    end
-    1
-    subgraph "Domain Layer"
-        RepoEntity[Repository Entity]
-        SwEntity[Software Entity]
-        NPMEntity[NPMRC Entity]
-        PathVO[DevFolderPath]
-        TokenVO[PersonalAccessToken]
-    end
-    
-    subgraph "External Systems"
-        User[User]
-        Git[Git CLI]
-        Homebrew[Homebrew]
-        Files[File System]
-        YAML[YAML Config]
-    end
-    
-    User --> CLI
-    CLI --> SetupUC
-    CLI --> InstallUC
-    CLI --> NPMrcUC
-    
-    SetupUC --> GitPort
-    InstallUC --> SwPort
-    NPMrcUC --> NPMPort
-    
-    GitPort -.-> GitSvc
-    SwPort -.-> BrewSvc
-    NPMPort -.-> NPMSvc
-    
-    GitSvc --> Git
-    BrewSvc --> Homebrew
-    NPMSvc --> Files
-    ConfigSvc --> YAML
-    
-    SetupUC -.-> RepoEntity
-    InstallUC -.-> SwEntity
-    NPMrcUC -.-> NPMEntity
-    
-    RepoEntity -.-> PathVO
-    NPMEntity -.-> TokenVO
-    
-    classDef infrastructure fill:#2E5984,stroke:#fff,color:#fff
-    classDef application fill:#5B9BD5,stroke:#fff,color:#fff
-    classDef domain fill:#9BC2E6,stroke:#000,color:#000
-    classDef external fill:#FFE4E1,stroke:#000,color:#000
-    
-    class CLI,GitSvc,BrewSvc,NPMSvc,ConfigSvc infrastructure
-    class SetupUC,InstallUC,NPMrcUC,GitPort,SwPort,NPMPort application
-    class RepoEntity,SwEntity,NPMEntity,PathVO,TokenVO domain
-    class User,Git,Homebrew,Files,YAML external
 ```
 
 This architecture ensures your system is:

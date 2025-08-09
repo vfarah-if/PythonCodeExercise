@@ -1,5 +1,7 @@
 # PythonCodeExercise
 
+[TOC]
+
 A modern Python kata practice environment using uv and pytest for Test-Driven Development (TDD) exercises.
 
 ## Overview
