@@ -562,6 +562,8 @@ For detailed architecture documentation and visual diagrams, see:
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - Comprehensive Clean Architecture documentation with layer breakdown, component responsibilities, and data flow examples
 - **[CLEAN_ARCHITECTURE_VISUAL.md](CLEAN_ARCHITECTURE_VISUAL.md)** - Visual ASCII diagrams and Mermaid charts showing the circular/onion architecture structure  
 - **[circular-architecture-d3.html](circular-architecture-d3.html)** - Interactive HTML circular diagram matching traditional Clean Architecture representations
+- **[clean-architecture-onion.puml](clean-architecture-onion.puml)** - PlantUML onion/circular architecture diagram with concentric layers
+- **[makefile-workflow.puml](makefile-workflow.puml)** - PlantUML diagram visualizing Makefile command relationships and development workflow
 
 ### Key Features
 

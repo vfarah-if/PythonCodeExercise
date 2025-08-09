@@ -1,0 +1,138 @@
+@startuml makefile-workflow
+
+title MAKEFILE WORKFLOW\nPython Development & Setup Environment
+
+skinparam backgroundColor white
+skinparam packageStyle rectangle
+
+' Define colour scheme
+skinparam package {
+    BackgroundColor #f8f9fa
+    BorderColor #343a40
+}
+
+skinparam activity {
+    BackgroundColor #e3f2fd
+    BorderColor #1976d2
+    FontColor #1976d2
+}
+
+' Development Workflow Commands
+package "Core Development" #e8f5e9 {
+    [help] as help #4caf50
+    [setup] as setup #2196f3
+    [install] as install #2196f3
+    [test] as test #ff9800
+    [watch] as watch #ff9800
+    [lint] as lint #9c27b0
+    [lint-fix] as lintfix #9c27b0
+    [format] as format #9c27b0
+    [clean] as clean #f44336
+    [all] as all #4caf50
+}
+
+' Setup Environment CLI Commands  
+package "Setup Environment CLI" #e3f2fd {
+    [setup-env] as setupenv #1976d2
+    [setup-env-dry] as setupenvdry #1976d2
+    [setup-env-help] as setupenvhelp #1976d2
+}
+
+' Software Installation Commands
+package "Software Installation" #fff3e0 {
+    [setup-brew-software] as brewsoft #ff9800
+    [setup-brew-all] as brewall #ff9800
+    [install-setup-env-global] as installglobal #ff5722
+    [uninstall-setup-env-global] as uninstallglobal #f44336
+}
+
+' External Dependencies
+cloud "External Tools" {
+    [uv Package Manager] as uv
+    [pytest Testing] as pytest
+    [ruff Linter] as ruff
+    [Homebrew] as homebrew
+    [Git CLI] as git
+}
+
+cloud "File System" {
+    [.venv] as venv
+    [__pycache__] as pycache
+    [.pytest_cache] as pytestcache
+    [.ruff_cache] as ruffcache
+    [~/test folder] as testfolder
+}
+
+' Core Development Workflow
+help --> setup : "Initial setup"
+setup --> install : "Install deps"
+install --> test : "Run tests"
+test --> watch : "Dev mode"
+
+all --> clean : "Clean first"
+clean --> setup : "Then setup"
+setup --> install : "Then install"
+install --> watch : "Start watching"
+
+' Dependencies for setup
+setup --> uv : "Install if missing"
+setup --> venv : "Create virtual env"
+
+' Dependencies for install
+install --> uv : "uv sync"
+
+' Dependencies for testing
+test --> pytest : "uv run pytest"
+watch --> pytest : "uv run ptw"
+
+' Dependencies for linting
+lint --> ruff : "ruff check"
+lintfix --> ruff : "ruff check --fix"
+format --> ruff : "ruff format"
+
+' Dependencies for cleaning
+clean --> venv : "Remove"
+clean --> pycache : "Remove"
+clean --> pytestcache : "Remove"
+clean --> ruffcache : "Remove"
+
+' Setup Environment Dependencies
+setupenv --> testfolder : "Create ~/test"
+setupenvdry --> testfolder : "Create ~/test"
+
+' Software Installation Dependencies
+brewsoft --> homebrew : "Interactive install"
+brewall --> homebrew : "Auto install"
+installglobal --> uv : "uv tool install"
+
+' Command Relationships
+setupenv ..> setupenvdry : "dry-run variant"
+brewsoft ..> brewall : "automated variant"
+installglobal ..> uninstallglobal : "reverse operation"
+
+' Workflow Notes
+note right of all
+    **Primary Development Command**
+    • Cleans everything
+    • Sets up fresh environment  
+    • Installs dependencies
+    • Starts watch mode for TDD
+end note
+
+note bottom of "Setup Environment CLI"
+    **Environment Automation**
+    • Clones repositories
+    • Installs software
+    • Configures SSH & Git
+    • Sets up npmrc
+end note
+
+note left of clean
+    **Cleanup Operations**
+    • Removes virtual environment
+    • Clears Python caches
+    • Deletes test artifacts
+    • Cleans ruff cache
+end note
+
+@enduml
