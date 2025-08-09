@@ -47,3 +47,15 @@ software:
     check_command: "test -d /Applications/Slack.app"
     install_command: "brew install --cask slack"
     required: false
+    
+  - name: Cursor
+    description: "AI-powered code editor built on VS Code"
+    check_command: "test -d /Applications/Cursor.app"
+    install_command: "brew install --cask cursor"
+    required: false
+    
+  - name: Claude Code
+    description: "Anthropic's official CLI for Claude"
+    check_command: "claude --version"
+    install_command: "npm install -g @anthropic-ai/claude-code"
+    required: false
