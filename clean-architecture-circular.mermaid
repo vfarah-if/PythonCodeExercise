@@ -1,0 +1,79 @@
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor': '#87CEEB', 'primaryTextColor': '#000', 'primaryBorderColor': '#5F9EA0', 'lineColor': '#5F9EA0'}}}%%
+
+flowchart TB
+    subgraph Infrastructure ["🔵 Infrastructure Layer"]
+        CLI[CLI Interface]
+        GitSvc[GitPythonService]
+        BrewSvc[BrewSoftwareService]
+        NPMSvc[NPMRCFileService]
+        ConfigSvc[RepositoryConfigService]
+    end
+    
+    subgraph Application ["🟠 Application Layer"]
+        subgraph UseCases ["Use Cases"]
+            SetupUC[SetupRepositories]
+            InstallUC[InstallSoftware]
+            NPMrcUC[ConfigureNPMRC]
+        end
+        
+        subgraph Ports ["Interfaces/Ports"]
+            GitPort[GitService]
+            SwPort[SoftwareService]
+            NPMPort[NPMRCService]
+        end
+    end
+    
+    subgraph Domain ["🟣 Domain Layer"]
+        subgraph Entities ["Entities"]
+            RepoEntity[Repository]
+            SwEntity[Software]
+            NPMEntity[NPMRC]
+        end
+        
+        subgraph ValueObjects ["Value Objects"]
+            PathVO[DevFolderPath]
+            TokenVO[PersonalAccessToken]
+        end
+    end
+    
+    %% External Systems
+    User([👤 User])
+    Git([🔧 Git CLI])
+    Homebrew([🍺 Homebrew])
+    Files([📁 File System])
+    
+    %% Connections - Dependencies flow inward
+    User --> CLI
+    CLI --> SetupUC
+    CLI --> InstallUC
+    CLI --> NPMrcUC
+    
+    SetupUC --> GitPort
+    InstallUC --> SwPort
+    NPMrcUC --> NPMPort
+    
+    GitPort -.-> GitSvc
+    SwPort -.-> BrewSvc
+    NPMPort -.-> NPMSvc
+    
+    GitSvc --> Git
+    BrewSvc --> Homebrew
+    NPMSvc --> Files
+    
+    SetupUC -.-> RepoEntity
+    InstallUC -.-> SwEntity
+    NPMrcUC -.-> NPMEntity
+    
+    RepoEntity -.-> PathVO
+    NPMEntity -.-> TokenVO
+    
+    %% Styling
+    classDef infrastructure fill:#4A90E2,stroke:#fff,stroke-width:3px,color:#fff
+    classDef application fill:#F5A623,stroke:#fff,stroke-width:3px,color:#000
+    classDef domain fill:#7B68EE,stroke:#fff,stroke-width:3px,color:#fff
+    classDef external fill:#50C878,stroke:#fff,stroke-width:3px,color:#000
+    
+    class Infrastructure,CLI,GitSvc,BrewSvc,NPMSvc,ConfigSvc infrastructure
+    class Application,SetupUC,InstallUC,NPMrcUC,GitPort,SwPort,NPMPort application
+    class Domain,RepoEntity,SwEntity,NPMEntity,PathVO,TokenVO domain
+    class User,Git,Homebrew,Files external

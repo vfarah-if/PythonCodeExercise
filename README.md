@@ -553,6 +553,14 @@ tests/setup_environment/   # 124 comprehensive tests
 └── integration/          # End-to-end workflow tests
 ```
 
+#### Architecture Documentation
+
+For detailed architecture documentation and visual diagrams, see:
+
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Comprehensive Clean Architecture documentation with layer breakdown, component responsibilities, and data flow examples
+- **[CLEAN_ARCHITECTURE_VISUAL.md](CLEAN_ARCHITECTURE_VISUAL.md)** - Visual ASCII diagrams and Mermaid charts showing the circular/onion architecture structure  
+- **[circular-architecture-d3.html](circular-architecture-d3.html)** - Interactive HTML circular diagram matching traditional Clean Architecture representations
+
 ### Key Features
 
 - **🏗️ Clean Architecture**: Domain-driven design with dependency injection

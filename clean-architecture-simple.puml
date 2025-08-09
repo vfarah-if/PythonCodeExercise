@@ -1,0 +1,74 @@
+@startuml
+title Setup Environment System - Clean Architecture
+
+' External Layer
+package "External" {
+  [User]
+  [FileSystem]
+  [Homebrew]
+  [Git]
+  [GitHub]
+  [YAML Config]
+}
+
+' Presentation Layer
+package "Presentation" {
+  [CLI]
+}
+
+' Application Layer  
+package "Application" {
+  [SetupRepositories UseCase]
+  [InstallSoftware UseCase]
+  [ConfigureNPMRC UseCase]
+  
+  interface GitService
+  interface SoftwareService
+  interface NPMRCService
+  interface ConfigService
+}
+
+' Domain Layer
+package "Domain" {
+  [Repository Entity]
+  [Software Entity]
+  [NPMRC Entity]
+  [DevFolderPath Value Object]
+  [Token Value Object]
+}
+
+' Infrastructure Layer
+package "Infrastructure" {
+  [GitPythonService]
+  [BrewSoftwareService]
+  [NPMRCFileService]
+  [RepositoryConfigService]
+}
+
+' Connections
+User --> CLI
+CLI --> [SetupRepositories UseCase]
+CLI --> [InstallSoftware UseCase]
+CLI --> [ConfigureNPMRC UseCase]
+
+[SetupRepositories UseCase] --> GitService
+[InstallSoftware UseCase] --> SoftwareService
+[ConfigureNPMRC UseCase] --> NPMRCService
+[SetupRepositories UseCase] --> ConfigService
+
+GitService <|-- GitPythonService
+SoftwareService <|-- BrewSoftwareService
+NPMRCService <|-- NPMRCFileService
+ConfigService <|-- RepositoryConfigService
+
+GitPythonService --> Git
+GitPythonService --> FileSystem
+BrewSoftwareService --> Homebrew
+NPMRCFileService --> FileSystem
+RepositoryConfigService --> [YAML Config]
+
+[SetupRepositories UseCase] ..> [Repository Entity]
+[InstallSoftware UseCase] ..> [Software Entity]
+[ConfigureNPMRC UseCase] ..> [NPMRC Entity]
+
+@enduml
