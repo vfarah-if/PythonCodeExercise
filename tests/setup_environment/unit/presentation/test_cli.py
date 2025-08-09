@@ -319,7 +319,7 @@ class TestSetupEnvironmentWithRepositoryConfig:
                 # Return a mock repository to avoid "no repositories found" error
                 mock_repo = Repository.from_url("https://github.com/test/custom.git")
                 mock_load.return_value = [mock_repo]
-                
+
                 result = runner.invoke(
                     setup_environment,
                     [

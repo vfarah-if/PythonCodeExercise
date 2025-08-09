@@ -89,8 +89,8 @@ class RepositoryConfigService:
 
         # Create Repository from URL
         repo = Repository.from_url(item["url"])
-        
+
         # Note: Repository metadata (name, description) from YAML is currently
         # not used but could be extended in the future
-        
+
         return repo
