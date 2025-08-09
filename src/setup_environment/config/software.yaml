@@ -120,3 +120,21 @@ software:
     check_command: "test -d /Applications/Firefox.app"
     install_command: "brew install --cask firefox"
     required: false
+    
+  - name: OpenJDK
+    description: "Open-source Java Development Kit"
+    check_command: "java --version"
+    install_command: "brew install openjdk"
+    required: false
+    
+  - name: PlantUML
+    description: "UML diagram generation tool"
+    check_command: "plantuml -version"
+    install_command: "brew install plantuml"
+    required: false
+    
+  - name: Mermaid CLI
+    description: "Diagram generation from text definitions"
+    check_command: "mmdc --version"
+    install_command: "npm install -g @mermaid-js/mermaid-cli"
+    required: false
