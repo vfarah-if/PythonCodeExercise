@@ -293,6 +293,7 @@ from src.sum import sum_numbers, sum_list, sum_positive
 | **Software Installation** | |
 | `make setup-brew-software` | Install configured development software interactively |
 | `make setup-brew-all` | Install all configured software without prompts |
+| `make install-setup-env-global` | Install setup-environment CLI tool globally |
 
 ### Direct uv Commands
 
@@ -610,6 +611,37 @@ make setup-env-dry
 ```
 
 ### CLI Usage
+
+The `setup-environment` CLI can be used either locally within the project or installed globally for system-wide access.
+
+#### Local Usage (Within Project)
+
+```bash
+# Using the Makefile commands
+make setup-env              # Run with ~/test folder
+make setup-env-dry          # Dry-run mode
+make setup-env-help         # Show help
+
+# Direct usage with uv
+uv run setup-environment --dev-folder ~/dev
+```
+
+#### Global Installation
+
+Install the CLI globally to use it from anywhere on your system:
+
+```bash
+# Install globally using the Makefile
+make install-setup-env-global
+
+# Or install manually with uv
+uv tool install .
+
+# Or with pipx (if you prefer)
+pipx install .
+```
+
+After global installation, the `setup-environment` command is available system-wide:
 
 ```bash
 # Basic usage

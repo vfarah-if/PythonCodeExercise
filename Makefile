@@ -1,4 +1,4 @@
-.PHONY: help setup install test watch lint lint-fix format clean all setup-env setup-env-dry setup-env-help setup-env-init setup-env-example setup-brew-software setup-brew-all
+.PHONY: help setup install test watch lint lint-fix format clean all setup-env setup-env-dry setup-env-help setup-env-init setup-env-example setup-brew-software setup-brew-all install-setup-env-global
 
 # Default target
 help:
@@ -23,6 +23,7 @@ help:
 	@echo "Software Installation:"
 	@echo "  make setup-brew-software - Install configured development software interactively"
 	@echo "  make setup-brew-all      - Install all configured software without prompts"
+	@echo "  make install-setup-env-global - Install setup-environment CLI tool globally"
 
 # Install uv if not present and create virtual environment
 setup:
@@ -149,3 +150,46 @@ setup-brew-all:
 	@if [ ! -d "/tmp" ]; then mkdir -p "/tmp"; fi
 	@uv run setup-environment --dev-folder /tmp --skip-npmrc --install-all-software
 	@echo "⚠️  Note: Skipped Git repository cloning (only software installation)"
+
+# Install setup-environment CLI globally
+install-setup-env-global:
+	@echo "🌍 Installing setup-environment CLI globally..."
+	@echo ""
+	@echo "📚 About setup-environment CLI:"
+	@echo "  The setup-environment tool automates developer environment setup including:"
+	@echo "  • Installing development software (via Homebrew)"
+	@echo "  • Cloning and organising Git repositories"
+	@echo "  • Setting up SSH keys and Git configuration"
+	@echo "  • Configuring Node.js, Python, and other tools"
+	@echo ""
+	@echo "🔧 Installation options:"
+	@echo ""
+	@echo "Option 1: Install with uvx (recommended for global tools):"
+	@echo "  uvx install --from . setup-environment"
+	@echo ""
+	@echo "Option 2: Install with uv tool (creates isolated environment):"
+	@echo "  uv tool install ."
+	@echo ""
+	@echo "Option 3: Install with pipx (if you prefer pipx):"
+	@echo "  pipx install ."
+	@echo ""
+	@echo "📦 Installing with uv tool..."
+	@if ! command -v uv &> /dev/null; then \
+		echo "❌ uv is not installed. Please run 'make setup' first."; \
+		exit 1; \
+	fi
+	@uv tool install . --force
+	@echo ""
+	@echo "✅ setup-environment CLI installed globally!"
+	@echo ""
+	@echo "📍 The command 'setup-environment' is now available system-wide"
+	@echo ""
+	@echo "💡 Usage examples:"
+	@echo "  setup-environment --help                    # Show help"
+	@echo "  setup-environment --dev-folder ~/dev        # Set up dev environment"
+	@echo "  setup-environment --generate-env            # Generate .env template"
+	@echo "  setup-environment --dry-run                 # Preview actions"
+	@echo ""
+	@echo "🔍 To verify installation:"
+	@which setup-environment
+	@setup-environment --version 2>/dev/null || setup-environment --help | head -n 1
