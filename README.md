@@ -533,26 +533,26 @@ The `setup-environment` CLI automates the process of:
 
 Built following **Clean Architecture** principles with comprehensive test coverage:
 
-```
+```shell
 src/setup_environment/
 ├── config/                # Configuration files
 │   ├── repositories.yaml  # Repository definitions
-│   └── software.yaml     # Software to install
-├── domain/               # Business logic & entities
-│   ├── entities/        # Repository, NPMRCConfiguration
-│   └── value_objects/   # DevFolderPath, PersonalAccessToken
-├── application/         # Use cases & business rules
-│   ├── interfaces/      # Service abstractions
-│   └── use_cases/      # SetupRepositories, ConfigureNPMRC
-├── infrastructure/      # External dependencies
-│   ├── git/            # Git operations via subprocess
-│   ├── npm/            # File system operations
+│   └── software.yaml      # Software to install
+├── domain/                # Business logic & entities
+│   ├── entities/          # Repository, NPMRCConfiguration
+│   └── value_objects/     # DevFolderPath, PersonalAccessToken
+├── application/           # Use cases & business rules
+│   ├── interfaces/        # Service abstractions
+│   └── use_cases/         # SetupRepositories, ConfigureNPMRC
+├── infrastructure/        # External dependencies
+│   ├── git/               # Git operations via subprocess
+│   ├── npm/               # File system operations
 │   └── repository_config_service.py  # YAML config loader
-└── presentation/       # User interface (CLI)
+└── presentation/          # User interface (CLI)
 
 tests/setup_environment/   # 124 comprehensive tests
-├── unit/                 # Unit tests (all layers)
-└── integration/          # End-to-end workflow tests
+├── unit/                  # Unit tests (all layers)
+└── integration/           # End-to-end workflow tests
 ```
 
 #### Architecture Documentation
@@ -561,8 +561,6 @@ For detailed architecture documentation and visual diagrams, see:
 
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - Comprehensive Clean Architecture documentation with layer breakdown, component responsibilities, and data flow examples
 - **[CLEAN_ARCHITECTURE_VISUAL.md](CLEAN_ARCHITECTURE_VISUAL.md)** - Visual ASCII diagrams and Mermaid charts showing the circular/onion architecture structure  
-- **[circular-architecture-d3.html](circular-architecture-d3.html)** - Interactive HTML circular diagram matching traditional Clean Architecture representations
-- **[clean-architecture-onion.puml](clean-architecture-onion.puml)** - PlantUML onion/circular architecture diagram with concentric layers
 - **[makefile-workflow.puml](makefile-workflow.puml)** - PlantUML diagram visualizing Makefile command relationships and development workflow
 
 ### Key Features
@@ -685,47 +683,6 @@ repositories:
 - 🔄 **Portability**: Easy to share and version control
 - 📋 **Documentation**: Include descriptions for each repository
 
-#### Backward Compatibility
-
-For backward compatibility, the CLI will fall back to environment variables (`GIT_REPO_*`) if no configuration file is found:
-
-```bash
-# HTTPS repositories
-export GIT_REPO_1="https://github.com/facebook/react.git"
-export GIT_REPO_2="https://github.com/microsoft/vscode.git"
-
-# SSH repositories (for private repos)
-export GIT_REPO_PRIVATE="git@github.com:your-org/private-repo.git"
-
-# Any GIT_REPO_* pattern works
-export GIT_REPO_FRONTEND="https://github.com/webuild-ai/frontend.git"
-export GIT_REPO_BACKEND="https://github.com/webuild-ai/backend.git"
-export GIT_REPO_TOOLS="https://github.com/webuild-ai/dev-tools.git"
-```
-
-#### .env File Format
-
-The generated `.env` file contains example repositories and clear documentation:
-
-```bash
-# Setup Environment Configuration
-# Add your Git repository URLs below using the GIT_REPO_* pattern
-# Supports both HTTPS and SSH URLs
-
-# Example repositories (replace with your own)
-GIT_REPO_1=https://github.com/facebook/react.git
-GIT_REPO_2=https://github.com/microsoft/vscode.git
-GIT_REPO_FRONTEND=https://github.com/your-org/frontend.git
-GIT_REPO_BACKEND=https://github.com/your-org/backend.git
-
-# For private repositories, use SSH URLs:
-# GIT_REPO_PRIVATE=git@github.com:your-org/private-repo.git
-
-# You can use any GIT_REPO_* pattern:
-# GIT_REPO_TOOLS=https://github.com/your-org/dev-tools.git
-# GIT_REPO_DOCS=https://github.com/your-org/documentation.git
-```
-
 #### Migration from Environment Variables
 
 If you're currently using environment variables, migrate to .env files:
@@ -800,20 +757,6 @@ make setup-env-dry
 
 ### Development Workflow Integration
 
-#### Team Onboarding Workflow
-
-**For Project Maintainers:**
-1. Create team template: `make setup-env-example`
-2. Customize `.env.example` with your project repositories
-3. Commit `.env.example` to version control
-4. Document in project README: "Run `make setup-env-init` to get started"
-
-**For New Team Members:**
-1. Clone the project repository
-2. Generate personal config: `make setup-env-init` (copies from `.env.example`)
-3. Customize `.env` with personal preferences
-4. Run setup: `make setup-env`
-
 #### Environment Consistency
 
 Perfect for:
@@ -821,13 +764,6 @@ Perfect for:
 - **Environment standardisation**: Same repositories and structure across all machines
 - **CI/CD pipelines**: Automated environment preparation with custom .env files
 - **Documentation**: Self-documenting development environment with version-controlled templates
-
-#### Security Best Practices
-
-- ✅ **`.env`**: Personal configuration (ignored by Git)
-- ✅ **`.env.example`**: Team template (committed to Git)
-- ❌ **Never commit**: `.env`, `.env.local`, `.env.production`, etc.
-- 🔒 **Keep private**: Personal access tokens and sensitive URLs
 
 ### Error Handling
 
@@ -884,6 +820,7 @@ The CLI includes automated development software installation via Homebrew:
 - **Terraform** - Infrastructure as Code tool ✅ *required*
 
 **Development Environment:**
+
 - **iTerm2** - Terminal emulator for macOS
 - **Zsh** - Z shell
 - **Slack** - Team communication platform
