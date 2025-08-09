@@ -83,3 +83,40 @@ software:
     check_command: "test -d /Applications/AltTab.app"
     install_command: "brew install --cask alt-tab"
     required: false
+    
+  - name: Google Chrome
+    description: "Web browser from Google"
+    check_command: "test -d /Applications/Google\\ Chrome.app"
+    install_command: "brew install --cask google-chrome"
+    required: false
+    
+  - name: Brave Browser
+    description: "Privacy-focused web browser with no adverts in youtube videos"
+    check_command: "test -d /Applications/Brave\\ Browser.app"
+    install_command: "brew install --cask brave-browser"
+    required: false
+    
+  - name: Postman
+    description: "API development and testing platform"
+    check_command: "test -d /Applications/Postman.app"
+    install_command: "brew install --cask postman"
+    required: false
+    
+  - name: Xcode
+    description: "Apple's integrated development environment"
+    check_command: "test -d /Applications/Xcode.app"
+    install_command: "mas install 497799835"
+    custom_install: true
+    required: false
+    
+  - name: Android Studio
+    description: "IDE for Android development"
+    check_command: "test -d /Applications/Android\\ Studio.app"
+    install_command: "brew install --cask android-studio"
+    required: false
+    
+  - name: Firefox
+    description: "Open-source web browser from Mozilla"
+    check_command: "test -d /Applications/Firefox.app"
+    install_command: "brew install --cask firefox"
+    required: false
