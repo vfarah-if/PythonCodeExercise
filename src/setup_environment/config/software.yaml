@@ -59,3 +59,27 @@ software:
     check_command: "claude --version"
     install_command: "npm install -g @anthropic-ai/claude-code"
     required: false
+    
+  - name: Visual Studio Code
+    description: "Open-source code editor from Microsoft"
+    check_command: "test -d /Applications/Visual\\ Studio\\ Code.app"
+    install_command: "brew install --cask visual-studio-code"
+    required: false
+    
+  - name: Rectangle
+    description: "Window management app for macOS"
+    check_command: "test -d /Applications/Rectangle.app"
+    install_command: "brew install --cask rectangle"
+    required: false
+    
+  - name: Docker Desktop
+    description: "Docker containerization platform"
+    check_command: "test -d /Applications/Docker.app"
+    install_command: "brew install --cask docker"
+    required: false
+    
+  - name: AltTab
+    description: "Windows-style alt-tab window switcher for macOS"
+    check_command: "test -d /Applications/AltTab.app"
+    install_command: "brew install --cask alt-tab"
+    required: false

@@ -1,4 +1,4 @@
-.PHONY: help setup install test watch lint lint-fix format clean all setup-env setup-env-dry setup-env-help setup-env-init setup-env-example setup-brew-software setup-brew-all install-setup-env-global
+.PHONY: help setup install test watch lint lint-fix format clean all setup-env setup-env-dry setup-env-help setup-env-init setup-env-example setup-brew-software setup-brew-all install-setup-env-global uninstall-setup-env-global
 
 # Default target
 help:
@@ -23,7 +23,8 @@ help:
 	@echo "Software Installation:"
 	@echo "  make setup-brew-software - Install configured development software interactively"
 	@echo "  make setup-brew-all      - Install all configured software without prompts"
-	@echo "  make install-setup-env-global - Install setup-environment CLI tool globally"
+	@echo "  make install-setup-env-global   - Install setup-environment CLI tool globally"
+	@echo "  make uninstall-setup-env-global - Uninstall setup-environment CLI tool"
 
 # Install uv if not present and create virtual environment
 setup:
@@ -193,3 +194,29 @@ install-setup-env-global:
 	@echo "🔍 To verify installation:"
 	@which setup-environment
 	@setup-environment --version 2>/dev/null || setup-environment --help | head -n 1
+
+# Uninstall setup-environment CLI globally
+uninstall-setup-env-global:
+	@echo "🗑️  Uninstalling setup-environment CLI globally..."
+	@echo ""
+	@if ! command -v uv &> /dev/null; then \
+		echo "❌ uv is not installed. Cannot proceed with uninstallation."; \
+		exit 1; \
+	fi
+	@if command -v setup-environment &> /dev/null; then \
+		echo "📍 Found setup-environment at: $$(which setup-environment)"; \
+		echo ""; \
+		uv tool uninstall setup-environment; \
+		echo ""; \
+		if command -v setup-environment &> /dev/null; then \
+			echo "⚠️  setup-environment still exists. It may have been installed with a different tool."; \
+			echo "💡 Try these alternative uninstall methods:"; \
+			echo "  pipx uninstall setup-environment    # If installed with pipx"; \
+			echo "  pip uninstall python-code-exercise  # If installed with pip"; \
+		else \
+			echo "✅ setup-environment CLI successfully uninstalled!"; \
+		fi; \
+	else \
+		echo "ℹ️  setup-environment is not installed globally."; \
+		echo "Nothing to uninstall."; \
+	fi
