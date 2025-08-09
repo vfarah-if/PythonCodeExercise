@@ -508,15 +508,7 @@ def test_sum_positive_filters_negative():
     assert sum_positive([1, -2, 3, -4, 5]) == 9
 ```
 
-## Resources
-
-- [uv Documentation](https://github.com/astral-sh/uv)
-- [pytest Documentation](https://docs.pytest.org/)
-- [ruff Documentation](https://docs.astral.sh/ruff/)
-- [Python Testing Best Practices](https://realpython.com/pytest-python-testing/)
-- [Kata Catalog](https://www.codewars.com/) - Find coding challenges
-
-## Setup Environment CLI
+# Setup Environment CLI
 
 This project includes a production-grade CLI tool for setting up development environments with Git repositories and npmrc configuration.
 
@@ -885,6 +877,14 @@ The CLI provides intelligent SSH setup for Git repositories:
 - **Instructions**: Step-by-step GitHub SSH key addition guidance
 
 This CLI demonstrates production-ready Python development practices including clean architecture, comprehensive testing, user-focused design, and intelligent SSH automation.
+
+## Resources
+
+- [uv Documentation](https://github.com/astral-sh/uv)
+- [pytest Documentation](https://docs.pytest.org/)
+- [ruff Documentation](https://docs.astral.sh/ruff/)
+- [Python Testing Best Practices](https://realpython.com/pytest-python-testing/)
+- [Kata Catalog](https://www.codewars.com/) - Find coding challenges
 
 ## Contributing
 
