@@ -1,20 +1,22 @@
-"""Tests for NVMService."""
+"""Tests for NodeEnvironmentService."""
 
 import subprocess
 from unittest.mock import Mock, patch
 
 import pytest
 
-from src.setup_environment.infrastructure.software.nvm_service import NVMService
+from src.setup_environment.infrastructure.software.nvm_service import (
+    NodeEnvironmentService,
+)
 
 
-class TestNVMService:
-    """Test suite for NVMService."""
+class TestNodeEnvironmentService:
+    """Test suite for NodeEnvironmentService."""
 
     @pytest.fixture
     def service(self):
-        """Create NVMService instance."""
-        return NVMService()
+        """Create NodeEnvironmentService instance."""
+        return NodeEnvironmentService()
 
     @patch("os.path.exists")
     def test_is_nvm_installed_success(self, mock_exists, service):
@@ -126,13 +128,13 @@ class TestNVMService:
         assert version == "unknown"
 
     @patch(
-        "src.setup_environment.infrastructure.software.nvm_service.NVMService.is_nvm_installed"
+        "src.setup_environment.infrastructure.software.nvm_service.NodeEnvironmentService.is_nvm_installed"
     )
     @patch(
-        "src.setup_environment.infrastructure.software.nvm_service.NVMService.install_nvm"
+        "src.setup_environment.infrastructure.software.nvm_service.NodeEnvironmentService.install_nvm"
     )
     @patch(
-        "src.setup_environment.infrastructure.software.nvm_service.NVMService.install_latest_node"
+        "src.setup_environment.infrastructure.software.nvm_service.NodeEnvironmentService.install_latest_node"
     )
     def test_setup_node_environment_new_installation(
         self, mock_install_node, mock_install_nvm, mock_is_installed, service
@@ -152,7 +154,7 @@ class TestNVMService:
         assert "Node.js: Node.js installed" in message
 
     @patch(
-        "src.setup_environment.infrastructure.software.nvm_service.NVMService.is_nvm_installed"
+        "src.setup_environment.infrastructure.software.nvm_service.NodeEnvironmentService.is_nvm_installed"
     )
     def test_setup_node_environment_already_installed(self, mock_is_installed, service):
         """Test Node.js environment setup when already installed."""

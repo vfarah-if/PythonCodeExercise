@@ -5,8 +5,10 @@ import subprocess
 
 import click
 
+from src.setup_environment.application.interfaces.node_service import NodeService
 
-class NVMService:
+
+class NodeEnvironmentService(NodeService):
     """Service for installing NVM and Node.js."""
 
     def is_nvm_installed(self) -> bool:

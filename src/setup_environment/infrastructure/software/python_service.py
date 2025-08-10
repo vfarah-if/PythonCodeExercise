@@ -4,8 +4,12 @@ import subprocess
 
 import click
 
+from src.setup_environment.application.interfaces.python_service import (
+    PythonEnvironmentService,
+)
 
-class PythonService:
+
+class BrewPythonService(PythonEnvironmentService):
     """Service for installing Python and uv package manager."""
 
     def is_python_installed(self) -> bool:

@@ -56,7 +56,7 @@ graph LR
     GitSvc[GitPythonService]
     BrewSvc[BrewSoftwareService]
     NPMSvc[NPMRCFileService]
-    ConfigSvc[RepositoryConfigService]
+    ConfigSvc[YamlRepositoryConfigService]
     
     %% Application Layer (middle ring)
     SetupUC[SetupRepositories]
@@ -119,8 +119,8 @@ graph LR
 **Components:**
 - CLI Interface (Primary Adapter)
 - GitPythonService, BrewSoftwareService 
-- NPMRCFileService, RepositoryConfigService
-- PythonService, NVMService
+- NPMRCFileService, YamlRepositoryConfigService
+- BrewPythonService, NodeEnvironmentService
 
 **Responsibilities:**
 - Framework-specific implementations

@@ -5,10 +5,13 @@ from typing import Any
 
 import yaml
 
+from src.setup_environment.application.interfaces.repository_config_service import (
+    RepositoryConfigurationService,
+)
 from src.setup_environment.domain.entities import Repository
 
 
-class RepositoryConfigService:
+class YamlRepositoryConfigService(RepositoryConfigurationService):
     """Service for loading and managing repository configurations from YAML files."""
 
     def __init__(self, config_dir: Path | None = None):

@@ -1,20 +1,22 @@
-"""Tests for PythonService."""
+"""Tests for BrewPythonService."""
 
 import subprocess
 from unittest.mock import Mock, patch
 
 import pytest
 
-from src.setup_environment.infrastructure.software.python_service import PythonService
+from src.setup_environment.infrastructure.software.python_service import (
+    BrewPythonService,
+)
 
 
-class TestPythonService:
-    """Test suite for PythonService."""
+class TestBrewPythonService:
+    """Test suite for BrewPythonService."""
 
     @pytest.fixture
     def service(self):
-        """Create PythonService instance."""
-        return PythonService()
+        """Create BrewPythonService instance."""
+        return BrewPythonService()
 
     @patch("subprocess.run")
     def test_is_python_installed_success(self, mock_run, service):
@@ -119,16 +121,16 @@ class TestPythonService:
         assert "Would install uv via Homebrew" in message
 
     @patch(
-        "src.setup_environment.infrastructure.software.python_service.PythonService.is_python_installed"
+        "src.setup_environment.infrastructure.software.python_service.BrewPythonService.is_python_installed"
     )
     @patch(
-        "src.setup_environment.infrastructure.software.python_service.PythonService.is_uv_installed"
+        "src.setup_environment.infrastructure.software.python_service.BrewPythonService.is_uv_installed"
     )
     @patch(
-        "src.setup_environment.infrastructure.software.python_service.PythonService.install_python"
+        "src.setup_environment.infrastructure.software.python_service.BrewPythonService.install_python"
     )
     @patch(
-        "src.setup_environment.infrastructure.software.python_service.PythonService.install_uv"
+        "src.setup_environment.infrastructure.software.python_service.BrewPythonService.install_uv"
     )
     def test_setup_python_environment_both_missing(
         self,
@@ -151,10 +153,10 @@ class TestPythonService:
         assert "uv: uv installed" in message
 
     @patch(
-        "src.setup_environment.infrastructure.software.python_service.PythonService.is_python_installed"
+        "src.setup_environment.infrastructure.software.python_service.BrewPythonService.is_python_installed"
     )
     @patch(
-        "src.setup_environment.infrastructure.software.python_service.PythonService.is_uv_installed"
+        "src.setup_environment.infrastructure.software.python_service.BrewPythonService.is_uv_installed"
     )
     def test_setup_python_environment_both_installed(
         self, mock_is_uv_installed, mock_is_python_installed, service

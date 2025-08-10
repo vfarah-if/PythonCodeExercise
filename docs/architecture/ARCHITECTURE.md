@@ -36,13 +36,13 @@ The Setup Environment System follows **Clean Architecture** principles (also kno
 │  │                         │    │       (PORTS)           │ │
 │  │  ┌─────────────────┐    │    │  ┌─────────────────┐    │ │
 │  │  │SetupRepositories│◄───┼────┼──┤   GitService    │    │ │
-│  │  │   UseCase       │    │    │  └─────────────────┘    │ │
-│  │  └─────────────────┘    │    │                         │ │
+│  │  │   UseCase       │    │    │  │RepositoryConfig │    │ │
+│  │  └─────────────────┘    │    │  └─────────────────┘    │ │
 │  │  ┌─────────────────┐    │    │  ┌─────────────────┐    │ │
 │  │  │ InstallSoftware │◄───┼────┼──┤ SoftwareService │    │ │
-│  │  │   UseCase       │    │    │  └─────────────────┘    │ │
-│  │  └─────────────────┘    │    │                         │ │
-│  │  ┌─────────────────┐    │    │  ┌─────────────────┐    │ │
+│  │  │   UseCase       │    │    │  │   NodeService   │    │ │
+│  │  └─────────────────┘    │    │  │PythonEnvironment│    │ │
+│  │  ┌─────────────────┐    │    │  └─────────────────┘    │ │
 │  │  │ConfigureNPMRC   │◄───┼────┼──┤  NPMRCService   │    │ │
 │  │  │   UseCase       │    │    │  └─────────────────┘    │ │
 │  │  └─────────────────┘    │    │                         │ │
@@ -91,23 +91,23 @@ The Setup Environment System follows **Clean Architecture** principles (also kno
 │  │  │• check_exists() │    │    │  │• check_install()│    │ │
 │  │  └─────────────────┘    │    │  └─────────────────┘    │ │
 │  │  ┌─────────────────┐    │    │  ┌─────────────────┐    │ │
-│  │  │GitInstallService│    │    │  │  PythonService  │    │ │
+│  │  │GitInstallService│    │    │  │BrewPythonService│    │ │
 │  │  │• setup_ssh()    │    │    │  │• setup_python() │    │ │
 │  │  │• config_git()   │    │    │  │• install_uv()   │    │ │
 │  │  └─────────────────┘    │    │  └─────────────────┘    │ │
 │  └─────────────────────────┘    │  ┌─────────────────┐    │ │
-│                                 │  │   NVMService    │    │ │
-│  ┌─────────────────────────┐    │  │• setup_node()   │    │ │
-│  │   CONFIG ADAPTERS       │    │  │• install_nvm()  │    │ │
-│  │                         │    │  └─────────────────┘    │ │
-│  │  ┌─────────────────┐    │    └─────────────────────────┘ │
-│  │  │NPMRCFileService │    │                                │
+│                                 │  │NodeEnvironment  │    │ │
+│  ┌─────────────────────────┐    │  │    Service      │    │ │
+│  │   CONFIG ADAPTERS       │    │  │• setup_node()   │    │ │
+│  │                         │    │  │• install_nvm()  │    │ │
+│  │  ┌─────────────────┐    │    │  └─────────────────┘    │ │
+│  │  │NPMRCFileService │    │    └─────────────────────────┘ │
 │  │  │• write_config() │    │                                │
 │  │  │• check_token()  │    │                                │
 │  │  └─────────────────┘    │                                │
 │  │  ┌─────────────────┐    │                                │
-│  │  │RepositoryConfig │    │                                │
-│  │  │    Service      │    │                                │
+│  │  │YamlRepository   │    │                                │
+│  │  │ ConfigService   │    │                                │
 │  │  │• load_yaml()    │    │                                │
 │  │  │• parse_repos()  │    │                                │
 │  │  └─────────────────┘    │                                │

@@ -20,14 +20,18 @@ from src.setup_environment.domain.entities import Repository
 from src.setup_environment.domain.value_objects import DevFolderPath
 from src.setup_environment.infrastructure import GitPythonService, NPMRCFileService
 from src.setup_environment.infrastructure.repository_config_service import (
-    RepositoryConfigService,
+    YamlRepositoryConfigService,
 )
 from src.setup_environment.infrastructure.software import BrewSoftwareService
 from src.setup_environment.infrastructure.software.git_service import (
     GitService as GitInstallService,
 )
-from src.setup_environment.infrastructure.software.nvm_service import NVMService
-from src.setup_environment.infrastructure.software.python_service import PythonService
+from src.setup_environment.infrastructure.software.nvm_service import (
+    NodeEnvironmentService,
+)
+from src.setup_environment.infrastructure.software.python_service import (
+    BrewPythonService,
+)
 
 
 def load_repositories_from_config(
@@ -41,7 +45,7 @@ def load_repositories_from_config(
     Returns:
         List of Repository entities.
     """
-    config_service = RepositoryConfigService()
+    config_service = YamlRepositoryConfigService()
 
     try:
         repositories = config_service.load_repositories(
@@ -266,9 +270,9 @@ def setup_environment(
                 )
 
             software_service = BrewSoftwareService()
-            python_service = PythonService()
+            python_service = BrewPythonService()
             git_install_service = GitInstallService()
-            nvm_service = NVMService()
+            nvm_service = NodeEnvironmentService()
 
             software_use_case = InstallSoftwareUseCase(
                 software_service,
