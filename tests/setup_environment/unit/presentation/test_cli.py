@@ -8,7 +8,7 @@ from unittest.mock import patch
 import pytest
 from click.testing import CliRunner
 
-from src.setup_environment.application.interfaces.git_service import CloneStatus
+from src.setup_environment.application.interfaces.git.git_service import CloneStatus
 from src.setup_environment.application.use_cases.configure_npmrc import (
     ConfigurationStatus,
 )

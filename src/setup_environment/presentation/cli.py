@@ -19,7 +19,7 @@ from src.setup_environment.application.use_cases.install_software import (
 from src.setup_environment.domain.entities import Repository
 from src.setup_environment.domain.value_objects import DevFolderPath
 from src.setup_environment.infrastructure import GitPythonService, NPMRCFileService
-from src.setup_environment.infrastructure.repository_config_service import (
+from src.setup_environment.infrastructure.config.repository_config_service import (
     YamlRepositoryConfigService,
 )
 from src.setup_environment.infrastructure.software import BrewSoftwareService

@@ -6,7 +6,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.setup_environment.application.interfaces.git_service import CloneStatus
+from src.setup_environment.application.interfaces.git.git_service import CloneStatus
 from src.setup_environment.domain.entities import Repository
 from src.setup_environment.infrastructure.git import GitPythonService
 

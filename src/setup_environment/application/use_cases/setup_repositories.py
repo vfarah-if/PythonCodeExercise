@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 
 from src.setup_environment.application.interfaces import CloneResult, GitService
-from src.setup_environment.application.interfaces.git_service import CloneStatus
+from src.setup_environment.application.interfaces.git.git_service import CloneStatus
 from src.setup_environment.domain.entities import Repository
 from src.setup_environment.domain.value_objects import DevFolderPath
 

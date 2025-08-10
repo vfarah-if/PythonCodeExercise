@@ -7,7 +7,7 @@ from typing import Any
 
 import yaml
 
-from src.setup_environment.application.interfaces.software_service import (
+from src.setup_environment.application.interfaces.software.software_service import (
     SoftwareService,
 )
 from src.setup_environment.domain.entities.software import Software

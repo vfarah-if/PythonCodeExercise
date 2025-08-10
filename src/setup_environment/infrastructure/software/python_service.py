@@ -4,7 +4,7 @@ import subprocess
 
 import click
 
-from src.setup_environment.application.interfaces.python_service import (
+from src.setup_environment.application.interfaces.software.python_service import (
     PythonEnvironmentService,
 )
 

@@ -5,7 +5,7 @@ from typing import Any
 
 import yaml
 
-from src.setup_environment.application.interfaces.repository_config_service import (
+from src.setup_environment.application.interfaces.config.repository_config_service import (
     RepositoryConfigurationService,
 )
 from src.setup_environment.domain.entities import Repository
@@ -22,8 +22,8 @@ class YamlRepositoryConfigService(RepositoryConfigurationService):
                        Defaults to the package config directory.
         """
         if config_dir is None:
-            # Default to the package config directory
-            self._config_dir = Path(__file__).parent.parent / "config"
+            # Default to the package config directory - go up to setup_environment level
+            self._config_dir = Path(__file__).parent.parent.parent / "config"
         else:
             self._config_dir = config_dir
 

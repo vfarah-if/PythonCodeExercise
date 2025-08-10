@@ -5,7 +5,9 @@ import subprocess
 
 import click
 
-from src.setup_environment.application.interfaces.node_service import NodeService
+from src.setup_environment.application.interfaces.software.node_service import (
+    NodeService,
+)
 
 
 class NodeEnvironmentService(NodeService):

@@ -7,7 +7,7 @@ from unittest.mock import Mock
 import pytest
 
 from src.setup_environment.application.interfaces import CloneResult, GitService
-from src.setup_environment.application.interfaces.git_service import CloneStatus
+from src.setup_environment.application.interfaces.git.git_service import CloneStatus
 from src.setup_environment.application.use_cases import SetupRepositoriesUseCase
 from src.setup_environment.domain.entities import Repository
 from src.setup_environment.domain.value_objects import DevFolderPath
