@@ -138,3 +138,15 @@ software:
     check_command: "mmdc --version"
     install_command: "npm install -g @mermaid-js/mermaid-cli"
     required: false
+    
+  - name: GIMP
+    description: "GNU Image Manipulation Program for graphics editing"
+    check_command: "test -d /Applications/GIMP-2.10.app"
+    install_command: "brew install --cask gimp"
+    required: false
+    
+  - name: ADR Tools
+    description: "Command-line tools for working with Architecture Decision Records"
+    check_command: "adr-tools version"
+    install_command: "brew install adr-tools"
+    required: false

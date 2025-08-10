@@ -1,0 +1,135 @@
+@startuml component-dependency-diagram
+
+title Component Dependency Diagram\nsetup-environment Clean Architecture
+
+!define DOMAIN_COLOR #9BC2E6
+!define APPLICATION_COLOR #5B9BD5
+!define INFRASTRUCTURE_COLOR #2E5984
+!define PRESENTATION_COLOR #A9D18E
+
+' Domain Layer (Core)
+package "Domain Layer" DOMAIN_COLOR {
+    package "Entities" {
+        [Repository]
+        [Software]
+        [NPMRCConfiguration]
+    }
+    
+    package "Value Objects" {
+        [DevFolderPath]
+        [PersonalAccessToken]
+        [InstallResponse]
+    }
+}
+
+' Application Layer
+package "Application Layer" APPLICATION_COLOR {
+    package "Use Cases" {
+        [SetupRepositoriesUseCase]
+        [InstallSoftwareUseCase]
+        [ConfigureNPMRCUseCase]
+    }
+    
+    package "Interfaces (Ports)" {
+        interface GitService
+        interface SoftwareService
+        interface NPMRCService
+    }
+}
+
+' Infrastructure Layer
+package "Infrastructure Layer" INFRASTRUCTURE_COLOR {
+    package "Git Services" {
+        [GitPythonService] 
+        [GitInstallService]
+    }
+    
+    package "Software Services" {
+        [BrewSoftwareService]
+        [PythonService]
+        [NVMService]
+    }
+    
+    package "Configuration Services" {
+        [NPMRCFileService]
+        [RepositoryConfigService]
+    }
+}
+
+' Presentation Layer
+package "Presentation Layer" PRESENTATION_COLOR {
+    [CLI Command Interface]
+}
+
+' External Systems
+cloud "External Systems" {
+    [Git CLI]
+    [Homebrew]
+    [NPM]
+    [File System]
+    [YAML Config Files]
+    [SSH Agent]
+}
+
+' Dependency Arrows (Dependencies point inward)
+[CLI Command Interface] --> [SetupRepositoriesUseCase]
+[CLI Command Interface] --> [InstallSoftwareUseCase]
+[CLI Command Interface] --> [ConfigureNPMRCUseCase]
+
+[SetupRepositoriesUseCase] --> GitService
+[InstallSoftwareUseCase] --> SoftwareService
+[ConfigureNPMRCUseCase] --> NPMRCService
+
+GitService <|.. [GitPythonService]
+GitService <|.. [GitInstallService]
+SoftwareService <|.. [BrewSoftwareService]
+SoftwareService <|.. [PythonService]
+SoftwareService <|.. [NVMService]
+NPMRCService <|.. [NPMRCFileService]
+
+[GitPythonService] --> [Git CLI]
+[GitInstallService] --> [Git CLI]
+[GitInstallService] --> [SSH Agent]
+[BrewSoftwareService] --> [Homebrew]
+[PythonService] --> [File System]
+[NVMService] --> [File System]
+[NPMRCFileService] --> [File System]
+[RepositoryConfigService] --> [YAML Config Files]
+
+' Use Cases depend on Domain objects
+[SetupRepositoriesUseCase] ..> [Repository]
+[SetupRepositoriesUseCase] ..> [DevFolderPath]
+[InstallSoftwareUseCase] ..> [Software]
+[InstallSoftwareUseCase] ..> [InstallResponse]
+[ConfigureNPMRCUseCase] ..> [NPMRCConfiguration]
+[ConfigureNPMRCUseCase] ..> [PersonalAccessToken]
+
+' CLI depends on configuration services
+[CLI Command Interface] --> [RepositoryConfigService]
+
+' Notes
+note right of "Domain Layer"
+    **Pure Business Logic**
+    • No external dependencies
+    • Framework independent
+    • Highly testable
+    • Contains business rules
+end note
+
+note left of "Infrastructure Layer"
+    **External Dependencies**
+    • Framework specific code
+    • I/O operations
+    • External API calls
+    • Concrete implementations
+end note
+
+note top of "Application Layer"
+    **Business Orchestration**
+    • Use case coordination
+    • Interface definitions
+    • Application business rules
+    • Dependency inversion
+end note
+
+@enduml

@@ -551,9 +551,9 @@ tests/setup_environment/   # 124 comprehensive tests
 
 For detailed architecture documentation and visual diagrams, see:
 
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Comprehensive Clean Architecture documentation with layer breakdown, component responsibilities, and data flow examples
-- **[CLEAN_ARCHITECTURE_VISUAL.md](CLEAN_ARCHITECTURE_VISUAL.md)** - Visual ASCII diagrams and Mermaid charts showing the circular/onion architecture structure  
-- **[makefile-workflow.puml](makefile-workflow.puml)** - PlantUML diagram visualizing Makefile command relationships and development workflow
+- **[ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md)** - Comprehensive Clean Architecture documentation with layer breakdown, component responsibilities, and data flow examples
+- **[CLEAN_ARCHITECTURE_VISUAL.md](docs/architecture/CLEAN_ARCHITECTURE_VISUAL.md)** - Visual ASCII diagrams and Mermaid charts showing the circular/onion architecture structure  
+- **[makefile-workflow.puml](docs/architecture/makefile-workflow.puml)** - PlantUML diagram visualising Makefile command relationships and development workflow
 
 ### Key Features
 
