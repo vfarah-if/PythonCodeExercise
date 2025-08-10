@@ -754,7 +754,6 @@ make setup-env-dry
 Perfect for:
 - **Team onboarding**: New developers can set up entire environment with one command
 - **Environment standardisation**: Same repositories and structure across all machines
-- **CI/CD pipelines**: Automated environment preparation with custom .env files
 - **Documentation**: Self-documenting development environment with version-controlled templates
 
 ### Error Handling
@@ -831,6 +830,8 @@ The CLI includes automated development software installation via Homebrew:
 - **OpenJDK** - Open-source Java Development Kit to help drawing tools
 - **PlantUML** - UML diagram generation tool
 - **Mermaid CLI** - Diagram generation from text definitions
+- **GIMP** - GNU Image Manipulation Program for graphics editing
+- **ADR Tools** - Command-line tools for working with **Architecture Decision Records**
 
 #### Installation Modes
 
