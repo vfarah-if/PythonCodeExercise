@@ -150,3 +150,9 @@ software:
     check_command: "adr-tools version"
     install_command: "brew install adr-tools"
     required: false
+    
+  - name: Raycast
+    description: "Productivity launcher and command palette for macOS"
+    check_command: "test -d /Applications/Raycast.app"
+    install_command: "brew install --cask raycast"
+    required: false
