@@ -2,7 +2,7 @@
 
 ## Circular Architecture Diagram
 
-```
+```css
                     CLEAN ARCHITECTURE
                     Setup Environment System
 
@@ -209,7 +209,7 @@ Primary Adapters          Secondary Adapters
 
 ## Real-World Example Flow
 
-```
+```css
 1. User Command: setup-environment --dev-folder ~/dev
                            │
 2. CLI Interface: Parse and validate input

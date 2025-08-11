@@ -21,20 +21,20 @@ The codebase started as a simple script but quickly grew in complexity as featur
 
 We adopted Clean Architecture (also known as Hexagonal Architecture or Ports & Adapters) with the following layer structure:
 
-```
+```shell
 src/setup_environment/
-├── domain/               # Core business logic (no dependencies)
+├── domain/              # Core business logic (no dependencies)
 │   ├── entities/        # Business objects with identity
 │   └── value_objects/   # Immutable objects with validation
 ├── application/         # Use cases and orchestration
 │   ├── interfaces/      # Port definitions (abstractions)
-│   └── use_cases/      # Application-specific business rules
+│   └── use_cases/       # Application-specific business rules
 ├── infrastructure/      # External dependencies
-│   ├── git/            # Git operations implementation
-│   ├── npm/            # File system operations
-│   └── software/       # Software installation services
-└── presentation/       # User interface
-    └── cli.py          # Click-based CLI
+│   ├── git/             # Git operations implementation
+│   ├── npm/             # File system operations
+│   └── software/        # Software installation services
+└── presentation/        # User interface
+    └── cli.py           # Click-based CLI
 ```
 
 ### Key Principles Applied:

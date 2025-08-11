@@ -46,7 +46,7 @@ software:
 
 ### Architecture:
 1. **Base SoftwareService**: Handles standard Homebrew installations
-2. **Specialised Services**: PythonService, NVMService, GitInstallService for complex setups
+2. **Specialised Services**: *PythonService* (Can remove this as we need it to run this software), *NVMService*, *GitInstallService* for complex setups
 3. **YAML Configuration**: Defines software with check/install commands
 4. **InstallSoftwareUseCase**: Orchestrates the installation process
 

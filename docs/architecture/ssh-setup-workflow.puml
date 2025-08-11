@@ -65,65 +65,38 @@ else (yes)
     endif
 endif
 
-note as KeyGeneration
+note left
     **SSH Key Generation**
-    
-    Command:
-    ssh-keygen -t ed25519 -C "user@example.com" -f ~/.ssh/id_ed25519 -N ""
-    
+    Command: ssh-keygen -t ed25519 -C "user@example.com" -f ~/.ssh/id_ed25519 -N ""
     Options:
     • -t ed25519: Use Ed25519 algorithm (modern, secure)
     • -C "email": Comment for identification  
     • -f path: Specify key file location
     • -N "": No passphrase (automation-friendly)
-end note
-
-note as AgentSetup
-    **SSH Agent Setup**
     
+    **SSH Agent Setup**
     Commands:
     1. ssh-agent -s (start agent)
     2. ssh-add ~/.ssh/id_ed25519 (add key)
-    
     Benefits:
     • Keys available to Git operations
     • No repeated passphrase prompts
     • Works with SSH config
-end note
-
-note as GitHubTest
+    
     **GitHub Connection Test**
-    
-    Command:
-    ssh -T git@github.com
-    
-    Success response:
-    "Hi username! You've successfully authenticated, 
+    Command: ssh -T git@github.com
+    Success response: "Hi username! You've successfully authenticated, 
     but GitHub does not provide shell access."
-    
     Return code: 1 (expected for GitHub)
-end note
-
-note as ManualInstructions
+    
     **Manual Setup Instructions**
-    
-    1. Copy public key:
-       cat ~/.ssh/id_ed25519.pub
-    
-    2. Add to GitHub:
-       https://github.com/settings/keys
-    
+    1. Copy public key: cat ~/.ssh/id_ed25519.pub
+    2. Add to GitHub: https://github.com/settings/keys
     3. Click "New SSH key"
-    
     4. Paste key and save
+    5. Test connection: ssh -T git@github.com
     
-    5. Test connection:
-       ssh -T git@github.com
-end note
-
-note as SecurityConsiderations
     **Security Considerations**
-    
     • Ed25519 recommended by GitHub
     • Keys stored in ~/.ssh/ with proper permissions
     • No passphrase for automation (user can add later)

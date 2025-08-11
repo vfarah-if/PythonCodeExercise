@@ -6,7 +6,7 @@ The Setup Environment System follows **Clean Architecture** principles (also kno
 
 ## Layer Structure
 
-```
+```css
 ┌─────────────────────────────────────────────────────────────┐
 │                    EXTERNAL SYSTEMS                         │
 │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌────────┐ │
@@ -170,7 +170,7 @@ The Setup Environment System follows **Clean Architecture** principles (also kno
 
 ## Data Flow Example
 
-```
+```shell
 1. User runs: setup-environment --dev-folder ~/dev
 2. CLI parses command and validates inputs
 3. CLI calls SetupRepositoriesUseCase.execute()

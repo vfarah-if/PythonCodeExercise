@@ -95,7 +95,7 @@ endwhile (no)
 
 stop
 
-note as N1
+note left
     **Software Categories**
     
     **Required Tools (always install):**
@@ -113,19 +113,14 @@ note as N1
     • Python + uv (complex setup)
     • Git + SSH (key generation)
     • Node.js + NVM (shell integration)
-end note
-
-note as N2
-    **Error Handling**
     
+    **Error Handling**
     • Continue on individual failures
     • Graceful degradation
     • Clear error messages
     • Provide resolution guidance
     • Log for debugging
-end note
-
-note as N3
+    
     **Installation Commands**
     
     **Standard Homebrew:**
