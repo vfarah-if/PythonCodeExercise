@@ -1,4 +1,4 @@
-# PythonCodeExercise
+# Environment
 
 [TOC]
 
@@ -34,6 +34,9 @@ make test
 | `make setup` | Install uv if not present and create virtual environment |
 | `make install` | Install project dependencies |
 | `make test` | Run tests once |
+| `make test-cov` | Run tests with coverage report (80% required) |
+| `make test-unit` | Run unit tests only |
+| `make test-integration` | Run integration tests only |
 | `make watch` | Run tests in watch mode (auto-rerun on changes) |
 | `make lint` | Check code with ruff linter |
 | `make format` | Format code with ruff |
@@ -81,57 +84,6 @@ make watch
 ```
 
 This automatically reruns tests when you save files, providing instant feedback.
-
-## Testing Best Practices
-
-### Test Organisation
-
-```python
-# tests/test_my_kata.py
-import pytest
-from src.my_kata.my_kata import my_function
-
-class TestMyFunction:
-    """Group related tests in classes"""
-    
-    def test_should_handle_empty_input(self):
-        """Use descriptive test names"""
-        assert my_function([]) == expected_result
-    
-    def test_should_raise_on_invalid_input(self):
-        """Test error cases"""
-        with pytest.raises(ValueError):
-            my_function(invalid_input)
-```
-
-### Assertion Styles
-
-```python
-# Simple assertions (pytest will show helpful diffs)
-assert result == expected
-
-# Multiple assertions
-assert all([
-    condition1,
-    condition2,
-    condition3
-])
-
-# Custom assertion messages
-assert result == expected, f"Expected {expected}, got {result}"
-```
-
-### Test Fixtures
-
-```python
-@pytest.fixture
-def sample_data():
-    """Reusable test data"""
-    return [1, 2, 3, 4, 5]
-
-def test_sum_with_fixture(sample_data):
-    assert sum_function(sample_data) == 15
-```
 
 ## Why These Tools?
 
@@ -206,7 +158,7 @@ For detailed architecture documentation and visual diagrams, see:
 - **🛠️ Software Installation**: Automated setup of development tools via Homebrew
 - **🔐 Intelligent SSH Setup**: Automatic SSH key generation and GitHub configuration
 - **🎯 Specialised Services**: Custom setup for Python+uv, Git+SSH, NVM+Node.js
-- **✅ TDD Implementation**: 205 tests with 100% pass rate  
+- **✅ TDD Implementation**: 187+ tests with 80%+ coverage  
 - **🔍 Dry-Run Mode**: Test setup without making changes (`--dry-run`)
 - **📄 YAML Configuration**: Structured repository definitions in YAML format
 - **⚙️ Configuration-Driven**: Configure repositories via repositories.yaml
@@ -413,17 +365,23 @@ The CLI provides clear feedback for common issues:
 Run the comprehensive test suite:
 
 ```bash
-# All tests (124 tests)
-uv run pytest tests/setup_environment/ -v
+# All tests (187+ tests)
+make test
+
+# With coverage report (80% required)
+make test-cov
 
 # Unit tests only  
+make test-unit
+
+# Integration tests only
+make test-integration
+
+# Direct uv commands
+uv run pytest tests/setup_environment/ -v
 uv run pytest tests/setup_environment/unit/ -v
-
-# Integration tests
 uv run pytest tests/setup_environment/integration/ -v
-
-# With coverage
-uv run pytest tests/setup_environment/ --cov=src/setup_environment
+uv run pytest --cov=src/setup_environment --cov-report=term-missing
 ```
 
 ### Implementation Highlights
@@ -664,7 +622,7 @@ Built using Clean Architecture with:
 - **Value Objects**: `SSOConfig`, `AWSSession` 
 - **Use Cases**: `SetupAWSCredentialsUseCase`
 - **Services**: `AWSSSOService`, `AWSConfigService`
-- **187+ Tests**: Comprehensive unit and integration test coverage
+- **187+ Tests**: Comprehensive unit and integration test coverage with 80%+ code coverage
 
 #### Command Reference
 

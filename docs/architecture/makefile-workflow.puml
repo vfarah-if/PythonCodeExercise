@@ -23,6 +23,9 @@ package "Core Development" #e8f5e9 {
     [setup] as setup #2196f3
     [install] as install #2196f3
     [test] as test #ff9800
+    [test-cov] as testcov #ff9800
+    [test-unit] as testunit #ff9800
+    [test-integration] as testint #ff9800
     [watch] as watch #ff9800
     [lint] as lint #9c27b0
     [lint-fix] as lintfix #9c27b0
@@ -95,6 +98,9 @@ install --> uv : "uv sync"
 
 ' Dependencies for testing
 test --> pytest : "uv run pytest"
+testcov --> pytest : "uv run pytest --cov"
+testunit --> pytest : "uv run pytest tests/unit/"
+testint --> pytest : "uv run pytest tests/integration/"
 watch --> pytest : "uv run ptw"
 
 ' Dependencies for linting
@@ -131,6 +137,9 @@ setupenv ..> setupenvdry : "dry-run variant"
 brewsoft ..> brewall : "automated variant"
 installglobal ..> uninstallglobal : "reverse operation"
 awscredsinit ..> awscreds : "prepares for"
+test ..> testcov : "with coverage"
+test ..> testunit : "unit tests only"
+test ..> testint : "integration tests only"
 
 ' Workflow Notes
 note right of all
@@ -163,6 +172,14 @@ note right of "AWS Credentials"
     • Multiple shell formats (bash, zsh, fish, PS)
     • Temporary credential management
     • Automatic token refresh
+end note
+
+note top of testcov
+    **Test Coverage Requirements**
+    • Minimum 80% coverage required
+    • Comprehensive unit tests
+    • Integration test coverage
+    • AWS services fully tested
 end note
 
 @enduml

@@ -1,4 +1,4 @@
-.PHONY: help setup install test watch lint lint-fix format clean all setup-env setup-env-dry setup-env-help setup-brew-software setup-brew-all install-setup-env-global uninstall-setup-env-global aws-credentials aws-creds aws-creds-help aws-creds-init
+.PHONY: help setup install test test-cov test-unit test-integration watch lint lint-fix format clean all setup-env setup-env-dry setup-env-help setup-brew-software setup-brew-all install-setup-env-global uninstall-setup-env-global aws-credentials aws-creds aws-creds-help aws-creds-init
 
 # Default target
 help:
@@ -6,6 +6,9 @@ help:
 	@echo "  make setup    - Install uv and create virtual environment"
 	@echo "  make install  - Install project dependencies"
 	@echo "  make test     - Run tests once"
+	@echo "  make test-cov - Run tests with coverage report (80% required)"
+	@echo "  make test-unit - Run unit tests only"
+	@echo "  make test-integration - Run integration tests only"
 	@echo "  make watch    - Run tests in watch mode (continuous testing)"
 	@echo "  make lint     - Run ruff linter"
 	@echo "  make lint-fix - Fix auto-fixable linting issues"
@@ -55,6 +58,21 @@ install:
 test:
 	@echo "🧪 Running tests..."
 	@uv run pytest -v
+
+# Run tests with coverage report
+test-cov:
+	@echo "🧪 Running tests with coverage..."
+	@uv run pytest --cov=src --cov-report=term-missing --cov-fail-under=80
+
+# Run unit tests only
+test-unit:
+	@echo "🔬 Running unit tests..."
+	@uv run pytest tests/setup_environment/unit/ -v
+
+# Run integration tests only
+test-integration:
+	@echo "🔗 Running integration tests..."
+	@uv run pytest tests/setup_environment/integration/ -v
 
 # Run tests in watch mode
 watch:
