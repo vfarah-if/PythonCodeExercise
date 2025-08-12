@@ -1,4 +1,4 @@
-.PHONY: help setup install test watch lint lint-fix format clean all setup-env setup-env-dry setup-env-help setup-brew-software setup-brew-all install-setup-env-global uninstall-setup-env-global
+.PHONY: help setup install test watch lint lint-fix format clean all setup-env setup-env-dry setup-env-help setup-brew-software setup-brew-all install-setup-env-global uninstall-setup-env-global aws-credentials aws-creds aws-creds-help aws-creds-init
 
 # Default target
 help:
@@ -17,6 +17,12 @@ help:
 	@echo "  make setup-env         - Run setup-environment CLI with ~/dev folder"
 	@echo "  make setup-env-dry     - Run setup-environment CLI in dry-run mode"
 	@echo "  make setup-env-help    - Show setup-environment CLI help and usage"
+	@echo ""
+	@echo "AWS Credentials:"
+	@echo "  make aws-credentials   - Setup AWS SSO credentials interactively"
+	@echo "  make aws-creds        - Shorthand for aws-credentials"
+	@echo "  make aws-creds-help   - Show AWS credentials command help"
+	@echo "  make aws-creds-init   - Generate .env template for AWS SSO configuration"
 	@echo ""
 	@echo "Software Installation:"
 	@echo "  make setup-brew-software - Install configured development software interactively"
@@ -103,7 +109,7 @@ setup-env:
 		echo "📁 Creating ~/test directory..."; \
 		mkdir -p "$$HOME/test"; \
 	fi
-	@uv run setup-environment --dev-folder "$$HOME/test"
+	@uv run setup-environment setup --dev-folder "$$HOME/test"
 
 # Run setup-environment CLI in dry-run mode
 setup-env-dry:
@@ -112,7 +118,7 @@ setup-env-dry:
 		echo "📁 Creating ~/test directory..."; \
 		mkdir -p "$$HOME/test"; \
 	fi
-	@uv run setup-environment --dev-folder "$$HOME/test" --dry-run
+	@uv run setup-environment setup --dev-folder "$$HOME/test" --dry-run
 
 # Show setup-environment CLI help
 setup-env-help:
@@ -126,7 +132,7 @@ setup-brew-software:
 	@echo "This will check for and install: python+uv, git+config+ssh, nvm+node, gh, awscli, azure-cli, zsh, terraform, oh-my-zsh, iterm2, slack"
 	@echo "You'll be prompted before each installation."
 	@if [ ! -d "/tmp" ]; then mkdir -p "/tmp"; fi
-	@uv run setup-environment --dev-folder /tmp --skip-npmrc
+	@uv run setup-environment setup --dev-folder /tmp --skip-npmrc
 	@echo "⚠️  Note: Skipped Git repository cloning (only software installation)"
 
 # Install all development software without prompts
@@ -135,7 +141,7 @@ setup-brew-all:
 	@echo "This will install: python+uv, git+config+ssh, nvm+node, gh, awscli, azure-cli, zsh, terraform, oh-my-zsh, iterm2, slack"
 	@echo "No prompts - installing everything configured as required or optional"
 	@if [ ! -d "/tmp" ]; then mkdir -p "/tmp"; fi
-	@uv run setup-environment --dev-folder /tmp --skip-npmrc --install-all-software
+	@uv run setup-environment setup --dev-folder /tmp --skip-npmrc --install-all-software
 	@echo "⚠️  Note: Skipped Git repository cloning (only software installation)"
 
 # Install setup-environment CLI globally
@@ -172,10 +178,10 @@ install-setup-env-global:
 	@echo "📍 The command 'setup-environment' is now available system-wide"
 	@echo ""
 	@echo "💡 Usage examples:"
-	@echo "  setup-environment --help                    # Show help"
-	@echo "  setup-environment --dev-folder ~/dev        # Set up dev environment"
-	@echo "  setup-environment --generate-env            # Generate .env template"
-	@echo "  setup-environment --dry-run                 # Preview actions"
+	@echo "  setup-environment --help                      # Show help"
+	@echo "  setup-environment setup --dev-folder ~/dev    # Set up dev environment"
+	@echo "  setup-environment setup --dry-run             # Preview actions"
+	@echo "  setup-environment aws-credentials             # Get AWS credentials"
 	@echo ""
 	@echo "🔍 To verify installation:"
 	@which setup-environment
@@ -206,3 +212,65 @@ uninstall-setup-env-global:
 		echo "ℹ️  setup-environment is not installed globally."; \
 		echo "Nothing to uninstall."; \
 	fi
+
+# AWS Credentials Management
+aws-credentials:
+	@echo "🔐 Setting up AWS SSO credentials..."
+	@echo ""
+	@if [ ! -f ".env" ] && [ -f ".env.example" ]; then \
+		echo "📋 Creating .env from .env.example..."; \
+		cp .env.example .env; \
+		echo "✅ Created .env file. Please edit it with your SSO configuration."; \
+		echo ""; \
+	fi
+	@uv run setup-environment aws-credentials
+	@echo ""
+	@echo "💡 Tip: Run 'make aws-creds-help' to see all available options"
+
+# Shorthand alias for aws-credentials
+aws-creds: aws-credentials
+
+# Show AWS credentials command help
+aws-creds-help:
+	@echo "📚 AWS Credentials Command Help:"
+	@echo "================================"
+	@uv run setup-environment aws-credentials --help
+	@echo ""
+	@echo "💡 Examples:"
+	@echo "  # Interactive account selection:"
+	@echo "  make aws-credentials"
+	@echo ""
+	@echo "  # Specific account:"
+	@echo "  uv run setup-environment aws-credentials --account <Choose from aws_accounts>"
+	@echo ""
+	@echo "  # Save to file:"
+	@echo "  uv run setup-environment aws-credentials --output-file ~/.aws/credentials"
+	@echo ""
+	@echo "  # PowerShell format:"
+	@echo "  uv run setup-environment aws-credentials --export-format powershell"
+
+# Generate .env template for AWS SSO configuration
+aws-creds-init:
+	@echo "📋 Generating AWS SSO configuration template..."
+	@if [ -f ".env" ]; then \
+		echo "⚠️  .env file already exists!"; \
+		echo ""; \
+		read -p "Do you want to backup existing .env and create new one? (y/N): " confirm; \
+		if [ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ]; then \
+			backup_file=".env.backup.$$(date +%Y%m%d_%H%M%S)"; \
+			cp .env "$$backup_file"; \
+			echo "✅ Backed up existing .env to $$backup_file"; \
+			cp .env.example .env; \
+			echo "✅ Created new .env from template"; \
+		else \
+			echo "❌ Cancelled. Keeping existing .env file."; \
+		fi; \
+	else \
+		cp .env.example .env; \
+		echo "✅ Created .env file from template"; \
+	fi
+	@echo ""
+	@echo "📝 Next steps:"
+	@echo "  1. Edit .env file with your AWS SSO configuration"
+	@echo "  2. Run 'make aws-credentials' to setup credentials"
+	@echo "  3. Configure 'aws-accounts.yaml' with real accounts - DON'T check into Git"

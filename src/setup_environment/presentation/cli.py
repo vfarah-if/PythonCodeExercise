@@ -8,6 +8,7 @@ import click
 
 from src.setup_environment.application.use_cases import (
     ConfigureNPMRCUseCase,
+    SetupAWSCredentialsUseCase,
     SetupRepositoriesUseCase,
 )
 from src.setup_environment.application.use_cases.configure_npmrc import (
@@ -19,6 +20,10 @@ from src.setup_environment.application.use_cases.install_software import (
 from src.setup_environment.domain.entities import Repository
 from src.setup_environment.domain.value_objects import DevFolderPath
 from src.setup_environment.infrastructure import GitPythonService, NPMRCFileService
+from src.setup_environment.infrastructure.aws import (
+    Boto3SSOService,
+    YamlAWSConfigService,
+)
 from src.setup_environment.infrastructure.config.repository_config_service import (
     YamlRepositoryConfigService,
 )
@@ -165,7 +170,16 @@ def print_software_summary(result):
     click.echo("\n" + "=" * 60)
 
 
-@click.command()
+@click.group(invoke_without_command=True)
+@click.pass_context
+def cli(ctx):
+    """Setup Environment CLI - Automate your development environment setup."""
+    if ctx.invoked_subcommand is None:
+        # If no subcommand, run the default setup-environment command
+        ctx.invoke(setup_environment)
+
+
+@cli.command(name="setup")
 @click.option(
     "--dev-folder",
     required=False,  # Make optional for template generation
@@ -416,9 +430,96 @@ def setup_environment(
         sys.exit(1)
 
 
+@cli.command(name="aws-credentials")
+@click.option(
+    "--account",
+    help="AWS account name (e.g., prod, dev)",
+    type=str,
+)
+@click.option(
+    "--export-format",
+    default="bash",
+    type=click.Choice(["bash", "zsh", "fish", "powershell"]),
+    help="Shell format for environment variables",
+)
+@click.option(
+    "--output-file",
+    type=click.Path(path_type=Path),
+    help="Save credentials to file instead of displaying",
+)
+@click.option(
+    "--env-file",
+    type=click.Path(exists=True, path_type=Path),
+    help="Path to .env file with SSO configuration",
+)
+@click.option(
+    "--config-file",
+    type=click.Path(exists=True, path_type=Path),
+    help="Path to AWS accounts YAML configuration file",
+)
+def aws_credentials(
+    account: str | None,
+    export_format: str,
+    output_file: Path | None,
+    env_file: Path | None,
+    config_file: Path | None,
+):
+    """Setup AWS credentials from SSO for specified account.
+
+    Examples:
+        # Interactive account selection
+        setup-environment aws-credentials
+
+        # Specific account
+        setup-environment aws-credentials --account prod
+
+        # Save to file
+        setup-environment aws-credentials --account prod --output-file ~/.aws/credentials
+
+        # PowerShell format
+        setup-environment aws-credentials --export-format powershell
+    """
+    click.echo("🔐 AWS Credentials Setup")
+    click.echo("=" * 50)
+
+    try:
+        # Create services
+        sso_service = Boto3SSOService()
+        config_service = YamlAWSConfigService()
+
+        # Create and execute use case
+        use_case = SetupAWSCredentialsUseCase(
+            sso_service=sso_service,
+            config_service=config_service,
+        )
+
+        result = use_case.execute(
+            account_name=account,
+            export_format=export_format,
+            output_file=output_file,
+            env_file=env_file,
+            config_file=config_file,
+        )
+
+        if result.is_successful():
+            # Display credentials for user to copy
+            if not output_file:
+                click.echo("\nRun the following commands in your terminal:\n")
+                click.echo(result.env_vars)
+
+            sys.exit(0)
+        else:
+            click.echo(f"❌ {result.error_message}", err=True)
+            sys.exit(1)
+
+    except Exception as e:
+        click.echo(f"❌ Unexpected error: {e}", err=True)
+        sys.exit(1)
+
+
 def main():
     """Entry point for the CLI application."""
-    setup_environment()
+    cli()
 
 
 if __name__ == "__main__":

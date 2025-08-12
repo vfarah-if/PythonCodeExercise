@@ -11,6 +11,9 @@ dependencies = [
     "ruff>=0.7.0",
     "click>=8.1.0", # CLI framework
     "pyyaml>=6.0.2",
+    "python-dotenv>=1.0.0",  # Environment variable management
+    "boto3>=1.35.0",          # AWS SDK for Python
+    "botocore>=1.35.0",       # AWS SDK core
 ]
 
 [project.scripts]
@@ -21,6 +24,10 @@ dev = [
     "pytest-xdist>=3.5.0",  # For parallel test execution
     "pytest-mock>=3.12.0",  # For mocking in tests
     "ipython>=8.20.0",       # For better debugging experience
+]
+browser = [
+    "selenium>=4.0.0",        # Browser automation (fallback)
+    "playwright>=1.40.0",     # Alternative browser automation
 ]
 
 [build-system]

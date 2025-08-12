@@ -215,3 +215,4 @@ marimo/_lsp/
 __marimo__/
 data/users
 .DS_Store
+CLAUDE.local.md

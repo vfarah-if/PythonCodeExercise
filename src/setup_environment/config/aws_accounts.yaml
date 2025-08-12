@@ -1,0 +1,24 @@
+# AWS Account Configuration
+# Defines available AWS accounts for SSO access
+# IMPORTANT: Replace with your actual account details before using and don't check it in to source control
+
+accounts:
+  - name: production
+    account_id: "123456789012"
+    email: aws-admin@example.com
+    role: Engineer
+    default: true
+    description: "Production environment"
+       
+  - name: development
+    account_id: "234567890123"
+    email: aws-dev@example.com
+    role: Engineer
+    description: "Development environment"
+    
+  - name: staging
+    account_id: "345678901234"
+    email: aws-staging@example.com
+    role: Engineer
+    description: "Staging environment"
+    

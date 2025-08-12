@@ -2,16 +2,6 @@
 
 [TOC]
 
-A modern Python kata practice environment using uv and pytest for Test-Driven Development (TDD) exercises.
-
-## Overview
-
-This project provides a reusable, well-documented kata framework for practising Python coding skills. It emphasises:
-- Test-Driven Development (TDD)
-- Pair programming practices
-- Modern Python tooling with uv
-- Continuous testing workflow
-
 ## Quick Start
 
 `make all` to start watching code changes
@@ -30,245 +20,10 @@ make watch
 make test
 ```
 
-## Creating This Project From Scratch
-
-If you want to understand how this project was built or create something similar, here's the step-by-step process using uv:
-
-### Step 1: Install uv and Initialise Project
-
-```bash
-# Install uv (if not already installed)
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Create project directory
-mkdir PythonCodeExercise
-cd PythonCodeExercise
-
-# Initialise with uv (creates basic pyproject.toml)
-uv init
-
-# Set Python version
-echo "3.12" > .python-version
-```
-
-### Step 2: Add Core Dependencies
-
-```bash
-# Add testing framework
-uv add pytest pytest-watch pytest-cov
-
-# Add linting/formatting tool
-uv add ruff
-
-# Add development dependencies (optional)
-uv add --dev ipython pytest-xdist pytest-mock
-```
-
-This automatically updates your `pyproject.toml` with the dependencies.
-
-### Step 3: Configure Tools in pyproject.toml
-
-After uv creates the basic file, you manually add tool configurations:
-
-```toml
-# Add these sections to pyproject.toml:
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-# ... more pytest config
-
-[tool.ruff]
-target-version = "py312"
-line-length = 88
-# ... more ruff config
-
-[tool.coverage.run]
-source = ["src"]
-# ... more coverage config
-```
-
-### Step 4: Create Project Structure
-
-```bash
-# Create source and test directories
-mkdir -p src/sum tests
-
-# Create __init__.py file (IMPORTANT - see why below)
-touch src/sum/__init__.py
-
-# Create your first module
-touch src/sum/sum.py
-
-# Create your first test
-touch tests/test_sum.py
-```
-
-**Why `__init__.py`?** This file is crucial for Python packages:
-- **Makes the directory a package**: Without it, Python won't recognise `sum` as an importable package
-- **Simplifies imports**: Allows `from src.sum import sum_numbers` instead of `from src.sum.sum import sum_numbers`
-- **Controls the public API**: Use `__all__` to explicitly define what gets exported
-- **Professional structure**: Follows Python packaging best practices
-
-Example `__init__.py` content:
-```python
-"""Sum kata module for practising TDD."""
-
-from .sum import sum_numbers, sum_list, sum_positive
-
-__all__ = ["sum_numbers", "sum_list", "sum_positive"]  # Explicitly declare public API
-```
-
-### Step 5: Add Build Configuration
-
-For packaging, add to `pyproject.toml`:
-
-```toml
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.hatch.build.targets.wheel]
-packages = ["src"]
-```
-
-### Step 6: Create Makefile for Workflow
-
-Create a `Makefile` to standardise common commands (optional but recommended).
-
-### Understanding pyproject.toml Creation
-
-**Important:** Developers rarely write `pyproject.toml` from scratch. The typical workflow is:
-
-1. **Use a tool to initialise** (`uv init`, `poetry init`, `pdm init`)
-2. **Add dependencies via commands** (`uv add`, `poetry add`, etc.)
-3. **Copy tool configurations** from documentation or other projects
-4. **Iterate and refine** as the project grows
-
-The comprehensive `pyproject.toml` in this project represents what you'd build up over time, not what you'd write initially. Most projects start minimal and grow as needed.
-
-#### Python Package Manager Comparison
-
-When choosing a package manager for your Python project, consider these popular options:
-
-| Feature | **uv** | **Poetry** | **PDM** |
-|---------|--------|------------|---------|
-| **Speed** | ⚡ 10-100x faster than pip | 🐢 Slower, especially for large deps | 🏃 Faster than Poetry, slower than uv |
-| **Written in** | Rust (blazing fast) | Python (slower) | Python (moderate speed) |
-| **Lock Files** | ✅ `uv.lock` | ✅ `poetry.lock` | ✅ `pdm.lock` |
-| **Virtual Env Management** | ✅ Built-in | ✅ Built-in | ✅ Built-in |
-| **Python Version Management** | ✅ Built-in | ❌ Needs pyenv | ✅ Built-in |
-| **PEP Compliance** | ✅ PEP 517/518/621 | ⚠️ Some custom behaviour | ✅ Strict PEP 582/621 |
-| **Install Global Tools** | ✅ `uvx` (like npx) | ❌ Not supported | ❌ Not supported |
-| **Workspace/Monorepo** | ✅ Native support | ⚠️ Limited | ✅ Native support |
-| **Released** | 2024 (newest) | 2018 (mature) | 2020 (stable) |
-| **Backed by** | Astral (ruff team) | Independent | Independent |
-| **Learning Curve** | 📗 Easy (pip-like) | 📙 Moderate | 📗 Easy |
-| **Ecosystem** | 🌱 Growing rapidly | 🌳 Large, established | 🌿 Growing |
-
-#### Command Syntax Comparison
-
-| Task | **uv** | **Poetry** | **PDM** |
-|------|--------|------------|---------|
-| Initialise project | `uv init` | `poetry new` / `poetry init` | `pdm init` |
-| Add dependency | `uv add requests` | `poetry add requests` | `pdm add requests` |
-| Add dev dependency | `uv add --dev pytest` | `poetry add --dev pytest` | `pdm add -d pytest` |
-| Install deps | `uv sync` | `poetry install` | `pdm install` |
-| Run command | `uv run python app.py` | `poetry run python app.py` | `pdm run python app.py` |
-| Update deps | `uv lock --upgrade` | `poetry update` | `pdm update` |
-| Build package | `uv build` | `poetry build` | `pdm build` |
-
-#### When to Use Each Tool
-
-**Choose uv if you want:**
-- ⚡ Fastest possible performance
-- 🎯 Simple, pip-like commands
-- 🔧 All-in-one tool (packages + Python versions)
-- 🚀 Modern tool with active development
-- 📦 Drop-in pip replacement
-
-**Choose Poetry if you want:**
-- 🏢 Industry standard with wide adoption
-- 📚 Extensive documentation and tutorials
-- 🔌 Rich plugin ecosystem
-- 🎨 Opinionated, guided workflow
-- 👥 Large community support
-
-**Choose PDM if you want:**
-- 📏 Strict PEP compliance
-- 🐍 Pure Python implementation
-- 📁 PEP 582 `__pypackages__` support
-- 🔄 Easy migration from pip
-- 🏗️ Good for monorepos
-
-#### Why This Project Uses uv
-
-We chose **uv** for this kata practice environment because:
-1. **Speed matters for TDD**: Fast dependency installation keeps the flow going
-2. **Simplicity**: Familiar pip-like commands reduce learning curve
-3. **Modern**: Latest best practices and active development
-4. **Unified tool**: Manages packages AND Python versions
-5. **Same team as ruff**: Consistent, high-quality tooling ecosystem
-
-For kata practice where quick iteration is key, uv's speed advantage (10-100x faster) makes a noticeable difference in developer experience.
-
 ## Prerequisites
 
 - Python 3.12 or higher
 - macOS, Linux, or Windows with WSL
-
-## Project Structure
-
-```shell
-PythonCodeExercise/
-├── Makefile             # Development workflow commands
-├── pyproject.toml       # Project configuration and dependencies
-├── .python-version      # Python version specification
-├── src/                 # Source code
-│   └── sum/             # Example kata module (reference only - create your own!)
-│       ├── __init__.py  # Package initialiser (see below)
-│       └── sum.py       # Example implementation
-├── tests/               # Test suite
-│   └── test_sum.py      # Example tests for reference
-├── README.md            # This file
-└── CLAUDE.md            # Claude Code AI assistant guidance
-```
-
-**Workflow:** The `sum` module serves as a reference. For actual kata practice:
-1. Create a new branch: `git checkout -b kata/your-kata-name`
-2. Add your module: `src/your_kata/`
-3. Write tests: `tests/test_your_kata.py`
-4. Practice TDD with `make watch`
-
-### Understanding Python Package Structure
-
-The `__init__.py` files in this project serve critical purposes:
-
-1. **Package Recognition**: Tells Python that a directory should be treated as a package
-2. **Import Simplification**: Enables cleaner import statements
-3. **API Control**: Defines what's publicly available from the package
-4. **Documentation**: Provides package-level documentation
-
-#### Example: How `__init__.py` Improves Imports
-
-**Without `__init__.py`:**
-```python
-# Ugly, reveals internal structure
-from src.sum.sum import sum_numbers, sum_list, sum_positive
-```
-
-**With properly configured `__init__.py`:**
-```python
-# Clean, hides implementation details
-from src.sum import sum_numbers, sum_list, sum_positive
-```
-
-#### Benefits for Kata Practice
-
-- **Focus on Learning**: Clean imports let you focus on the kata, not the file structure
-- **Scalability**: Easy to add new functions without changing import statements in tests
-- **Best Practices**: Learn professional Python package structure from the start
-- **Maintainability**: Control what's public vs internal implementation
 
 ## Available Commands
 
@@ -292,6 +47,12 @@ from src.sum import sum_numbers, sum_list, sum_positive
 | `make setup-env-init` | Generate .env template file |
 | `make setup-env-example` | Generate .env.example template file |
 | | |
+| **AWS Credentials** | |
+| `make aws-creds-init` | Initialize AWS SSO configuration (.env template) |
+| `make aws-credentials` | Get AWS SSO credentials interactively |
+| `make aws-creds` | Alias for aws-credentials |
+| `make aws-creds-help` | Show AWS credentials help and usage |
+| | |
 | **Software Installation** | |
 | `make setup-brew-software` | Install configured development software interactively |
 | `make setup-brew-all` | Install all configured software without prompts |
@@ -313,92 +74,13 @@ uv run pytest tests/test_sum.py
 uv run pytest -k "test_sum"
 ```
 
-## Kata Practice Workflow
-
-### 1. Start a New Kata Branch
-
-**Important:** The `sum` module is just an example. For each new kata, create a new branch:
-
-```bash
-# Create a new branch for your kata
-git checkout -b kata/mars-rover
-
-# Or for another kata
-git checkout -b kata/fizz-buzz
-```
-
-### 2. Create Your Kata Module
-
-Create a new module in `src/` for your kata (e.g., `mars_rover`, `fizz_buzz`, `bowling_game`):
-
-```bash
-# Example: Mars Rover kata
-mkdir -p src/mars_rover
-touch src/mars_rover/__init__.py
-touch src/mars_rover/mars_rover.py
-touch tests/test_mars_rover.py
-```
-
-Configure `__init__.py` for your kata:
-```python
-# src/mars_rover/__init__.py
-"""Mars Rover kata module for practising OOP and state management."""
-
-from .mars_rover import Rover, Position, Direction
-
-__all__ = ["Rover", "Position", "Direction"]  # Export what's needed
-```
-
-This ensures clean imports in your tests:
-```python
-# tests/test_mars_rover.py
-from src.mars_rover import Rover, Position, Direction  # Clean import!
-```
-
-**Note:** Keep the `sum` module as a reference example, but create your own modules for actual kata practice.
-
-### 3. Follow the TDD Cycle
-
-1. **Red**: Write a failing test
-2. **Green**: Write minimal code to pass
-3. **Refactor**: Improve the code while keeping tests green
-
-### 4. Use Watch Mode
+### Use Watch Mode
 
 ```bash
 make watch
 ```
 
 This automatically reruns tests when you save files, providing instant feedback.
-
-## Pair Programming Guidelines
-
-### Driver-Navigator Pattern
-
-**Driver** (at keyboard):
-- Types the code
-- Focuses on syntax and implementation details
-- Asks questions when uncertain
-
-**Navigator** (observer):
-- Reviews code in real-time
-- Thinks strategically about design
-- Suggests improvements and catches errors
-- Manages the todo list
-
-### Rotation
-
-Switch roles every:
-- 15-20 minutes (recommended)
-- After completing a test cycle
-- When stuck on a problem
-
-### Communication Tips
-
-1. **Think aloud**: Verbalise your thought process
-2. **Ask questions**: "What if we..." / "Should we consider..."
-3. **Be specific**: Point to exact lines when discussing code
-4. **Stay engaged**: Both participants should be actively involved
 
 ## Testing Best Practices
 
@@ -470,43 +152,6 @@ def test_sum_with_fixture(sample_data):
 - **Comprehensive**: Replaces flake8, black, isort, and more
 - **Configurable**: Sensible defaults with extensive customisation
 - **Maintained**: By the same team as uv
-
-## Example Kata: Sum Functions (Reference Implementation)
-
-**Note:** The `sum` module is provided as a reference example to demonstrate project structure and testing patterns. When practising katas, create your own modules in separate branches rather than modifying this example.
-
-The project includes three sum functions as examples:
-
-```python
-# src/sum/sum.py
-def sum_numbers(a: int | float, b: int | float) -> int | float:
-    """Add two numbers together."""
-    return a + b
-
-def sum_list(numbers: list[int | float]) -> int | float:
-    """Calculate the sum of a list of numbers."""
-    if not numbers:
-        raise ValueError("Cannot sum an empty list")
-    return sum(numbers)
-
-def sum_positive(numbers: list[int | float]) -> int | float:
-    """Calculate the sum of only positive numbers in a list."""
-    return sum(n for n in numbers if n > 0)
-```
-
-With comprehensive tests demonstrating various testing patterns:
-
-```python
-# tests/test_sum.py
-def test_sum_positive_numbers():
-    assert sum_numbers(2, 3) == 5
-
-def test_sum_list_with_mixed():
-    assert sum_list([1, -2, 3, -4, 5]) == 3
-
-def test_sum_positive_filters_negative():
-    assert sum_positive([1, -2, 3, -4, 5]) == 9
-```
 
 # Setup Environment CLI
 
@@ -594,7 +239,7 @@ vim src/setup_environment/config/repositories.yaml
 make setup-env
 
 # Or use a custom config file
-setup-environment --dev-folder ~/dev --repositories-config ~/my-repos.yaml
+setup-environment setup --dev-folder ~/dev --repositories-config ~/my-repos.yaml
 ```
 
 **Testing First:**
@@ -617,7 +262,7 @@ make setup-env-dry          # Dry-run mode
 make setup-env-help         # Show help
 
 # Direct usage with uv
-uv run setup-environment --dev-folder ~/dev
+uv run setup-environment setup --dev-folder ~/dev
 ```
 
 #### Global Installation
@@ -630,28 +275,25 @@ make install-setup-env-global
 
 # Or install manually with uv
 uv tool install .
-
-# Or with pipx (if you prefer)
-pipx install .
 ```
 
 After global installation, the `setup-environment` command is available system-wide:
 
 ```bash
 # Basic usage
-setup-environment --dev-folder ~/dev
+setup-environment setup --dev-folder ~/dev
 
 # Use custom repository config file
-setup-environment --dev-folder ~/dev --repositories-config ~/repos-production.yaml
+setup-environment setup --dev-folder ~/dev --repositories-config ~/repos-production.yaml
 
 # Skip npmrc configuration
-setup-environment --dev-folder ~/dev --skip-npmrc
+setup-environment setup --dev-folder ~/dev --skip-npmrc
 
 # Dry run (validation only, no changes)
-setup-environment --dev-folder ~/dev --dry-run
+setup-environment setup --dev-folder ~/dev --dry-run
 
 # All options together
-setup-environment --dev-folder ~/dev --repositories-config custom-repos.yaml --skip-npmrc --dry-run
+setup-environment setup --dev-folder ~/dev --repositories-config custom-repos.yaml --skip-npmrc --dry-run
 ```
 
 ### Repository Configuration
@@ -688,16 +330,16 @@ If you're currently using environment variables, migrate to .env files:
 
 Repositories are cloned to organised directories:
 
-```
+```shell
 ~/dev/
 ├── facebook/
-│   └── react/              # cloned from GIT_REPO_1
+│   └── react/
 ├── microsoft/
-│   └── vscode/             # cloned from GIT_REPO_2
+│   └── vscode/
 └── webuild-ai/
-    ├── frontend/           # cloned from GIT_REPO_FRONTEND
-    ├── backend/            # cloned from GIT_REPO_BACKEND
-    └── dev-tools/          # cloned from GIT_REPO_TOOLS
+    ├── frontend/
+    ├── backend/
+    └── dev-tools/
 ```
 
 ### npmrc Configuration
@@ -832,6 +474,7 @@ The CLI includes automated development software installation via Homebrew:
 - **Mermaid CLI** - Diagram generation from text definitions
 - **GIMP** - GNU Image Manipulation Program for graphics editing
 - **ADR Tools** - Command-line tools for working with **Architecture Decision Records**
+- **Raycast** - Productivity launcher and command palette for macOS
 
 #### Installation Modes
 
@@ -893,6 +536,149 @@ The CLI provides intelligent SSH setup for Git repositories:
 - **Instructions**: Step-by-step GitHub SSH key addition guidance
 
 This CLI demonstrates production-ready Python development practices including clean architecture, comprehensive testing, user-focused design, and intelligent SSH automation.
+
+## AWS Credentials Automation
+
+The setup-environment CLI includes comprehensive AWS SSO credential management to eliminate the manual process of retrieving temporary credentials from the AWS SSO portal.
+
+### Problem Solved
+
+**Before**: Manual AWS SSO credential retrieval
+1. Navigate to AWS SSO portal (multiple clicks)
+2. Select account (WeBuild-AI, prod, dev, etc.)
+3. Click "Access keys"  
+4. Copy environment variables from "Option 1 (macOS/Linux)"
+5. Paste and execute in terminal
+6. Repeat every 12 hours when credentials expire
+
+**After**: One command
+```bash
+make aws-credentials
+# or
+setup-environment aws-credentials --account production
+```
+
+### Quick Start
+
+**1. Initialize Configuration:**
+```bash
+# Creates .env template with AWS SSO settings
+make aws-creds-init
+```
+
+**2. Configure Your Environment:**
+Edit the generated `.env` file:
+```bash
+# AWS SSO Configuration
+AWS_SSO_START_URL=https://your-sso.awsapps.com/start/#
+AWS_SSO_REGION=eu-west-2
+AWS_DEFAULT_REGION=eu-west-2
+```
+
+**3. Get Credentials:**
+```bash
+# Interactive account selection
+make aws-credentials
+
+# Specific account
+uv run setup-environment aws-credentials --account production
+
+# Different shell formats
+uv run setup-environment aws-credentials --export-format fish
+
+# Save to file
+uv run setup-environment aws-credentials --output-file ~/.aws/credentials
+```
+
+### Supported Features
+
+#### Multiple AWS Accounts
+Configure multiple accounts in `src/setup_environment/config/aws_accounts.yaml`:
+```yaml
+accounts:
+  - name: production
+    account_id: "123456789012"
+    email: aws-admin@example.com
+    role: Engineer
+    default: true
+    description: "Production environment"
+    
+  - name: development  
+    account_id: "234567890123"
+    email: aws-dev@example.com
+    role: Engineer
+    description: "Development environment"
+```
+
+#### Multiple Shell Formats
+Export credentials for different shells:
+- **Bash/Zsh**: `export AWS_ACCESS_KEY_ID="..."`
+- **Fish**: `set -x AWS_ACCESS_KEY_ID "..."`
+- **PowerShell**: `$env:AWS_ACCESS_KEY_ID="..."`
+
+#### Authentication Methods
+- **Primary**: AWS SDK (boto3) with SSO client
+- **Fallback**: Browser automation (Selenium/Playwright)
+- **Manual**: Clear instructions if automation fails
+
+#### Usage Examples
+
+```bash
+# Interactive mode (prompts for account)
+make aws-credentials
+
+# Direct account selection
+uv run setup-environment aws-credentials --account production
+
+# Fish shell format
+uv run setup-environment aws-credentials --export-format fish
+
+# Save credentials to AWS config file
+uv run setup-environment aws-credentials --output-file ~/.aws/credentials
+
+# Use with existing environment
+eval $(uv run setup-environment aws-credentials --account dev)
+```
+
+#### Security Features
+
+- **Temporary Credentials**: All credentials expire (typically 12 hours)
+- **No Persistent Storage**: Credentials only in memory unless explicitly saved
+- **Secure Validation**: AWS access key format validation (ASIA*/AKIA*)
+- **Masked Logging**: Sensitive data masked in logs and output
+- **Environment Isolation**: Uses .env files, not system environment
+
+#### Error Handling
+
+Comprehensive error handling for common scenarios:
+- **Expired SSO session**: Automatic re-authentication
+- **Invalid account**: Clear error with available accounts
+- **Network issues**: Graceful fallback to manual instructions  
+- **Missing configuration**: Guided setup with clear instructions
+- **Invalid credentials**: Format validation with helpful error messages
+
+#### Architecture Integration
+
+Built using Clean Architecture with:
+- **Domain Entities**: `AWSAccount`, `AWSCredentials`
+- **Value Objects**: `SSOConfig`, `AWSSession` 
+- **Use Cases**: `SetupAWSCredentialsUseCase`
+- **Services**: `AWSSSOService`, `AWSConfigService`
+- **187+ Tests**: Comprehensive unit and integration test coverage
+
+#### Command Reference
+
+| Command | Description |
+|---------|-------------|
+| `make aws-creds-init` | Create .env template with AWS SSO configuration |
+| `make aws-credentials` | Interactive credential retrieval |
+| `make aws-creds` | Short alias for aws-credentials |
+| `make aws-creds-help` | Show detailed usage instructions |
+| `setup-environment aws-credentials --account ACCOUNT` | Direct account selection |
+| `setup-environment aws-credentials --export-format FORMAT` | Shell format (bash/zsh/fish/powershell) |
+| `setup-environment aws-credentials --output-file FILE` | Save to credentials file |
+
+This automation eliminates manual credential management, reduces errors, and provides a consistent developer experience across different environments and team members.
 
 ## Resources
 
