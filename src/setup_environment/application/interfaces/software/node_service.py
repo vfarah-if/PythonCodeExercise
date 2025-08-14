@@ -59,3 +59,16 @@ class NodeService(ABC):
             Tuple of (success, message)
         """
         pass
+
+    @abstractmethod
+    def install_node_version(self, version: str = "lts", dry_run: bool = False) -> tuple[bool, str]:
+        """Install a specific version of Node.js using NVM.
+
+        Args:
+            version: Version to install ('lts', 'latest', or specific version like '18.17.0')
+            dry_run: If True, only simulate installation
+
+        Returns:
+            Tuple of (success, message)
+        """
+        pass
