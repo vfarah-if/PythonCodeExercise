@@ -1,0 +1,107 @@
+@startuml ssh-setup-workflow
+
+title SSH Setup Workflow\nAutomatic SSH Key Generation and Configuration
+
+start
+
+:Check repositories for SSH URLs;
+note right: Look for git@github.com: pattern
+
+if (SSH repositories found?) then (no)
+    :Skip SSH setup;
+    stop
+else (yes)
+    :Check existing SSH configuration;
+    
+    if (SSH already configured?) then (yes)
+        :Test GitHub SSH connection;
+        if (Connection successful?) then (yes)
+            :SSH setup complete;
+            stop
+        else (no)
+            :Show SSH troubleshooting;
+            :Continue with setup;
+        endif
+    endif
+    
+    :Prompt user: "SSH setup needed. Configure now?";
+    if (User confirms?) then (no)
+        :Show manual SSH instructions;
+        stop
+    else (yes)
+        :Get Git user email;
+        if (Git email configured?) then (no)
+            :Prompt for email address;
+            :Configure git user.email;
+        endif
+        
+        :Check for existing SSH keys;
+        if (id_ed25519 exists?) then (yes)
+            :Prompt: "SSH key exists. Overwrite?";
+            if (User confirms?) then (no)
+                :Use existing key;
+            else (yes)
+                :Generate new Ed25519 key;
+            endif
+        else (no)
+            :Generate new Ed25519 key;
+        endif
+        
+        :Start SSH agent if needed;
+        :Add SSH key to agent;
+        
+        :Test GitHub SSH connection;
+        if (Connection successful?) then (yes)
+            :Show success message;
+            :SSH setup complete;
+            stop
+        else (no)
+            :Show manual setup instructions;
+            :Display public key for copying;
+            :Show GitHub settings URL;
+            :Provide test command;
+            stop
+        endif
+    endif
+endif
+
+note left
+    **SSH Key Generation**
+    Command: ssh-keygen -t ed25519 -C "user@example.com" -f ~/.ssh/id_ed25519 -N ""
+    Options:
+    • -t ed25519: Use Ed25519 algorithm (modern, secure)
+    • -C "email": Comment for identification  
+    • -f path: Specify key file location
+    • -N "": No passphrase (automation-friendly)
+    
+    **SSH Agent Setup**
+    Commands:
+    1. ssh-agent -s (start agent)
+    2. ssh-add ~/.ssh/id_ed25519 (add key)
+    Benefits:
+    • Keys available to Git operations
+    • No repeated passphrase prompts
+    • Works with SSH config
+    
+    **GitHub Connection Test**
+    Command: ssh -T git@github.com
+    Success response: "Hi username! You've successfully authenticated, 
+    but GitHub does not provide shell access."
+    Return code: 1 (expected for GitHub)
+    
+    **Manual Setup Instructions**
+    1. Copy public key: cat ~/.ssh/id_ed25519.pub
+    2. Add to GitHub: https://github.com/settings/keys
+    3. Click "New SSH key"
+    4. Paste key and save
+    5. Test connection: ssh -T git@github.com
+    
+    **Security Considerations**
+    • Ed25519 recommended by GitHub
+    • Keys stored in ~/.ssh/ with proper permissions
+    • No passphrase for automation (user can add later)
+    • Public key safe to display/copy
+    • Private key never exposed
+end note
+
+@enduml

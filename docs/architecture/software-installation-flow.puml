@@ -1,0 +1,139 @@
+@startuml software-installation-flow
+
+title Software Installation Flow\nDecision Tree and Process
+
+start
+
+:User runs setup-environment;
+
+:Load software.yaml configuration;
+
+:Check Homebrew installed;
+if (Homebrew exists?) then (no)
+    :Prompt: Install Homebrew?;
+    if (User confirms?) then (yes)
+        :Install Homebrew via script;
+    else (no)
+        :Show manual instructions;
+        stop
+    endif
+endif
+
+:Iterate through software list;
+
+while (More software to process?) is (yes)
+    :Get next software item;
+    
+    :Run check_command;
+    if (Already installed?) then (yes)
+        :Show "✓ Already installed";
+    else (no)
+        if (Batch mode --install-all?) then (yes)
+            :Install automatically;
+        else (no)
+            :Prompt user for installation;
+            switch (User response?)
+            case (YES)
+                :Install this software;
+            case (NO)
+                :Skip this software;
+            case (ALL)
+                :Set batch mode = true;
+                :Install this software;
+            case (SKIP)
+                :Skip remaining software;
+                break
+            endswitch
+        endif
+        
+        if (custom_install flag?) then (yes)
+            :Execute custom install command;
+            note right: Oh My Zsh, Xcode (mas)
+        else (no)
+            switch (Installation type?)
+            case (Homebrew formula)
+                :brew install {package};
+            case (Homebrew cask)
+                :brew install --cask {app};
+            case (NPM global)
+                :npm install -g {package};
+            case (Specialised service)
+                if (Python environment?) then (yes)
+                    :PythonService.setup_python_environment();
+                    :Install Python via Homebrew;
+                    :Install uv package manager;
+                    :Configure shell integration;
+                elseif (Node.js environment?) then (yes)
+                    :NVMService.setup_node_environment();
+                    :Install NVM via script;
+                    :Install latest Node.js LTS;
+                    :Configure shell integration;
+                elseif (Git + SSH?) then (yes)
+                    :GitInstallService.setup_git_and_ssh();
+                    :Install Git via Homebrew;
+                    :Configure user.name and user.email;
+                    :Generate SSH keys if needed;
+                    :Test GitHub SSH connection;
+                endif
+            endswitch
+        endif
+        
+        :Verify installation success;
+        if (Installation successful?) then (yes)
+            :Show "✅ Successfully installed";
+        else (no)
+            :Show "❌ Installation failed";
+            :Log error details;
+        endif
+    endif
+endwhile (no)
+
+:Display installation summary;
+:Show successful installations;
+:Show failed installations;
+:Provide troubleshooting tips;
+
+stop
+
+note left
+    **Software Categories**
+    
+    **Required Tools (always install):**
+    • GitHub CLI
+    • AWS CLI  
+    • Azure CLI
+    • Terraform
+    
+    **Development Environment (optional):**
+    • iTerm2, VS Code, Cursor
+    • Chrome, Firefox, Brave
+    • Docker Desktop, Postman
+    
+    **Specialised Setup:**
+    • Python + uv (complex setup)
+    • Git + SSH (key generation)
+    • Node.js + NVM (shell integration)
+    
+    **Error Handling**
+    • Continue on individual failures
+    • Graceful degradation
+    • Clear error messages
+    • Provide resolution guidance
+    • Log for debugging
+    
+    **Installation Commands**
+    
+    **Standard Homebrew:**
+    brew install git terraform
+    
+    **Homebrew Cask:**
+    brew install --cask docker
+    
+    **NPM Global:**
+    npm install -g @mermaid-js/mermaid-cli
+    
+    **Custom Script:**
+    sh -c "$(curl -fsSL install-script-url)"
+end note
+
+@enduml

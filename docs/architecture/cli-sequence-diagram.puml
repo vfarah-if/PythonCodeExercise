@@ -1,0 +1,104 @@
+@startuml cli-sequence-diagram
+
+title CLI Flow Sequence Diagram\nsetup-environment Execution Flow
+
+actor User
+participant "CLI" as CLI
+participant "RepositoryConfigService" as Config
+participant "SetupRepositoriesUseCase" as SetupUC
+participant "InstallSoftwareUseCase" as InstallUC
+participant "ConfigureNPMRCUseCase" as NPMrcUC
+participant "GitPythonService" as GitSvc
+participant "BrewSoftwareService" as BrewSvc
+participant "NPMRCFileService" as NPMSvc
+participant "GitInstallService" as GitInstall
+database "YAML Files" as YAML
+participant "Git CLI" as Git
+participant "Homebrew" as Brew
+participant "File System" as FS
+
+User -> CLI: setup-environment\n--dev-folder ~/dev
+
+' Configuration Loading
+CLI -> Config: load_repositories()
+Config -> YAML: read repositories.yaml
+YAML --> Config: repository data
+Config --> CLI: List[Repository]
+
+' Software Installation
+CLI -> InstallUC: execute(software_list)
+InstallUC -> BrewSvc: install(software)
+BrewSvc -> Brew: brew install {package}
+Brew --> BrewSvc: installation result
+BrewSvc --> InstallUC: InstallResult
+
+' Specialised Software Setup
+InstallUC -> GitInstall: setup_git_and_ssh()
+GitInstall -> Git: git config --global
+Git --> GitInstall: success
+GitInstall -> GitInstall: generate_ssh_key()
+GitInstall -> Git: ssh-keygen -t ed25519
+Git --> GitInstall: key generated
+GitInstall --> InstallUC: GitSetupResult
+
+InstallUC --> CLI: Overall InstallResult
+
+' Repository Setup
+CLI -> SetupUC: execute(repositories, dev_folder)
+SetupUC -> GitSvc: clone_repository(repo, path)
+GitSvc -> Git: git clone {url} {path}
+Git --> GitSvc: clone result
+GitSvc --> SetupUC: CloneResult
+
+' Handle SSH repositories if needed
+alt SSH repositories detected
+    SetupUC -> GitInstall: setup_ssh_if_needed(repos)
+    GitInstall -> Git: ssh -T git@github.com
+    Git --> GitInstall: SSH test result
+    GitInstall --> SetupUC: SSH ready
+end
+
+SetupUC --> CLI: SetupResult
+
+' NPMRC Configuration
+alt not --skip-npmrc
+    CLI -> NPMrcUC: execute()
+    NPMrcUC -> NPMSvc: configure_npmrc()
+    NPMSvc -> User: prompt for GitHub token
+    User -> NPMSvc: personal access token
+    NPMSvc -> FS: write ~/.npmrc
+    FS --> NPMSvc: file written
+    NPMSvc --> NPMrcUC: ConfigResult
+    NPMrcUC --> CLI: NPMRCResult
+end
+
+' Summary
+CLI -> CLI: print_setup_summary()
+CLI -> User: ✅ Setup complete!\n📊 Results summary
+
+note over CLI, User
+    **Dry Run Mode**
+    When --dry-run flag is used:
+    • No actual operations performed
+    • Shows what would be done
+    • Validates configuration
+    • Tests connectivity
+end note
+
+note over SetupUC, GitSvc
+    **Error Handling**
+    • Graceful degradation
+    • Continue on partial failures
+    • Clear error messages
+    • Preserve context
+end note
+
+note over GitInstall, Git
+    **SSH Automation**
+    • Detect SSH repositories
+    • Generate Ed25519 keys
+    • Configure SSH agent
+    • Test GitHub connection
+end note
+
+@enduml

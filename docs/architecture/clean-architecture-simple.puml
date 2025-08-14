@@ -1,0 +1,104 @@
+@startuml
+title Setup Environment System - Clean Architecture
+
+' External Layer
+package "External" {
+  [User]
+  [FileSystem]
+  [Homebrew]
+  [Git]
+  [GitHub]
+  [YAML Config]
+  [AWS SSO Portal]
+  [Browser]
+  [AWS SDK/boto3]
+  [Environment Variables]
+}
+
+' Presentation Layer
+package "Presentation" {
+  [CLI]
+}
+
+' Application Layer  
+package "Application" {
+  [SetupRepositories UseCase]
+  [InstallSoftware UseCase]
+  [ConfigureNPMRC UseCase]
+  [SetupAWSCredentials UseCase]
+  
+  interface GitService
+  interface SoftwareService
+  interface NPMRCService
+  interface ConfigService
+  interface AWSSSOService
+  interface AWSConfigService
+}
+
+' Domain Layer
+package "Domain" {
+  [Repository Entity]
+  [Software Entity]
+  [NPMRC Entity]
+  [AWSAccount Entity]
+  [AWSCredentials Entity]
+  [DevFolderPath Value Object]
+  [Token Value Object]
+  [SSOConfig Value Object]
+  [AWSSession Value Object]
+}
+
+' Infrastructure Layer
+package "Infrastructure" {
+  [GitPythonService]
+  [BrewSoftwareService]
+  [NPMRCFileService]
+  [RepositoryConfigService]
+  [AWSSSOS3Service]
+  [BrowserAutomationService]
+  [AWSAccountConfigService]
+}
+
+' Connections
+User --> CLI
+CLI --> [SetupRepositories UseCase]
+CLI --> [InstallSoftware UseCase]
+CLI --> [ConfigureNPMRC UseCase]
+CLI --> [SetupAWSCredentials UseCase]
+
+[SetupRepositories UseCase] --> GitService
+[InstallSoftware UseCase] --> SoftwareService
+[ConfigureNPMRC UseCase] --> NPMRCService
+[SetupRepositories UseCase] --> ConfigService
+[SetupAWSCredentials UseCase] --> AWSSSOService
+[SetupAWSCredentials UseCase] --> AWSConfigService
+
+GitService <|-- GitPythonService
+SoftwareService <|-- BrewSoftwareService
+NPMRCService <|-- NPMRCFileService
+ConfigService <|-- RepositoryConfigService
+AWSSSOService <|-- AWSSSOS3Service
+AWSSSOService <|-- BrowserAutomationService
+AWSConfigService <|-- AWSAccountConfigService
+
+GitPythonService --> Git
+GitPythonService --> FileSystem
+BrewSoftwareService --> Homebrew
+NPMRCFileService --> FileSystem
+RepositoryConfigService --> [YAML Config]
+AWSSSOS3Service --> [AWS SDK/boto3]
+AWSSSOS3Service --> [AWS SSO Portal]
+BrowserAutomationService --> Browser
+BrowserAutomationService --> [AWS SSO Portal]
+AWSAccountConfigService --> [YAML Config]
+AWSAccountConfigService --> [Environment Variables]
+
+[SetupRepositories UseCase] ..> [Repository Entity]
+[InstallSoftware UseCase] ..> [Software Entity]
+[ConfigureNPMRC UseCase] ..> [NPMRC Entity]
+[SetupAWSCredentials UseCase] ..> [AWSAccount Entity]
+[SetupAWSCredentials UseCase] ..> [AWSCredentials Entity]
+[SetupAWSCredentials UseCase] ..> [SSOConfig Value Object]
+[SetupAWSCredentials UseCase] ..> [AWSSession Value Object]
+
+@enduml

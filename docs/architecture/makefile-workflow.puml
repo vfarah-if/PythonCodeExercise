@@ -1,0 +1,185 @@
+@startuml makefile-workflow
+
+title MAKEFILE WORKFLOW\nPython Development & Setup Environment
+
+skinparam backgroundColor white
+skinparam packageStyle rectangle
+
+' Define colour scheme
+skinparam package {
+    BackgroundColor #f8f9fa
+    BorderColor #343a40
+}
+
+skinparam activity {
+    BackgroundColor #e3f2fd
+    BorderColor #1976d2
+    FontColor #1976d2
+}
+
+' Development Workflow Commands
+package "Core Development" #e8f5e9 {
+    [help] as help #4caf50
+    [setup] as setup #2196f3
+    [install] as install #2196f3
+    [test] as test #ff9800
+    [test-cov] as testcov #ff9800
+    [test-unit] as testunit #ff9800
+    [test-integration] as testint #ff9800
+    [watch] as watch #ff9800
+    [lint] as lint #9c27b0
+    [lint-fix] as lintfix #9c27b0
+    [format] as format #9c27b0
+    [clean] as clean #f44336
+    [all] as all #4caf50
+}
+
+' Setup Environment CLI Commands  
+package "Setup Environment CLI" #e3f2fd {
+    [setup-env] as setupenv #1976d2
+    [setup-env-dry] as setupenvdry #1976d2
+    [setup-env-help] as setupenvhelp #1976d2
+}
+
+' AWS Credentials Commands
+package "AWS Credentials" #f3e5f5 {
+    [aws-credentials] as awscreds #9c27b0
+    [aws-creds] as awscredsalias #9c27b0
+    [aws-creds-help] as awscredshelp #9c27b0
+    [aws-creds-init] as awscredsinit #9c27b0
+}
+
+' Software Installation Commands
+package "Software Installation" #fff3e0 {
+    [setup-brew-software] as brewsoft #ff9800
+    [setup-brew-all] as brewall #ff9800
+    [install-setup-env-global] as installglobal #ff5722
+    [uninstall-setup-env-global] as uninstallglobal #f44336
+}
+
+' External Dependencies
+cloud "External Tools" {
+    [uv Package Manager] as uv
+    [pytest Testing] as pytest
+    [ruff Linter] as ruff
+    [Homebrew] as homebrew
+    [Git CLI] as git
+    [AWS CLI] as awscli
+    [boto3 SDK] as boto3
+}
+
+cloud "File System" {
+    [.venv] as venv
+    [__pycache__] as pycache
+    [.pytest_cache] as pytestcache
+    [.ruff_cache] as ruffcache
+    [~/test folder] as testfolder
+    [.env file] as envfile
+    [aws_accounts.yaml] as awsconfig
+}
+
+' Core Development Workflow
+help --> setup : "Initial setup"
+setup --> install : "Install deps"
+install --> test : "Run tests"
+test --> watch : "Dev mode"
+
+all --> clean : "Clean first"
+clean --> setup : "Then setup"
+setup --> install : "Then install"
+install --> watch : "Start watching"
+
+' Dependencies for setup
+setup --> uv : "Install if missing"
+setup --> venv : "Create virtual env"
+
+' Dependencies for install
+install --> uv : "uv sync"
+
+' Dependencies for testing
+test --> pytest : "uv run pytest"
+testcov --> pytest : "uv run pytest --cov"
+testunit --> pytest : "uv run pytest tests/unit/"
+testint --> pytest : "uv run pytest tests/integration/"
+watch --> pytest : "uv run ptw"
+
+' Dependencies for linting
+lint --> ruff : "ruff check"
+lintfix --> ruff : "ruff check --fix"
+format --> ruff : "ruff format"
+
+' Dependencies for cleaning
+clean --> venv : "Remove"
+clean --> pycache : "Remove"
+clean --> pytestcache : "Remove"
+clean --> ruffcache : "Remove"
+
+' Setup Environment Dependencies
+setupenv --> testfolder : "Create ~/test"
+setupenvdry --> testfolder : "Create ~/test"
+
+' Software Installation Dependencies
+brewsoft --> homebrew : "Interactive install"
+brewall --> homebrew : "Auto install"
+installglobal --> uv : "uv tool install"
+
+' AWS Credentials Dependencies
+awscreds --> envfile : "Read SSO config"
+awscreds --> awsconfig : "Load accounts"
+awscreds --> boto3 : "SSO authentication"
+awscreds --> awscli : "Fallback option"
+awscredsalias --> awscreds : "Alias for"
+awscredshelp --> awscreds : "Shows help for"
+awscredsinit --> envfile : "Create from .env.example"
+
+' Command Relationships
+setupenv ..> setupenvdry : "dry-run variant"
+brewsoft ..> brewall : "automated variant"
+installglobal ..> uninstallglobal : "reverse operation"
+awscredsinit ..> awscreds : "prepares for"
+test ..> testcov : "with coverage"
+test ..> testunit : "unit tests only"
+test ..> testint : "integration tests only"
+
+' Workflow Notes
+note right of all
+    **Primary Development Command**
+    • Cleans everything
+    • Sets up fresh environment  
+    • Installs dependencies
+    • Starts watch mode for TDD
+end note
+
+note bottom of "Setup Environment CLI"
+    **Environment Automation**
+    • Clones repositories
+    • Installs software
+    • Configures SSH & Git
+    • Sets up npmrc
+end note
+
+note left of clean
+    **Cleanup Operations**
+    • Removes virtual environment
+    • Clears Python caches
+    • Deletes test artifacts
+    • Cleans ruff cache
+end note
+
+note right of "AWS Credentials"
+    **AWS SSO Integration**
+    • Interactive account selection
+    • Multiple shell formats (bash, zsh, fish, PS)
+    • Temporary credential management
+    • Automatic token refresh
+end note
+
+note top of testcov
+    **Test Coverage Requirements**
+    • Minimum 80% coverage required
+    • Comprehensive unit tests
+    • Integration test coverage
+    • AWS services fully tested
+end note
+
+@enduml

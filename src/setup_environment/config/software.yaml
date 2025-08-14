@@ -1,0 +1,158 @@
+software:
+  - name: GitHub CLI
+    description: "GitHub's official command line tool"
+    check_command: "gh --version"
+    install_command: "brew install gh"
+    required: true
+    
+  - name: AWS CLI
+    description: "Amazon Web Services command line interface"
+    check_command: "aws --version"
+    install_command: "brew install awscli"
+    required: true
+    
+  - name: Azure CLI
+    description: "Microsoft Azure command line interface"
+    check_command: "az --version"
+    install_command: "brew install azure-cli"
+    required: true
+    
+  - name: Zsh
+    description: "Z shell"
+    check_command: "zsh --version"
+    install_command: "brew install zsh"
+    required: false
+    
+  - name: Terraform
+    description: "Infrastructure as Code tool"
+    check_command: "terraform --version"
+    install_command: "brew install terraform"
+    required: true
+    
+  - name: Oh My Zsh
+    description: "Zsh configuration framework"
+    check_command: "test -d $HOME/.oh-my-zsh"
+    install_command: 'sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"'
+    custom_install: true
+    required: false
+    
+  - name: iTerm2
+    description: "Terminal emulator for macOS"
+    check_command: "test -d /Applications/iTerm.app"
+    install_command: "brew install --cask iterm2"
+    required: false
+    
+  - name: Slack
+    description: "Team communication and collaboration platform"
+    check_command: "test -d /Applications/Slack.app"
+    install_command: "brew install --cask slack"
+    required: false
+    
+  - name: Cursor
+    description: "AI-powered code editor built on VS Code"
+    check_command: "test -d /Applications/Cursor.app"
+    install_command: "brew install --cask cursor"
+    required: false
+    
+  - name: Claude Code
+    description: "Anthropic's official CLI for Claude"
+    check_command: "claude --version"
+    install_command: "npm install -g @anthropic-ai/claude-code"
+    required: false
+    
+  - name: Visual Studio Code
+    description: "Open-source code editor from Microsoft"
+    check_command: "test -d /Applications/Visual\\ Studio\\ Code.app"
+    install_command: "brew install --cask visual-studio-code"
+    required: false
+    
+  - name: Rectangle
+    description: "Window management app for macOS"
+    check_command: "test -d /Applications/Rectangle.app"
+    install_command: "brew install --cask rectangle"
+    required: false
+    
+  - name: Docker Desktop
+    description: "Docker containerization platform"
+    check_command: "test -d /Applications/Docker.app"
+    install_command: "brew install --cask docker"
+    required: false
+    
+  - name: AltTab
+    description: "Windows-style alt-tab window switcher for macOS"
+    check_command: "test -d /Applications/AltTab.app"
+    install_command: "brew install --cask alt-tab"
+    required: false
+    
+  - name: Google Chrome
+    description: "Web browser from Google"
+    check_command: "test -d /Applications/Google\\ Chrome.app"
+    install_command: "brew install --cask google-chrome"
+    required: false
+    
+  - name: Brave Browser
+    description: "Privacy-focused web browser with no adverts in youtube videos"
+    check_command: "test -d /Applications/Brave\\ Browser.app"
+    install_command: "brew install --cask brave-browser"
+    required: false
+    
+  - name: Postman
+    description: "API development and testing platform"
+    check_command: "test -d /Applications/Postman.app"
+    install_command: "brew install --cask postman"
+    required: false
+    
+  - name: Xcode
+    description: "Apple's integrated development environment"
+    check_command: "test -d /Applications/Xcode.app"
+    install_command: "mas install 497799835"
+    custom_install: true
+    required: false
+    
+  - name: Android Studio
+    description: "IDE for Android development"
+    check_command: "test -d /Applications/Android\\ Studio.app"
+    install_command: "brew install --cask android-studio"
+    required: false
+    
+  - name: Firefox
+    description: "Open-source web browser from Mozilla"
+    check_command: "test -d /Applications/Firefox.app"
+    install_command: "brew install --cask firefox"
+    required: false
+    
+  - name: OpenJDK
+    description: "Open-source Java Development Kit"
+    check_command: "java --version"
+    install_command: "brew install openjdk"
+    required: false
+    
+  - name: PlantUML
+    description: "UML diagram generation tool"
+    check_command: "plantuml -version"
+    install_command: "brew install plantuml"
+    required: false
+    
+  - name: Mermaid CLI
+    description: "Diagram generation from text definitions"
+    check_command: "mmdc --version"
+    install_command: "npm install -g @mermaid-js/mermaid-cli"
+    required: false
+    
+  - name: GIMP
+    description: "GNU Image Manipulation Program for graphics editing"
+    check_command: "test -d /Applications/GIMP-2.10.app"
+    install_command: "brew install --cask gimp"
+    required: false
+    
+  - name: ADR Tools
+    description: "Command-line tools for working with Architecture Decision Records"
+    check_command: "adr-tools version"
+    install_command: "brew install adr-tools"
+    required: false
+    
+  - name: Raycast
+    description: "Productivity launcher and command palette for macOS"
+    check_command: "test -d /Applications/Raycast.app"
+    install_command: "brew install --cask raycast"
+    required: false

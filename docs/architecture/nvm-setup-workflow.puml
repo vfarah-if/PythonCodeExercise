@@ -1,0 +1,215 @@
+@startuml nvm-setup-workflow
+
+title NVM Setup Workflow\nAutomatic Node Version Manager Installation and Configuration
+
+start
+
+:Check if NVM is installed;
+note right: Execute: source ~/.nvm/nvm.sh && nvm --version
+
+if (NVM installed?) then (yes)
+    :Get current Node.js version;
+    note right: Execute: source ~/.nvm/nvm.sh && node --version
+    
+    if (Node.js installed?) then (yes)
+        :Show current Node.js version;
+        :NVM setup complete;
+        stop
+    else (no)
+        :Proceed to install Node.js;
+    endif
+else (no)
+    :Prompt user: "NVM not found. Install now?";
+    if (User confirms?) then (no)
+        :Show manual NVM installation instructions;
+        note left
+            **Manual Installation:**
+            1. Visit https://github.com/nvm-sh/nvm
+            2. Run installation script:
+               curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+            3. Add to shell profile:
+               export NVM_DIR="$HOME/.nvm"
+               [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            4. Restart terminal or source profile
+            5. Verify: nvm --version
+        end note
+        stop
+    else (yes)
+        :Download and run NVM installation script;
+        note right
+            Command: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+            Timeout: 5 minutes
+        end note
+        
+        if (Installation successful?) then (no)
+            :Show error message;
+            :Provide troubleshooting steps;
+            note left
+                **Troubleshooting:**
+                • Check internet connection
+                • Verify curl is installed
+                • Check proxy settings
+                • Try wget alternative
+                • Check file permissions in $HOME
+            end note
+            stop
+        else (yes)
+            :Verify NVM installation;
+            note right: Execute: source ~/.nvm/nvm.sh && nvm --version
+            
+            if (Verification successful?) then (no)
+                :Show shell configuration instructions;
+                note left
+                    **Shell Configuration Required:**
+                    Add to ~/.bashrc, ~/.zshrc, or ~/.profile:
+                    
+                    export NVM_DIR="$HOME/.nvm"
+                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+                    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+                    
+                    Then restart terminal or run:
+                    source ~/.bashrc (or appropriate file)
+                end note
+                stop
+            endif
+        endif
+    endif
+endif
+
+:Determine Node.js version to install;
+note right
+    Options:
+    • --lts: Latest LTS version (recommended)
+    • node: Latest stable version
+    • Specific: e.g., 18.17.0, 20.11.0
+end note
+
+:Prompt: "Install Node.js LTS?";
+if (User confirms?) then (no)
+    :Skip Node.js installation;
+    :Show manual Node.js commands;
+    note left
+        **Manual Node.js Installation:**
+        • LTS: nvm install --lts
+        • Latest: nvm install node
+        • Specific: nvm install 18.17.0
+        • List available: nvm ls-remote
+        • Use version: nvm use <version>
+        • Set default: nvm alias default <version>
+    end note
+    stop
+else (yes)
+    :Execute NVM install command;
+    note right
+        Command: source ~/.nvm/nvm.sh && nvm install --lts
+        Also runs:
+        • nvm use --lts
+        • nvm alias default lts/*
+        Timeout: 10 minutes
+    end note
+    
+    if (Installation successful?) then (yes)
+        :Verify Node.js installation;
+        note right: Execute: node --version && npm --version
+        
+        :Display installed versions;
+        :Set as default Node.js version;
+        
+        :Test npm functionality;
+        if (npm working?) then (yes)
+            :Show success message;
+            :Node.js environment ready;
+        else (no)
+            :Attempt npm reinstall;
+            note right: nvm install-latest-npm
+        endif
+    else (no)
+        :Show installation error;
+        :Provide debugging steps;
+        note left
+            **Debugging Steps:**
+            1. Check available versions: nvm ls-remote --lts
+            2. Check network: curl -I https://nodejs.org
+            3. Clear cache: nvm cache clear
+            4. Try specific version: nvm install 20.11.0
+            5. Check disk space: df -h
+            6. Review logs: ~/.nvm/nvm-debug.log
+        end note
+        stop
+    endif
+endif
+
+:Setup complete;
+:Show final configuration;
+note right
+    **Installed Components:**
+    • NVM version: $(nvm --version)
+    • Node.js version: $(node --version)
+    • npm version: $(npm --version)
+    • Default alias: $(nvm alias default)
+    
+    **Useful NVM Commands:**
+    • List installed: nvm ls
+    • List available: nvm ls-remote
+    • Switch version: nvm use <version>
+    • Uninstall: nvm uninstall <version>
+    • Run with version: nvm run <version> <script>
+end note
+
+stop
+
+note left
+    **NVM Installation Details**
+    URL: https://github.com/nvm-sh/nvm
+    Version: v0.40.1 (latest stable)
+    Method: Official installation script via curl
+    Location: ~/.nvm
+    
+    **How NVM Works**
+    • Shell function, not a binary
+    • Modifies PATH dynamically
+    • Manages multiple Node.js versions
+    • Downloads from nodejs.org
+    • Stores versions in ~/.nvm/versions/node/
+    
+    **CLI Detection Method**
+    Instead of checking directories, we now:
+    1. Source the NVM script
+    2. Execute 'nvm --version'
+    3. Check return code and output
+    Benefits:
+    • Works with any installation method
+    • Detects broken installations
+    • Consistent with other CLI tools
+    
+    **Node.js Version Strategy**
+    LTS (Long Term Support):
+    • Recommended for production
+    • Even-numbered versions (18, 20, 22)
+    • 30-month support cycle
+    
+    Latest/Current:
+    • Newest features
+    • Odd-numbered versions experimental
+    • Use 'nvm install node'
+    
+    **Error Recovery**
+    Common issues and solutions:
+    1. Command not found
+       → Source NVM in shell profile
+    2. Permission denied
+       → Check ~/.nvm ownership
+    3. Download failed
+       → Proxy/firewall settings
+    4. Version not found
+       → Update NVM itself
+    
+    **Integration with npm Packages**
+    Global packages that need npm:
+    • @anthropic-ai/claude-code
+    • @mermaid-js/mermaid-cli
+    • Other Node.js-based tools
+    These require Node.js/npm to be installed first
+end note
+
+@enduml
